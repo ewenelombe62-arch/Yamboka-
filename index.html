@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -61,6 +62,18 @@ button:hover{
 opacity:.9;
 }
 
+button.green{
+background:#159447;
+}
+
+button.red{
+background:#d93636;
+}
+
+button.blue{
+background:#1479d1;
+}
+
 input,
 select{
 width:100%;
@@ -88,6 +101,25 @@ background:#eef7ff;
 color:#0877c9;
 }
 
+.status{
+padding:12px;
+border-radius:10px;
+margin:10px 0;
+font-weight:bold;
+text-align:center;
+background:#eee;
+}
+
+.status.available{
+background:#d9f8e3;
+color:#08752d;
+}
+
+.status.offline{
+background:#ffe0e0;
+color:#a00000;
+}
+
 #map{
 width:100%;
 height:350px;
@@ -112,7 +144,16 @@ margin:10px 0;
 font-weight:bold;
 }
 
+.driver-box{
+border:1px solid #ddd;
+padding:15px;
+border-radius:12px;
+margin-top:15px;
+background:#fafafa;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -126,7 +167,9 @@ Votre transport, simplement.
 </div>
 
 
-<!-- ACCUEIL -->
+<!-- =========================
+ACCUEIL
+========================= -->
 
 <div id="accueil" class="section active">
 
@@ -141,12 +184,13 @@ Votre transport, simplement.
 </div>
 
 
-<!-- CLIENT -->
+<!-- =========================
+CLIENT
+========================= -->
 
 <div id="client" class="section">
 
 <h2>Demander une course</h2>
-
 
 <label>Nom</label>
 
@@ -156,7 +200,6 @@ type="text"
 placeholder="Votre nom"
 >
 
-
 <label>Téléphone</label>
 
 <input
@@ -164,7 +207,6 @@ id="telephoneClient"
 type="tel"
 placeholder="Votre téléphone"
 >
-
 
 <label>Lieu de départ</label>
 
@@ -174,7 +216,6 @@ type="text"
 placeholder="Lieu de départ"
 >
 
-
 <label>Destination</label>
 
 <input
@@ -182,7 +223,6 @@ id="destination"
 type="text"
 placeholder="Destination"
 >
-
 
 <label>Type de véhicule</label>
 
@@ -198,7 +238,6 @@ Voiture
 
 </select>
 
-
 <label>Prix proposé (FC)</label>
 
 <input
@@ -207,13 +246,11 @@ type="number"
 placeholder="Exemple : 10000"
 >
 
-
 <button onclick="utiliserMaPosition()">
 
 📍 UTILISER MA POSITION
 
 </button>
-
 
 <div
 id="gpsMessage"
@@ -224,22 +261,18 @@ GPS non utilisé
 
 </div>
 
-
 <div id="map"></div>
-
 
 <div
 id="message"
 class="message"
 ></div>
 
-
 <button onclick="demanderCourse()">
 
 🚕 DEMANDER UNE COURSE
 
 </button>
-
 
 <button onclick="retourAccueil()">
 
@@ -250,12 +283,13 @@ class="message"
 </div>
 
 
-
-<!-- CHAUFFEUR -->
+<!-- =========================
+CHAUFFEUR
+========================= -->
 
 <div id="chauffeur" class="section">
 
-<h2>Espace chauffeur</h2>
+<h2>🚗 Espace chauffeur</h2>
 
 
 <label>Nom du chauffeur</label>
@@ -276,11 +310,66 @@ placeholder="Votre téléphone"
 >
 
 
-<button onclick="afficherCourses()">
+<div
+id="chauffeurStatus"
+class="status offline"
+>
 
-📋 VOIR LES COURSES
+🔴 Chauffeur hors ligne
+
+</div>
+
+
+<button
+id="boutonDisponibilite"
+class="green"
+onclick="changerDisponibilite()"
+>
+
+🟢 DEVENIR DISPONIBLE
 
 </button>
+
+
+<button
+class="blue"
+onclick="obtenirPositionChauffeur()"
+>
+
+📍 ACTIVER GPS CHAUFFEUR
+
+</button>
+
+
+<div
+id="gpsChauffeurMessage"
+class="gps-info"
+>
+
+GPS chauffeur non activé
+
+</div>
+
+
+<div
+id="courseActive"
+class="driver-box"
+>
+
+<strong>🚕 Aucune course active</strong>
+
+</div>
+
+
+<h3>📋 Courses disponibles</h3>
+
+<div id="listeCourses">
+
+<p>
+Appuyez sur « Devenir disponible ».
+</p>
+
+</div>
 
 
 <button onclick="retourAccueil()">
@@ -289,25 +378,23 @@ placeholder="Votre téléphone"
 
 </button>
 
-
-<div id="listeCourses"></div>
-
 </div>
 
 </div>
 
 
+<!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
+<!-- LEAFLET -->
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
-
 <script>
-
 
 /* =========================
 FIREBASE
@@ -345,9 +432,8 @@ const database =
 firebase.database();
 
 
-
 /* =========================
-GPS
+VARIABLES CLIENT
 ========================= */
 
 let latitudeClient = null;
@@ -358,6 +444,20 @@ let map = null;
 
 let marker = null;
 
+
+/* =========================
+VARIABLES CHAUFFEUR
+========================= */
+
+let chauffeurDisponible = false;
+
+let latitudeChauffeur = null;
+
+let longitudeChauffeur = null;
+
+let courseActiveId = null;
+
+let chauffeurWatchId = null;
 
 
 /* =========================
@@ -388,7 +488,6 @@ initialiserCarte();
 }
 
 
-
 /* =========================
 AFFICHER CHAUFFEUR
 ========================= */
@@ -408,7 +507,6 @@ document
 .classList.add("active");
 
 }
-
 
 
 /* =========================
@@ -432,9 +530,8 @@ document
 }
 
 
-
 /* =========================
-CARTE
+CARTE CLIENT
 ========================= */
 
 function initialiserCarte(){
@@ -473,9 +570,8 @@ attribution:
 }
 
 
-
 /* =========================
-UTILISER GPS
+GPS CLIENT
 ========================= */
 
 function utiliserMaPosition(){
@@ -583,7 +679,6 @@ maximumAge:0
 }
 
 
-
 /* =========================
 DEMANDER COURSE
 ========================= */
@@ -591,7 +686,6 @@ DEMANDER COURSE
 function demanderCourse(){
 
 const nom =
-
 document
 .getElementById("nomClient")
 .value
@@ -599,7 +693,6 @@ document
 
 
 const telephone =
-
 document
 .getElementById("telephoneClient")
 .value
@@ -607,7 +700,6 @@ document
 
 
 const depart =
-
 document
 .getElementById("depart")
 .value
@@ -615,7 +707,6 @@ document
 
 
 const destination =
-
 document
 .getElementById("destination")
 .value
@@ -623,24 +714,20 @@ document
 
 
 const vehicule =
-
 document
 .getElementById("vehicule")
 .value;
 
 
 const prix =
-
 document
 .getElementById("prix")
 .value;
 
 
 const message =
-
 document
 .getElementById("message");
-
 
 
 if(
@@ -661,16 +748,12 @@ message.style.color =
 "red";
 
 message.innerHTML =
-
 "❌ Veuillez remplir tous les champs.";
 
 return;
 
 }
 
-
-
-/* COURSE */
 
 const course = {
 
@@ -692,15 +775,11 @@ vehicule,
 prix:
 Number(prix),
 
-
-/* GPS CLIENT */
-
 latitudeClient:
 latitudeClient,
 
 longitudeClient:
 longitudeClient,
-
 
 statut:
 "en_attente",
@@ -711,14 +790,17 @@ nomChauffeur:
 telephoneChauffeur:
 "",
 
+latitudeChauffeur:
+null,
+
+longitudeChauffeur:
+null,
+
 date:
 new Date().toISOString()
 
 };
 
-
-
-/* ENREGISTRER */
 
 database
 .ref("courses")
@@ -730,7 +812,6 @@ message.style.color =
 "green";
 
 message.innerHTML =
-
 "✅ Course enregistrée !";
 
 
@@ -754,7 +835,6 @@ message.style.color =
 "red";
 
 message.innerHTML =
-
 "❌ Erreur : " +
 error.message;
 
@@ -763,21 +843,250 @@ error.message;
 }
 
 
+/* =========================
+CHANGER DISPONIBILITE
+========================= */
+
+function changerDisponibilite(){
+
+const nom =
+document
+.getElementById("nomChauffeur")
+.value
+.trim();
+
+
+const telephone =
+document
+.getElementById("telephoneChauffeur")
+.value
+.trim();
+
+
+if(nom === "" || telephone === ""){
+
+alert(
+"Veuillez remplir le nom et le téléphone du chauffeur."
+);
+
+return;
+
+}
+
+
+chauffeurDisponible =
+!chauffeurDisponible;
+
+
+const status =
+document
+.getElementById("chauffeurStatus");
+
+
+const bouton =
+document
+.getElementById("boutonDisponibilite");
+
+
+if(chauffeurDisponible){
+
+status.className =
+"status available";
+
+status.innerHTML =
+"🟢 Chauffeur disponible";
+
+
+bouton.innerHTML =
+"🔴 DEVENIR HORS LIGNE";
+
+
+bouton.className =
+"red";
+
+
+obtenirPositionChauffeur();
+
+afficherCourses();
+
+}else{
+
+status.className =
+"status offline";
+
+status.innerHTML =
+"🔴 Chauffeur hors ligne";
+
+
+bouton.innerHTML =
+"🟢 DEVENIR DISPONIBLE";
+
+
+bouton.className =
+"green";
+
+
+if(chauffeurWatchId !== null){
+
+navigator.geolocation.clearWatch(
+chauffeurWatchId
+);
+
+chauffeurWatchId = null;
+
+}
+
+
+document
+.getElementById("listeCourses")
+.innerHTML =
+"<p>🔴 Vous êtes hors ligne.</p>";
+
+}
+
+}
+
 
 /* =========================
-AFFICHER COURSES CHAUFFEUR
+GPS CHAUFFEUR
+========================= */
+
+function obtenirPositionChauffeur(){
+
+if(!navigator.geolocation){
+
+document
+.getElementById("gpsChauffeurMessage")
+.innerHTML =
+"❌ GPS non disponible.";
+
+return;
+
+}
+
+
+chauffeurWatchId =
+navigator.geolocation.watchPosition(
+
+function(position){
+
+latitudeChauffeur =
+position.coords.latitude;
+
+longitudeChauffeur =
+position.coords.longitude;
+
+
+document
+.getElementById("gpsChauffeurMessage")
+.innerHTML =
+
+"📍 Position chauffeur : " +
+
+latitudeChauffeur.toFixed(6) +
+
+", " +
+
+longitudeChauffeur.toFixed(6);
+
+
+/*
+ENREGISTRER LA POSITION
+DU CHAUFFEUR
+*/
+
+database
+.ref("chauffeurs")
+.child(
+telephoneChauffeur()
+)
+.update({
+
+nom:
+document
+.getElementById("nomChauffeur")
+.value
+.trim(),
+
+telephone:
+telephoneChauffeur(),
+
+disponible:
+chauffeurDisponible,
+
+latitude:
+latitudeChauffeur,
+
+longitude:
+longitudeChauffeur,
+
+derniereMiseAJour:
+firebase.database.ServerValue.TIMESTAMP
+
+});
+
+},
+
+
+function(){
+
+document
+.getElementById("gpsChauffeurMessage")
+.innerHTML =
+"❌ Autorisez le GPS du chauffeur.";
+
+},
+
+
+{
+
+enableHighAccuracy:true,
+
+timeout:15000,
+
+maximumAge:5000
+
+}
+
+);
+
+}
+
+
+/* =========================
+TELEPHONE CHAUFFEUR
+========================= */
+
+function telephoneChauffeur(){
+
+return document
+.getElementById("telephoneChauffeur")
+.value
+.trim()
+.replace(/[.#$/\[\]]/g,"_");
+
+}
+
+
+/* =========================
+AFFICHER COURSES
 ========================= */
 
 function afficherCourses(){
 
-const liste =
+if(!chauffeurDisponible){
 
+return;
+
+}
+
+
+const liste =
 document
 .getElementById("listeCourses");
 
 
 liste.innerHTML =
-
 "<p>⏳ Chargement des courses...</p>";
 
 
@@ -785,7 +1094,6 @@ database
 .ref("courses")
 .orderByChild("statut")
 .equalTo("en_attente")
-
 .on(
 
 "value",
@@ -798,7 +1106,6 @@ liste.innerHTML = "";
 if(!snapshot.exists()){
 
 liste.innerHTML =
-
 "<p>🚕 Aucune course disponible.</p>";
 
 return;
@@ -817,8 +1124,12 @@ const id =
 child.key;
 
 
+const div =
+document.createElement("div");
 
-/* GPS BUTTON */
+div.className =
+"course";
+
 
 let gpsButton = "";
 
@@ -835,20 +1146,14 @@ course.longitudeClient !== undefined
 
 ){
 
-gpsButton =
-
-`
+gpsButton = `
 
 <button
-
+class="blue"
 onclick="voirPositionClient(
-
 ${course.latitudeClient},
-
 ${course.longitudeClient}
-
 )"
-
 >
 
 🗺️ VOIR POSITION DU CLIENT
@@ -860,54 +1165,32 @@ ${course.longitudeClient}
 }
 
 
-
-/* COURSE */
-
-const div =
-document.createElement("div");
-
-div.className =
-"course";
-
-
-div.innerHTML =
-
-`
+div.innerHTML = `
 
 <strong>👤 Client :</strong>
-
 ${course.nomClient || ""}
 
 <br><br>
 
-
 <strong>📞 Téléphone :</strong>
-
 ${course.telephoneClient || ""}
 
 <br><br>
 
-
 <strong>📍 Départ :</strong>
-
 ${course.depart || ""}
 
 <br><br>
 
-
 <strong>🏁 Destination :</strong>
-
 ${course.destination || ""}
 
 <br><br>
 
-
 <strong>🚗 Véhicule :</strong>
-
 ${course.vehicule || ""}
 
 <br><br>
-
 
 <strong>💰 Prix :</strong>
 
@@ -916,14 +1199,11 @@ ${Number(course.prix || 0)
 
  FC
 
-
 ${gpsButton}
 
-
 <button
-
+class="green"
 onclick="accepterCourse('${id}')"
-
 >
 
 🟢 ACCEPTER LA COURSE
@@ -931,7 +1211,6 @@ onclick="accepterCourse('${id}')"
 </button>
 
 `;
-
 
 liste.appendChild(div);
 
@@ -946,27 +1225,19 @@ liste.appendChild(div);
 }
 
 
-
 /* =========================
 VOIR POSITION CLIENT
 ========================= */
 
 function voirPositionClient(
-
 latitude,
-
 longitude
-
 ){
 
 const url =
-
 "https://www.google.com/maps?q=" +
-
 latitude +
-
 "," +
-
 longitude;
 
 
@@ -978,48 +1249,49 @@ url,
 }
 
 
-
 /* =========================
 ACCEPTER COURSE
 ========================= */
 
 function accepterCourse(id){
 
-const nomChauffeur =
-
-document
-.getElementById("nomChauffeur")
-.value
-.trim();
-
-
-const telephoneChauffeur =
-
-document
-.getElementById("telephoneChauffeur")
-.value
-.trim();
-
-
-
-if(
-
-nomChauffeur === "" ||
-
-telephoneChauffeur === ""
-
-){
+if(!chauffeurDisponible){
 
 alert(
-
-"Veuillez remplir le nom et le téléphone du chauffeur."
-
+"Vous devez être disponible pour accepter une course."
 );
 
 return;
 
 }
 
+
+const nom =
+document
+.getElementById("nomChauffeur")
+.value
+.trim();
+
+
+const telephone =
+document
+.getElementById("telephoneChauffeur")
+.value
+.trim();
+
+
+if(nom === "" || telephone === ""){
+
+alert(
+"Veuillez remplir les informations du chauffeur."
+);
+
+return;
+
+}
+
+
+courseActiveId = id;
 
 
 database
@@ -1030,10 +1302,16 @@ statut:
 "acceptee",
 
 nomChauffeur:
-nomChauffeur,
+nom,
 
 telephoneChauffeur:
-telephoneChauffeur
+telephone,
+
+latitudeChauffeur:
+latitudeChauffeur,
+
+longitudeChauffeur:
+longitudeChauffeur
 
 })
 
@@ -1043,17 +1321,16 @@ alert(
 "✅ Course acceptée !"
 );
 
-afficherCourses();
+
+afficherCourseActive();
 
 })
 
 .catch(function(error){
 
 alert(
-
 "❌ Erreur : " +
 error.message
-
 );
 
 });
@@ -1061,7 +1338,329 @@ error.message
 }
 
 
+/* =========================
+COURSE ACTIVE
+========================= */
+
+function afficherCourseActive(){
+
+if(!courseActiveId){
+
+return;
+
+}
+
+
+database
+.ref(
+"courses/" +
+courseActiveId
+)
+.on(
+
+"value",
+
+function(snapshot){
+
+if(!snapshot.exists()){
+
+return;
+
+}
+
+
+const course =
+snapshot.val();
+
+
+const zone =
+document
+.getElementById("courseActive");
+
+
+let bouton = "";
+
+
+if(course.statut === "acceptee"){
+
+bouton = `
+
+<button
+class="blue"
+onclick="mettreEnRoute()"
+>
+
+🚗 EN ROUTE VERS LE CLIENT
+
+</button>
+
+`;
+
+}
+
+
+else if(course.statut === "en_route"){
+
+bouton = `
+
+<button
+class="green"
+onclick="clientRecupere()"
+>
+
+👤 CLIENT RÉCUPÉRÉ
+
+</button>
+
+`;
+
+}
+
+
+else if(course.statut === "client_recupere"){
+
+bouton = `
+
+<button
+class="green"
+onclick="terminerCourse()"
+>
+
+🏁 TERMINER LA COURSE
+
+</button>
+
+`;
+
+}
+
+
+else if(course.statut === "terminee"){
+
+bouton = `
+
+<div class="status available">
+
+✅ COURSE TERMINÉE
+
+</div>
+
+`;
+
+}
+
+
+zone.innerHTML = `
+
+<strong>🚕 COURSE ACTIVE</strong>
+
+<br><br>
+
+<strong>👤 Client :</strong>
+${course.nomClient || ""}
+
+<br><br>
+
+<strong>📞 Téléphone :</strong>
+${course.telephoneClient || ""}
+
+<br><br>
+
+<strong>📍 Départ :</strong>
+${course.depart || ""}
+
+<br><br>
+
+<strong>🏁 Destination :</strong>
+${course.destination || ""}
+
+<br><br>
+
+<strong>💰 Prix :</strong>
+${Number(course.prix || 0)
+.toLocaleString("fr-FR")} FC
+
+<br><br>
+
+<strong>📌 Statut :</strong>
+${traduireStatut(course.statut)}
+
+${bouton}
+
+`;
+
+}
+
+);
+
+}
+
+
+/* =========================
+TRADUIRE STATUT
+========================= */
+
+function traduireStatut(statut){
+
+if(statut === "en_attente")
+return "⏳ En attente";
+
+if(statut === "acceptee")
+return "✅ Course acceptée";
+
+if(statut === "en_route")
+return "🚗 Chauffeur en route";
+
+if(statut === "client_recupere")
+return "👤 Client récupéré";
+
+if(statut === "terminee")
+return "🏁 Course terminée";
+
+return statut;
+
+}
+
+
+/* =========================
+EN ROUTE
+========================= */
+
+function mettreEnRoute(){
+
+if(!courseActiveId){
+
+return;
+
+}
+
+
+database
+.ref(
+"courses/" +
+courseActiveId
+)
+.update({
+
+statut:
+"en_route",
+
+latitudeChauffeur:
+latitudeChauffeur,
+
+longitudeChauffeur:
+longitudeChauffeur
+
+})
+
+.then(function(){
+
+alert(
+"🚗 Vous êtes maintenant en route vers le client."
+);
+
+});
+
+}
+
+
+/* =========================
+CLIENT RECUPERE
+========================= */
+
+function clientRecupere(){
+
+if(!courseActiveId){
+
+return;
+
+}
+
+
+database
+.ref(
+"courses/" +
+courseActiveId
+)
+.update({
+
+statut:
+"client_recupere",
+
+latitudeChauffeur:
+latitudeChauffeur,
+
+longitudeChauffeur:
+longitudeChauffeur
+
+})
+
+.then(function(){
+
+alert(
+"👤 Client récupéré. Bonne course !"
+);
+
+});
+
+}
+
+
+/* =========================
+TERMINER COURSE
+========================= */
+
+function terminerCourse(){
+
+if(!courseActiveId){
+
+return;
+
+}
+
+
+database
+.ref(
+"courses/" +
+courseActiveId
+)
+.update({
+
+statut:
+"terminee",
+
+latitudeChauffeur:
+latitudeChauffeur,
+
+longitudeChauffeur:
+longitudeChauffeur,
+
+heureFin:
+new Date().toISOString()
+
+})
+
+.then(function(){
+
+alert(
+"🏁 Course terminée !"
+);
+
+
+courseActiveId = null;
+
+
+document
+.getElementById("courseActive")
+.innerHTML =
+
+"<strong>🚕 Aucune course active</strong>";
+
+});
+
+}
+
 </script>
 
 </body>
-    </html>
+</html>
