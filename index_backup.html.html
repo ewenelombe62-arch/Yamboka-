@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAMBOKA</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f6f8;
+}
+
+header {
+    background: #ff7900;
+    color: white;
+    text-align: center;
+    padding: 25px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 38px;
+}
+
+.container {
+    max-width: 550px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    margin-bottom: 18px;
+    border-radius: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #ff7900;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.dark {
+    background: #333;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 14px;
+    margin-top: 7px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    font-size: 16px;
+}
+
+label {
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+.course {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+}
+
+.message {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>YAMBOKA</h1>
+    <p>Votre transport, simplement.</p>
+</header>
+
+<div class="container">
+
+<!-- CHOIX DU PROFIL -->
+
+<div class="card">
+
+    <h2>Bienvenue 👋</h2>
+
+    <button onclick="afficherClient()">
+        🧑 CLIENT
+    </button>
+
+    <button class="dark" onclick="afficherChauffeur()">
+        🚗 CHAUFFEUR
+    </button>
+
+</div>
+
+
+<!-- CLIENT -->
+
+<div id="client" class="card hidden">
+
+    <h2>🧑 Informations client</h2>
+
+    <label>Nom</label>
+    <input
+        id="nomClient"
+        type="text"
+        placeholder="Votre nom"
+    >
+
+    <label>Téléphone</label>
+    <input
+        id="telephoneClient"
+        type="tel"
+        placeholder="Exemple : 0812345678"
+    >
+
+    <h2>🚕 Demander une course</h2>
+
+    <label>Lieu de départ</label>
+    <input
+        id="depart"
+        type="text"
+        placeholder="Exemple : Gombe"
+    >
+
+    <label>Destination</label>
+    <input
+        id="destination"
+        type="text"
+        placeholder="Exemple : Limete"
+    >
+
+    <label>Type de véhicule</label>
+
+    <select id="vehicule">
+
+        <option value="Moto">
+            🏍️ Moto
+        </option>
+
+        <option value="Voiture">
+            🚗 Voiture
+        </option>
+
+    </select>
+
+    <label>Prix proposé (FC)</label>
+
+    <input
+        id="prix"
+        type="number"
+        placeholder="Exemple : 5000"
+    >
+
+    <button onclick="demanderCourse()">
+        🚕 DEMANDER UNE COURSE
+    </button>
+
+    <div
+        id="message"
+        class="message">
+    </div>
+
+</div>
+
+
+<!-- CHAUFFEUR -->
+
+<div id="chauffeur" class="card hidden">
+
+    <h2>🚗 Espace Chauffeur</h2>
+
+    <label>Nom du chauffeur</label>
+
+    <input
+        id="nomChauffeur"
+        type="text"
+        placeholder="Votre nom"
+    >
+
+    <label>Téléphone du chauffeur</label>
+
+    <input
+        id="telephoneChauffeur"
+        type="tel"
+        placeholder="Exemple : 0812345678"
+    >
+
+    <button onclick="voirCourses()">
+        📋 VOIR LES COURSES
+    </button>
+
+    <div id="listeCourses"></div>
+
+</div>
+
+</div>
+
+
+<!-- FIREBASE -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+
+<script>
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyAkT203kMo4NorAa0mRJY-M2u4c8v8nZ1I",
+
+    authDomain:
+    "yamboka-77173.firebaseapp.com",
+
+    databaseURL:
+    "https://yamboka-77173-default-rtdb.firebaseio.com",
+
+    projectId:
+    "yamboka-77173",
+
+    storageBucket:
+    "yamboka-77173.firebasestorage.app",
+
+    messagingSenderId:
+    "1090966765176",
+
+    appId:
+    "1:1090966765176:web:8d0aa5734f7652410cb78d"
+
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const database = firebase.database();
+
+
+
+function afficherClient() {
+
+    document
+    .getElementById("client")
+    .classList.remove("hidden");
+
+    document
+    .getElementById("chauffeur")
+    .classList.add("hidden");
+}
+
+
+
+function afficherChauffeur() {
+
+    document
+    .getElementById("chauffeur")
+    .classList.remove("hidden");
+
+    document
+    .getElementById("client")
+    .classList.add("hidden");
+
+}
+
+
+
+function demanderCourse() {
+
+    const nom =
+    document.getElementById("nomClient").value.trim();
+
+    const telephone =
+    document.getElementById("telephoneClient").value.trim();
+
+    const depart =
+    document.getElementById("depart").value.trim();
+
+    const destination =
+    document.getElementById("destination").value.trim();
+
+    const vehicule =
+    document.getElementById("vehicule").value;
+
+    const prix =
+    document.getElementById("prix").value;
+
+    const message =
+    document.getElementById("message");
+
+
+    if (
+        nom === "" ||
+        telephone === "" ||
+        depart === "" ||
+        destination === "" ||
+        prix === ""
+    ) {
+
+        message.style.color = "red";
+
+        message.innerHTML =
+        "❌ Veuillez remplir tous les champs.";
+
+        return;
+    }
+
+
+    const course = {
+
+        nomClient: nom,
+
+        telephoneClient: telephone,
+
+        depart: depart,
+
+        destination: destination,
+
+        vehicule: vehicule,
+
+        prix: Number(prix),
+
+        statut: "en_attente",
+
+        nomChauffeur: "",
+
+        telephoneChauffeur: "",
+
+        date: new Date().toISOString()
+
+    };
+
+
+    database
+    .ref("courses")
+    .push(course)
+
+    .then(function() {
+
+        message.style.color = "green";
+
+        message.innerHTML =
+        "✅ Course enregistrée !";
+
+
+        document.getElementById("depart").value = "";
+
+        document.getElementById("destination").value = "";
+
+        document.getElementById("prix").value = "";
+
+    })
+
+    .catch(function(error) {
+
+        message.style.color = "red";
+
+        message.innerHTML =
+        "❌ Erreur : " + error.message;
+
+    });
+
+}
+
+
+
+function voirCourses() {
+
+    const liste =
+    document.getElementById("listeCourses");
+
+    const nomChauffeur =
+    document.getElementById("nomChauffeur").value.trim();
+
+    const telephoneChauffeur =
+    document.getElementById("telephoneChauffeur").value.trim();
+
+
+    if (
+        nomChauffeur === "" ||
+        telephoneChauffeur === ""
+    ) {
+
+        liste.innerHTML =
+        "❌ Entrez d'abord votre nom et votre téléphone.";
+
+        return;
+    }
+
+
+    liste.innerHTML =
+    "<p>Chargement des courses...</p>";
+
+
+    database
+    .ref("courses")
+    .once("value")
+
+    .then(function(snapshot) {
+
+        liste.innerHTML = "";
+
+
+        if (!snapshot.exists()) {
+
+            liste.innerHTML =
+            "<p>Aucune course disponible.</p>";
+
+            return;
+        }
+
+
+        snapshot.forEach(function(child) {
+
+            const course =
+            child.val();
+
+            const id =
+            child.key;
+
+
+            const div =
+            document.createElement("div");
+
+            div.className = "course";
+
+
+            div.innerHTML =
+
+            "<strong>📍 " +
+            course.depart +
+            " → " +
+            course.destination +
+            "</strong><br><br>" +
+
+            "🧑 Client : " +
+            course.nomClient +
+            "<br>" +
+
+            "📞 Téléphone : " +
+            course.telephoneClient +
+            "<br>" +
+
+            "🚗 Véhicule : " +
+            course.vehicule +
+            "<br>" +
+
+            "💰 Prix : " +
+            course.prix +
+            " FC<br>" +
+
+            "📌 Statut : " +
+            course.statut +
+            "<br><br>";
+
+
+            if (
+                course.statut ===
+                "en_attente"
+            ) {
+
+                const bouton =
+                document.createElement("button");
+
+                bouton.innerHTML =
+                "🟢 ACCEPTER LA COURSE";
+
+
+                bouton.onclick =
+                function() {
+
+                    accepterCourse(
+                        id,
+                        nomChauffeur,
+                        telephoneChauffeur
+                    );
+
+                };
+
+
+                div.appendChild(bouton);
+
+            }
+
+
+            liste.appendChild(div);
+
+        });
+
+    })
+
+    .catch(function(error) {
+
+        liste.innerHTML =
+        "❌ Erreur : " +
+        error.message;
+
+    });
+
+}
+
+
+
+function accepterCourse(
+    id,
+    nomChauffeur,
+    telephoneChauffeur
+) {
+
+    database
+    .ref("courses/" + id)
+    .update({
+
+        statut: "acceptee",
+
+        nomChauffeur:
+        nomChauffeur,
+
+        telephoneChauffeur:
+        telephoneChauffeur
+
+    })
+
+    .then(function() {
+
+        alert(
+        "✅ Course acceptée par " +
+        nomChauffeur
+        );
+
+        voirCourses();
+
+    })
+
+    .catch(function(error) {
+
+        alert(
+        "❌ Erreur : " +
+        error.message
+        );
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
