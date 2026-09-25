@@ -3,9 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>YAMBOKA</title>
 
+<!-- CARTE LEAFLET -->
+<link
+rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
 <style>
+
 * {
     box-sizing: border-box;
 }
@@ -52,7 +60,6 @@ button {
     color: white;
     font-size: 16px;
     font-weight: bold;
-    cursor: pointer;
 }
 
 .dark {
@@ -90,31 +97,53 @@ label {
     text-align: center;
     font-weight: bold;
 }
+
+#map {
+    width: 100%;
+    height: 350px;
+    margin-top: 15px;
+    border-radius: 12px;
+}
+
+.gps-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f1f1f1;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-    <h1>YAMBOKA</h1>
-    <p>Votre transport, simplement.</p>
+
+<h1>YAMBOKA</h1>
+
+<p>Votre transport, simplement.</p>
+
 </header>
 
+
 <div class="container">
+
 
 <!-- CHOIX DU PROFIL -->
 
 <div class="card">
 
-    <h2>Bienvenue 👋</h2>
+<h2>Bienvenue 👋</h2>
 
-    <button onclick="afficherClient()">
-        🧑 CLIENT
-    </button>
+<button onclick="afficherClient()">
+🧑 CLIENT
+</button>
 
-    <button class="dark" onclick="afficherChauffeur()">
-        🚗 CHAUFFEUR
-    </button>
+<button class="dark" onclick="afficherChauffeur()">
+🚗 CHAUFFEUR
+</button>
 
 </div>
 
@@ -123,68 +152,97 @@ label {
 
 <div id="client" class="card hidden">
 
-    <h2>🧑 Informations client</h2>
+<h2>🧑 Informations client</h2>
 
-    <label>Nom</label>
-    <input
-        id="nomClient"
-        type="text"
-        placeholder="Votre nom"
-    >
+<label>Nom</label>
 
-    <label>Téléphone</label>
-    <input
-        id="telephoneClient"
-        type="tel"
-        placeholder="Exemple : 0812345678"
-    >
+<input
+id="nomClient"
+type="text"
+placeholder="Votre nom"
+>
 
-    <h2>🚕 Demander une course</h2>
 
-    <label>Lieu de départ</label>
-    <input
-        id="depart"
-        type="text"
-        placeholder="Exemple : Gombe"
-    >
+<label>Téléphone</label>
 
-    <label>Destination</label>
-    <input
-        id="destination"
-        type="text"
-        placeholder="Exemple : Limete"
-    >
+<input
+id="telephoneClient"
+type="tel"
+placeholder="Exemple : 0812345678"
+>
 
-    <label>Type de véhicule</label>
 
-    <select id="vehicule">
+<h2>🚕 Demander une course</h2>
 
-        <option value="Moto">
-            🏍️ Moto
-        </option>
 
-        <option value="Voiture">
-            🚗 Voiture
-        </option>
+<label>Lieu de départ</label>
 
-    </select>
+<input
+id="depart"
+type="text"
+placeholder="Exemple : Gombe"
+>
 
-    <label>Prix proposé (FC)</label>
 
-    <input
-        id="prix"
-        type="number"
-        placeholder="Exemple : 5000"
-    >
+<button onclick="utiliserMaPosition()">
+📍 UTILISER MA POSITION
+</button>
 
-    <button onclick="demanderCourse()">
-        🚕 DEMANDER UNE COURSE
-    </button>
 
-    <div
-        id="message"
-        class="message">
-    </div>
+<div
+id="gpsMessage"
+class="gps-info">
+GPS non utilisé
+</div>
+
+
+<!-- CARTE -->
+
+<div id="map"></div>
+
+
+<label>Destination</label>
+
+<input
+id="destination"
+type="text"
+placeholder="Exemple : Limete"
+>
+
+
+<label>Type de véhicule</label>
+
+<select id="vehicule">
+
+<option value="Moto">
+🏍️ Moto
+</option>
+
+<option value="Voiture">
+🚗 Voiture
+</option>
+
+</select>
+
+
+<label>Prix proposé (FC)</label>
+
+<input
+id="prix"
+type="number"
+placeholder="Exemple : 5000"
+>
+
+
+<button onclick="demanderCourse()">
+🚕 DEMANDER UNE COURSE
+</button>
+
+
+<div
+id="message"
+class="message">
+</div>
 
 </div>
 
@@ -193,29 +251,33 @@ label {
 
 <div id="chauffeur" class="card hidden">
 
-    <h2>🚗 Espace Chauffeur</h2>
+<h2>🚗 Espace Chauffeur</h2>
 
-    <label>Nom du chauffeur</label>
 
-    <input
-        id="nomChauffeur"
-        type="text"
-        placeholder="Votre nom"
-    >
+<label>Nom du chauffeur</label>
 
-    <label>Téléphone du chauffeur</label>
+<input
+id="nomChauffeur"
+type="text"
+placeholder="Votre nom"
+>
 
-    <input
-        id="telephoneChauffeur"
-        type="tel"
-        placeholder="Exemple : 0812345678"
-    >
 
-    <button onclick="voirCourses()">
-        📋 VOIR LES COURSES
-    </button>
+<label>Téléphone du chauffeur</label>
 
-    <div id="listeCourses"></div>
+<input
+id="telephoneChauffeur"
+type="tel"
+placeholder="Exemple : 0812345678"
+>
+
+
+<button onclick="voirCourses()">
+📋 VOIR LES COURSES
+</button>
+
+
+<div id="listeCourses"></div>
 
 </div>
 
@@ -229,344 +291,760 @@ label {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 
+<!-- LEAFLET -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
 <script>
+
+
+/* =========================
+   FIREBASE
+========================= */
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyAkT203kMo4NorAa0mRJY-M2u4c8v8nZ1I",
+apiKey:
+"AIzaSyAkT203kMo4NorAa0mRJY-M2u4c8v8nZ1I",
 
-    authDomain:
-    "yamboka-77173.firebaseapp.com",
+authDomain:
+"yamboka-77173.firebaseapp.com",
 
-    databaseURL:
-    "https://yamboka-77173-default-rtdb.firebaseio.com",
+databaseURL:
+"https://yamboka-77173-default-rtdb.firebaseio.com",
 
-    projectId:
-    "yamboka-77173",
+projectId:
+"yamboka-77173",
 
-    storageBucket:
-    "yamboka-77173.firebasestorage.app",
+storageBucket:
+"yamboka-77173.firebasestorage.app",
 
-    messagingSenderId:
-    "1090966765176",
+messagingSenderId:
+"1090966765176",
 
-    appId:
-    "1:1090966765176:web:8d0aa5734f7652410cb78d"
+appId:
+"1:1090966765176:web:8d0aa5734f7652410cb78d"
 
 };
 
+
 firebase.initializeApp(firebaseConfig);
 
-const database = firebase.database();
+const database =
+firebase.database();
 
 
+
+/* =========================
+   VARIABLES GPS
+========================= */
+
+let latitudeClient = null;
+
+let longitudeClient = null;
+
+let map = null;
+
+let marker = null;
+
+
+
+/* =========================
+   AFFICHER CLIENT
+========================= */
 
 function afficherClient() {
 
-    document
-    .getElementById("client")
-    .classList.remove("hidden");
+document
+.getElementById("client")
+.classList.remove("hidden");
 
-    document
-    .getElementById("chauffeur")
-    .classList.add("hidden");
+document
+.getElementById("chauffeur")
+.classList.add("hidden");
+
+
+setTimeout(function() {
+
+initialiserCarte();
+
+}, 300);
+
 }
 
 
+
+/* =========================
+   AFFICHER CHAUFFEUR
+========================= */
 
 function afficherChauffeur() {
 
-    document
-    .getElementById("chauffeur")
-    .classList.remove("hidden");
+document
+.getElementById("chauffeur")
+.classList.remove("hidden");
 
-    document
-    .getElementById("client")
-    .classList.add("hidden");
+document
+.getElementById("client")
+.classList.add("hidden");
 
 }
 
 
+
+/* =========================
+   INITIALISER CARTE
+========================= */
+
+function initialiserCarte() {
+
+if (map !== null) {
+
+map.invalidateSize();
+
+return;
+
+}
+
+
+/* Position initiale : Kinshasa */
+
+map = L.map("map").setView(
+[-4.325, 15.322],
+12
+);
+
+
+L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+maxZoom: 19,
+attribution:
+'© OpenStreetMap'
+}
+).addTo(map);
+
+}
+
+
+
+/* =========================
+   UTILISER GPS
+========================= */
+
+function utiliserMaPosition() {
+
+const gpsMessage =
+document.getElementById("gpsMessage");
+
+
+if (!navigator.geolocation) {
+
+gpsMessage.style.color = "red";
+
+gpsMessage.innerHTML =
+"❌ GPS non disponible sur ce téléphone.";
+
+return;
+
+}
+
+
+gpsMessage.style.color = "#ff7900";
+
+gpsMessage.innerHTML =
+"📍 Recherche de votre position...";
+
+
+navigator.geolocation.getCurrentPosition(
+
+function(position) {
+
+
+latitudeClient =
+position.coords.latitude;
+
+longitudeClient =
+position.coords.longitude;
+
+
+/* Affichage coordonnées */
+
+gpsMessage.style.color = "green";
+
+gpsMessage.innerHTML =
+"✅ Position trouvée<br>" +
+"Latitude : " +
+latitudeClient.toFixed(6) +
+"<br>" +
+"Longitude : " +
+longitudeClient.toFixed(6);
+
+
+/* Déplacer la carte */
+
+initialiserCarte();
+
+
+map.setView(
+[
+latitudeClient,
+longitudeClient
+],
+16
+);
+
+
+/* Supprimer ancien marqueur */
+
+if (marker !== null) {
+
+map.removeLayer(marker);
+
+}
+
+
+/* Ajouter marqueur */
+
+marker =
+L.marker([
+latitudeClient,
+longitudeClient
+])
+.addTo(map)
+.bindPopup(
+"📍 Votre position"
+)
+.openPopup();
+
+
+},
+
+function(error) {
+
+
+gpsMessage.style.color = "red";
+
+
+if (error.code === 1) {
+
+gpsMessage.innerHTML =
+"❌ Vous avez refusé l'accès au GPS.";
+
+}
+
+else if (error.code === 2) {
+
+gpsMessage.innerHTML =
+"❌ Position GPS indisponible.";
+
+}
+
+else if (error.code === 3) {
+
+gpsMessage.innerHTML =
+"❌ Recherche GPS trop longue.";
+
+}
+
+else {
+
+gpsMessage.innerHTML =
+"❌ Impossible de récupérer votre position.";
+
+}
+
+},
+
+{
+enableHighAccuracy: true,
+timeout: 15000,
+maximumAge: 0
+}
+
+);
+
+}
+
+
+
+/* =========================
+   DEMANDER COURSE
+========================= */
 
 function demanderCourse() {
 
-    const nom =
-    document.getElementById("nomClient").value.trim();
 
-    const telephone =
-    document.getElementById("telephoneClient").value.trim();
-
-    const depart =
-    document.getElementById("depart").value.trim();
-
-    const destination =
-    document.getElementById("destination").value.trim();
-
-    const vehicule =
-    document.getElementById("vehicule").value;
-
-    const prix =
-    document.getElementById("prix").value;
-
-    const message =
-    document.getElementById("message");
+const nom =
+document
+.getElementById("nomClient")
+.value
+.trim();
 
 
-    if (
-        nom === "" ||
-        telephone === "" ||
-        depart === "" ||
-        destination === "" ||
-        prix === ""
-    ) {
-
-        message.style.color = "red";
-
-        message.innerHTML =
-        "❌ Veuillez remplir tous les champs.";
-
-        return;
-    }
+const telephone =
+document
+.getElementById("telephoneClient")
+.value
+.trim();
 
 
-    const course = {
-
-        nomClient: nom,
-
-        telephoneClient: telephone,
-
-        depart: depart,
-
-        destination: destination,
-
-        vehicule: vehicule,
-
-        prix: Number(prix),
-
-        statut: "en_attente",
-
-        nomChauffeur: "",
-
-        telephoneChauffeur: "",
-
-        date: new Date().toISOString()
-
-    };
+const depart =
+document
+.getElementById("depart")
+.value
+.trim();
 
 
-    database
-    .ref("courses")
-    .push(course)
-
-    .then(function() {
-
-        message.style.color = "green";
-
-        message.innerHTML =
-        "✅ Course enregistrée !";
+const destination =
+document
+.getElementById("destination")
+.value
+.trim();
 
 
-        document.getElementById("depart").value = "";
+const vehicule =
+document
+.getElementById("vehicule")
+.value;
 
-        document.getElementById("destination").value = "";
 
-        document.getElementById("prix").value = "";
+const prix =
+document
+.getElementById("prix")
+.value;
 
-    })
 
-    .catch(function(error) {
+const message =
+document.getElementById("message");
 
-        message.style.color = "red";
 
-        message.innerHTML =
-        "❌ Erreur : " + error.message;
+if (
 
-    });
+nom === "" ||
+
+telephone === "" ||
+
+depart === "" ||
+
+destination === "" ||
+
+prix === ""
+
+) {
+
+message.style.color = "red";
+
+message.innerHTML =
+"❌ Veuillez remplir tous les champs.";
+
+return;
 
 }
 
 
+
+/* COURSE */
+
+const course = {
+
+
+nomClient:
+nom,
+
+
+telephoneClient:
+telephone,
+
+
+depart:
+depart,
+
+
+destination:
+destination,
+
+
+vehicule:
+vehicule,
+
+
+prix:
+Number(prix),
+
+
+/* GPS */
+
+latitudeClient:
+latitudeClient,
+
+
+longitudeClient:
+longitudeClient,
+
+
+statut:
+"en_attente",
+
+
+nomChauffeur:
+"",
+
+
+telephoneChauffeur:
+"",
+
+
+date:
+new Date().toISOString()
+
+};
+
+
+
+/* ENREGISTRER */
+
+database
+.ref("courses")
+.push(course)
+
+
+.then(function() {
+
+
+message.style.color =
+"green";
+
+
+message.innerHTML =
+"✅ Course enregistrée !";
+
+
+document
+.getElementById("depart")
+.value = "";
+
+
+document
+.getElementById("destination")
+.value = "";
+
+
+document
+.getElementById("prix")
+.value = "";
+
+
+})
+
+.catch(function(error) {
+
+
+message.style.color =
+"red";
+
+
+message.innerHTML =
+"❌ Erreur : " +
+error.message;
+
+});
+
+}
+
+
+
+/* =========================
+   VOIR COURSES
+========================= */
 
 function voirCourses() {
 
-    const liste =
-    document.getElementById("listeCourses");
 
-    const nomChauffeur =
-    document.getElementById("nomChauffeur").value.trim();
-
-    const telephoneChauffeur =
-    document.getElementById("telephoneChauffeur").value.trim();
+const liste =
+document
+.getElementById("listeCourses");
 
 
-    if (
-        nomChauffeur === "" ||
-        telephoneChauffeur === ""
-    ) {
-
-        liste.innerHTML =
-        "❌ Entrez d'abord votre nom et votre téléphone.";
-
-        return;
-    }
+const nomChauffeur =
+document
+.getElementById("nomChauffeur")
+.value
+.trim();
 
 
-    liste.innerHTML =
-    "<p>Chargement des courses...</p>";
+const telephoneChauffeur =
+document
+.getElementById("telephoneChauffeur")
+.value
+.trim();
 
 
-    database
-    .ref("courses")
-    .once("value")
+if (
 
-    .then(function(snapshot) {
+nomChauffeur === "" ||
 
-        liste.innerHTML = "";
+telephoneChauffeur === ""
 
-
-        if (!snapshot.exists()) {
-
-            liste.innerHTML =
-            "<p>Aucune course disponible.</p>";
-
-            return;
-        }
-
-
-        snapshot.forEach(function(child) {
-
-            const course =
-            child.val();
-
-            const id =
-            child.key;
-
-
-            const div =
-            document.createElement("div");
-
-            div.className = "course";
-
-
-            div.innerHTML =
-
-            "<strong>📍 " +
-            course.depart +
-            " → " +
-            course.destination +
-            "</strong><br><br>" +
-
-            "🧑 Client : " +
-            course.nomClient +
-            "<br>" +
-
-            "📞 Téléphone : " +
-            course.telephoneClient +
-            "<br>" +
-
-            "🚗 Véhicule : " +
-            course.vehicule +
-            "<br>" +
-
-            "💰 Prix : " +
-            course.prix +
-            " FC<br>" +
-
-            "📌 Statut : " +
-            course.statut +
-            "<br><br>";
-
-
-            if (
-                course.statut ===
-                "en_attente"
-            ) {
-
-                const bouton =
-                document.createElement("button");
-
-                bouton.innerHTML =
-                "🟢 ACCEPTER LA COURSE";
-
-
-                bouton.onclick =
-                function() {
-
-                    accepterCourse(
-                        id,
-                        nomChauffeur,
-                        telephoneChauffeur
-                    );
-
-                };
-
-
-                div.appendChild(bouton);
-
-            }
-
-
-            liste.appendChild(div);
-
-        });
-
-    })
-
-    .catch(function(error) {
-
-        liste.innerHTML =
-        "❌ Erreur : " +
-        error.message;
-
-    });
-
-}
-
-
-
-function accepterCourse(
-    id,
-    nomChauffeur,
-    telephoneChauffeur
 ) {
 
-    database
-    .ref("courses/" + id)
-    .update({
+liste.innerHTML =
+"❌ Entrez d'abord votre nom et votre téléphone.";
 
-        statut: "acceptee",
-
-        nomChauffeur:
-        nomChauffeur,
-
-        telephoneChauffeur:
-        telephoneChauffeur
-
-    })
-
-    .then(function() {
-
-        alert(
-        "✅ Course acceptée par " +
-        nomChauffeur
-        );
-
-        voirCourses();
-
-    })
-
-    .catch(function(error) {
-
-        alert(
-        "❌ Erreur : " +
-        error.message
-        );
-
-    });
+return;
 
 }
+
+
+liste.innerHTML =
+"<p>Chargement des courses...</p>";
+
+
+database
+.ref("courses")
+.once("value")
+
+
+.then(function(snapshot) {
+
+
+liste.innerHTML = "";
+
+
+if (!snapshot.exists()) {
+
+liste.innerHTML =
+"<p>Aucune course disponible.</p>";
+
+return;
+
+}
+
+
+snapshot.forEach(function(child) {
+
+
+const course =
+child.val();
+
+
+const id =
+child.key;
+
+
+const div =
+document.createElement("div");
+
+
+div.className =
+"course";
+
+
+div.innerHTML =
+
+"<strong>📍 " +
+course.depart +
+" → " +
+course.destination +
+"</strong><br><br>" +
+
+"🧑 Client : " +
+course.nomClient +
+"<br>" +
+
+"📞 Téléphone : " +
+course.telephoneClient +
+"<br>" +
+
+"🚗 Véhicule : " +
+course.vehicule +
+"<br>" +
+
+"💰 Prix : " +
+course.prix +
+" FC<br>" +
+
+"📌 Statut : " +
+course.statut +
+"<br>";
+
+
+/* GPS disponible */
+
+if (
+
+course.latitudeClient !== null &&
+
+course.longitudeClient !== null &&
+
+course.latitudeClient !== undefined &&
+
+course.longitudeClient !== undefined
+
+) {
+
+
+div.innerHTML +=
+
+"📍 GPS disponible<br><br>";
+
+
+const gpsButton =
+document.createElement("button");
+
+
+gpsButton.innerHTML =
+"🗺️ VOIR POSITION CLIENT";
+
+
+gpsButton.onclick =
+function() {
+
+
+const url =
+"https://www.google.com/maps?q=" +
+course.latitudeClient +
+"," +
+course.longitudeClient;
+
+
+window.open(
+url,
+"_blank"
+);
+
+};
+
+
+div.appendChild(
+gpsButton
+);
+
+}
+
+
+if (
+
+course.statut ===
+"en_attente"
+
+) {
+
+
+const bouton =
+document.createElement("button");
+
+
+bouton.innerHTML =
+"🟢 ACCEPTER LA COURSE";
+
+
+bouton.onclick =
+function() {
+
+
+accepterCourse(
+
+id,
+
+nomChauffeur,
+
+telephoneChauffeur
+
+);
+
+};
+
+
+div.appendChild(
+bouton
+);
+
+}
+
+
+liste.appendChild(
+div
+);
+
+});
+
+})
+
+
+.catch(function(error) {
+
+
+liste.innerHTML =
+"❌ Erreur : " +
+error.message;
+
+});
+
+}
+
+
+
+/* =========================
+   ACCEPTER COURSE
+========================= */
+
+function accepterCourse(
+
+id,
+
+nomChauffeur,
+
+telephoneChauffeur
+
+) {
+
+
+database
+.ref("courses/" + id)
+.update({
+
+statut:
+"acceptee",
+
+nomChauffeur:
+nomChauffeur,
+
+telephoneChauffeur:
+telephoneChauffeur
+
+})
+
+
+.then(function() {
+
+
+alert(
+"✅ Course acceptée par " +
+nomChauffeur
+);
+
+
+voirCourses();
+
+})
+
+
+.catch(function(error) {
+
+
+alert(
+"❌ Erreur : " +
+error.message
+);
+
+});
+
+}
+
 
 </script>
 
 </body>
-</html>
+    </html>
