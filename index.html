@@ -1,30 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>YAMBOKA</title>
 
-<link
-rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
 margin:0;
 font-family:Arial,sans-serif;
-background:#f5f5f5;
+background:#f4f4f4;
 color:#222;
 }
 
@@ -58,13 +49,17 @@ margin-top:15px;
 box-shadow:0 3px 10px rgba(0,0,0,.12);
 }
 
+.hidden{
+display:none;
+}
+
 h2{
 margin-top:0;
 }
 
 label{
-font-weight:bold;
 display:block;
+font-weight:bold;
 margin-top:12px;
 }
 
@@ -80,42 +75,38 @@ font-size:16px;
 button{
 width:100%;
 padding:14px;
-border:none;
-border-radius:9px;
 margin-top:12px;
+border:0;
+border-radius:9px;
+background:#ff7900;
+color:white;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-background:#ff7900;
-color:white;
 }
 
-button:hover{
-opacity:.9;
+button:active{
+transform:scale(.98);
 }
 
-.btn-secondary{
+.secondary{
 background:#333;
 }
 
-.btn-green{
+.green{
 background:#16a34a;
 }
 
-.btn-red{
+.red{
 background:#dc2626;
 }
 
-.hidden{
-display:none;
-}
-
 .course{
-border:1px solid #ddd;
-border-radius:10px;
-padding:15px;
-margin-top:12px;
 background:#fafafa;
+border:1px solid #ddd;
+padding:15px;
+border-radius:10px;
+margin-top:12px;
 }
 
 .success{
@@ -134,58 +125,45 @@ border-radius:10px;
 margin-top:15px;
 }
 
-.warning{
-background:#fef3c7;
-border:1px solid #f59e0b;
-padding:15px;
-border-radius:10px;
-margin-top:15px;
-}
-
-#map{
-height:400px;
-width:100%;
-margin-top:15px;
-border-radius:12px;
-}
-
 .status{
-font-weight:bold;
+background:#eee;
 padding:10px;
 border-radius:8px;
-background:#eee;
 margin-top:10px;
+font-weight:bold;
+}
+
+#mapClient,
+#mapChauffeur{
+width:100%;
+height:400px;
+margin-top:15px;
+border-radius:12px;
+overflow:hidden;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <header>
-
 <h1>YAMBOKA</h1>
-
 <p>Votre transport, simplement.</p>
-
 </header>
-
 
 <div class="container">
 
-
 <!-- ACCUEIL -->
-
 <div id="accueil" class="card">
 
 <h2>Bienvenue sur YAMBOKA</h2>
 
-<button onclick="afficherClient()">
+<button onclick="ouvrirClient()">
 🧑 CLIENT
 </button>
 
-<button onclick="afficherChauffeur()">
+<button onclick="ouvrirChauffeur()">
 🚗 CHAUFFEUR
 </button>
 
@@ -193,19 +171,13 @@ margin-top:10px;
 
 
 <!-- CLIENT -->
+<div id="client" class="card hidden">
 
-<div id="espaceClient" class="card hidden">
-
-<button
-class="btn-secondary"
-onclick="retourAccueil()">
-
+<button class="secondary" onclick="retourAccueil()">
 ⬅️ RETOUR
-
 </button>
 
 <h2>🧑 Espace client</h2>
-
 
 <label>Nom du client</label>
 
@@ -213,8 +185,7 @@ onclick="retourAccueil()">
 id="nomClient"
 type="text"
 placeholder="Votre nom"
-/>
-
+>
 
 <label>Téléphone</label>
 
@@ -222,8 +193,7 @@ placeholder="Votre nom"
 id="telephoneClient"
 type="tel"
 placeholder="Votre téléphone"
-/>
-
+>
 
 <label>Lieu de départ</label>
 
@@ -231,8 +201,7 @@ placeholder="Votre téléphone"
 id="depart"
 type="text"
 placeholder="Ex: Gombe"
-/>
-
+>
 
 <label>Destination</label>
 
@@ -240,23 +209,14 @@ placeholder="Ex: Gombe"
 id="destination"
 type="text"
 placeholder="Ex: Limete"
-/>
-
+>
 
 <label>Type de véhicule</label>
 
 <select id="vehicule">
-
-<option value="Moto">
-🏍️ Moto
-</option>
-
-<option value="Voiture">
-🚗 Voiture
-</option>
-
+<option value="Moto">🏍️ Moto</option>
+<option value="Voiture">🚗 Voiture</option>
 </select>
-
 
 <label>Prix proposé (FC)</label>
 
@@ -264,56 +224,35 @@ placeholder="Ex: Limete"
 id="prix"
 type="number"
 placeholder="Ex: 5000"
-/>
+>
 
-
-<button
-onclick="obtenirPositionClient()">
-
+<button onclick="obtenirPositionClient()">
 📍 UTILISER MA POSITION
-
 </button>
 
-
-<div id="positionClientStatus"
-class="status">
-
-Position du client : non définie
-
+<div id="statutGPSClient" class="status">
+🔴 Position non définie
 </div>
 
-
-<button
-onclick="demanderCourse()">
-
+<button onclick="demanderCourse()">
 🚕 DEMANDER UNE COURSE
-
 </button>
-
 
 <div id="resultatClient"></div>
 
-
-<div id="map"></div>
+<div id="mapClient"></div>
 
 </div>
 
 
-
 <!-- CHAUFFEUR -->
+<div id="chauffeur" class="card hidden">
 
-<div id="espaceChauffeur" class="card hidden">
-
-<button
-class="btn-secondary"
-onclick="retourAccueil()">
-
+<button class="secondary" onclick="retourAccueil()">
 ⬅️ RETOUR
-
 </button>
 
 <h2>🚗 Espace chauffeur</h2>
-
 
 <label>Nom du chauffeur</label>
 
@@ -321,8 +260,7 @@ onclick="retourAccueil()">
 id="nomChauffeur"
 type="text"
 placeholder="Votre nom"
-/>
-
+>
 
 <label>Téléphone du chauffeur</label>
 
@@ -330,54 +268,39 @@ placeholder="Votre nom"
 id="telephoneChauffeur"
 type="tel"
 placeholder="Votre téléphone"
-/>
+>
 
-
-<div
-id="chauffeurStatus"
-class="status">
-
+<div id="statutChauffeur" class="status">
 🔴 Chauffeur hors ligne
-
 </div>
 
+<button onclick="afficherCourses()">
+📋 VOIR LES COURSES
+</button>
+
+<div id="listeCourses"></div>
+
+<div id="courseActive"></div>
 
 <button
-class="btn-green"
-onclick="demarrerPositionChauffeur()">
+class="green"
+onclick="demarrerGPSChauffeur()">
 
-🟢 PARTAGER MA POSITION
+📍 PARTAGER MA POSITION
 
 </button>
 
-
 <button
-class="btn-red"
-onclick="arreterPositionChauffeur()">
+class="red"
+onclick="arreterGPSChauffeur()">
 
 🔴 ARRÊTER MA POSITION
 
 </button>
 
-
-<button
-onclick="afficherCourses()">
-
-📋 VOIR LES COURSES
-
-</button>
-
-
-<div id="courses"></div>
-
-
-<div id="courseActive"></div>
-
-
 <div id="mapChauffeur"></div>
 
 </div>
-
 
 </div>
 
@@ -388,21 +311,16 @@ onclick="afficherCourses()">
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-
 <!-- LEAFLET -->
 
-<script
-src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
 <script>
 
-
-/* =========================
+/* ============================
    FIREBASE
-========================= */
-
+============================ */
 
 const firebaseConfig = {
 
@@ -429,85 +347,72 @@ measurementId:
 
 };
 
-
 firebase.initializeApp(firebaseConfig);
 
 const database = firebase.database();
 
 
-
-/* =========================
+/* ============================
    VARIABLES
-========================= */
-
+============================ */
 
 let latitudeClient = null;
-
 let longitudeClient = null;
 
 let courseClientId = null;
-
 let courseActiveId = null;
 
-let watchChauffeur = null;
+let watchGPSChauffeur = null;
 
 let mapClient = null;
-
 let mapChauffeur = null;
 
 let markerClient = null;
-
-let markerChauffeurClient = null;
-
-let markerClientChauffeur = null;
+let markerChauffeur = null;
 
 
+/* ============================
+   ACCUEIL
+============================ */
 
-/* =========================
-   AFFICHAGE
-========================= */
-
-
-function afficherClient(){
+function ouvrirClient(){
 
 document.getElementById("accueil")
 .classList.add("hidden");
 
-document.getElementById("espaceChauffeur")
+document.getElementById("chauffeur")
 .classList.add("hidden");
 
-document.getElementById("espaceClient")
+document.getElementById("client")
 .classList.remove("hidden");
 
-initialiserCarteClient();
+initialiserMapClient();
 
 }
 
 
-
-function afficherChauffeur(){
+function ouvrirChauffeur(){
 
 document.getElementById("accueil")
 .classList.add("hidden");
 
-document.getElementById("espaceClient")
+document.getElementById("client")
 .classList.add("hidden");
 
-document.getElementById("espaceChauffeur")
+document.getElementById("chauffeur")
 .classList.remove("hidden");
 
-initialiserCarteChauffeur();
+initialiserMapChauffeur();
 
 }
-
 
 
 function retourAccueil(){
 
-document.getElementById("espaceClient")
+document.getElementById("client")
 .classList.add("hidden");
 
-document.getElementById("espaceChauffeur")
+document.getElementById("chauffeur")
 .classList.add("hidden");
 
 document.getElementById("accueil")
@@ -516,33 +421,23 @@ document.getElementById("accueil")
 }
 
 
+/* ============================
+   MAP CLIENT
+============================ */
 
-/* =========================
-   CARTE CLIENT
-========================= */
-
-
-function initialiserCarteClient(){
+function initialiserMapClient(){
 
 if(mapClient){
 
-setTimeout(function(){
-
+setTimeout(()=>{
 mapClient.invalidateSize();
-
-},200);
+},300);
 
 return;
-
 }
 
-
-mapClient = L.map("map")
-.setView(
-[-4.325,15.322],
-13
-);
-
+mapClient = L.map("mapClient")
+.setView([-4.325,15.322],13);
 
 L.tileLayer(
 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -555,33 +450,23 @@ attribution:"© OpenStreetMap"
 }
 
 
+/* ============================
+   MAP CHAUFFEUR
+============================ */
 
-/* =========================
-   CARTE CHAUFFEUR
-========================= */
-
-
-function initialiserCarteChauffeur(){
+function initialiserMapChauffeur(){
 
 if(mapChauffeur){
 
-setTimeout(function(){
-
+setTimeout(()=>{
 mapChauffeur.invalidateSize();
-
-},200);
+},300);
 
 return;
-
 }
 
-
 mapChauffeur = L.map("mapChauffeur")
-.setView(
-[-4.325,15.322],
-13
-);
-
+.setView([-4.325,15.322],13);
 
 L.tileLayer(
 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -594,22 +479,18 @@ attribution:"© OpenStreetMap"
 }
 
 
-
-/* =========================
+/* ============================
    GPS CLIENT
-========================= */
-
+============================ */
 
 function obtenirPositionClient(){
 
 if(!navigator.geolocation){
 
-alert("La géolocalisation n'est pas disponible.");
+alert("Votre téléphone ne supporte pas la géolocalisation.");
 
 return;
-
 }
-
 
 navigator.geolocation.getCurrentPosition(
 
@@ -621,61 +502,54 @@ position.coords.latitude;
 longitudeClient =
 position.coords.longitude;
 
-
 document.getElementById(
-"positionClientStatus"
+"statutGPSClient"
 ).innerHTML =
-"🟢 Position du client enregistrée";
+"🟢 Position GPS enregistrée";
 
 
-if(!mapClient){
-
-initialiserCarteClient();
-
-}
-
+initialiserMapClient();
 
 if(markerClient){
 
-mapClient.removeLayer(markerClient);
+markerClient.setLatLng([
+latitudeClient,
+longitudeClient
+]);
+
+}else{
+
+markerClient =
+L.marker([
+latitudeClient,
+longitudeClient
+])
+.addTo(mapClient);
+
+markerClient
+.bindPopup("📍 Votre position")
+.openPopup();
 
 }
 
-
-markerClient = L.marker(
-[
+mapClient.setView([
 latitudeClient,
 longitudeClient
-]
-).addTo(mapClient);
-
-
-markerClient.bindPopup(
-"📍 Votre position"
-).openPopup();
-
-
-mapClient.setView(
-[
-latitudeClient,
-longitudeClient
-],
-16
-);
+],16);
 
 },
 
 function(error){
 
 alert(
-"Impossible d'obtenir votre position GPS."
+"Impossible d'obtenir votre position GPS. Autorisez la localisation."
 );
 
 },
 
 {
 enableHighAccuracy:true,
-timeout:10000,
+timeout:15000,
 maximumAge:0
 }
 
@@ -684,50 +558,56 @@ maximumAge:0
 }
 
 
-
-/* =========================
+/* ============================
    DEMANDER COURSE
-========================= */
-
+============================ */
 
 function demanderCourse(){
 
 const nom =
-document.getElementById("nomClient").value.trim();
+document.getElementById("nomClient")
+.value.trim();
 
 const telephone =
-document.getElementById("telephoneClient").value.trim();
+document.getElementById("telephoneClient")
+.value.trim();
 
 const depart =
-document.getElementById("depart").value.trim();
+document.getElementById("depart")
+.value.trim();
 
 const destination =
-document.getElementById("destination").value.trim();
+document.getElementById("destination")
+.value.trim();
 
 const vehicule =
-document.getElementById("vehicule").value;
+document.getElementById("vehicule")
+.value;
 
 const prix =
-document.getElementById("prix").value;
+document.getElementById("prix")
+.value;
 
 
-if(!nom ||
+if(
+!nom ||
 !telephone ||
 !depart ||
 !destination ||
-!prix){
+!prix
+){
 
-alert(
-"Veuillez remplir toutes les informations."
-);
+alert("Veuillez remplir toutes les informations.");
 
 return;
 
 }
 
 
-if(latitudeClient === null ||
-longitudeClient === null){
+if(
+latitudeClient === null ||
+longitudeClient === null
+){
 
 alert(
 "Veuillez d'abord utiliser votre position GPS."
@@ -766,48 +646,48 @@ latitudeChauffeur:null,
 
 longitudeChauffeur:null,
 
+chauffeurEnLigne:false,
+
 date:new Date().toISOString()
 
 };
 
 
-const nouvelleCourse =
+const reference =
 database.ref("courses").push();
 
 
-nouvelleCourse
+reference
 .set(course)
 .then(function(){
 
 courseClientId =
-nouvelleCourse.key;
-
+reference.key;
 
 document.getElementById(
 "resultatClient"
 ).innerHTML = `
 
-<div class="success">
+<div class="info">
 
-🟢 COURSE ENVOYÉE !
+🔎 <strong>Recherche d'un chauffeur...</strong>
 
 <br><br>
 
-🚕 Recherche d'un chauffeur...
+Votre demande a été envoyée.
 
 </div>
 
 `;
 
-
 surveillerCourse(courseClientId);
 
 })
-
 .catch(function(error){
 
 alert(
-"Erreur : " + error.message
+"Erreur Firebase : " +
+error.message
 );
 
 });
@@ -815,11 +695,9 @@ alert(
 }
 
 
-
-/* =========================
+/* ============================
    SURVEILLER COURSE
-========================= */
-
+============================ */
 
 function surveillerCourse(id){
 
@@ -830,7 +708,6 @@ database
 const course =
 snapshot.val();
 
-
 if(!course){
 
 return;
@@ -840,7 +717,7 @@ return;
 
 if(course.statut === "acceptee"){
 
-afficherChauffeurAuClient(course);
+afficherChauffeurClient(course);
 
 surveillerPositionChauffeur(id);
 
@@ -851,144 +728,95 @@ surveillerPositionChauffeur(id);
 }
 
 
+/* ============================
+   AFFICHER CHAUFFEUR CLIENT
+============================ */
 
-/* =========================
-   CHAUFFEUR ACCEPTE
-========================= */
-
-
-function accepterCourse(id){
-
-const nom =
-document.getElementById(
-"nomChauffeur"
-).value.trim();
-
-
-const telephone =
-document.getElementById(
-"telephoneChauffeur"
-).value.trim();
-
-
-if(!nom || !telephone){
-
-alert(
-"Veuillez entrer votre nom et votre téléphone."
-);
-
-return;
-
-}
-
-
-database
-.ref("courses/" + id)
-.update({
-
-statut:"acceptee",
-
-nomChauffeur:nom,
-
-telephoneChauffeur:telephone,
-
-latitudeChauffeur:null,
-
-longitudeChauffeur:null
-
-})
-.then(function(){
-
-courseActiveId = id;
-
+function afficherChauffeurClient(course){
 
 document.getElementById(
-"courseActive"
+"resultatClient"
 ).innerHTML = `
 
 <div class="success">
 
-🟢 COURSE ACCEPTÉE !
+🟢 <strong>COURSE ACCEPTÉE !</strong>
 
 <br><br>
 
-👤 Client connecté.
+👤 Chauffeur :
+<strong>
+${course.nomChauffeur || "Non disponible"}
+</strong>
 
 <br><br>
 
-📍 Vous pouvez maintenant partager votre position.
+📞 Téléphone :
+<strong>
+${course.telephoneChauffeur || "Non disponible"}
+</strong>
 
-<button
-class="btn-green"
-onclick="demarrerPositionChauffeur()">
+<br><br>
 
-📍 PARTAGER MA POSITION
+🚗 Votre chauffeur est en route.
 
-</button>
+<br><br>
+
+<div id="positionChauffeurInfo">
+
+📍 En attente de la position du chauffeur...
+
+</div>
 
 </div>
 
 `;
 
-
-afficherCourses();
-
-})
-
-.catch(function(error){
-
-alert(
-"Erreur : " + error.message
-);
-
-});
-
 }
 
 
-
-/* =========================
-   AFFICHER COURSES
-========================= */
-
+/* ============================
+   AFFICHER LES COURSES
+============================ */
 
 function afficherCourses(){
+
+const zone =
+document.getElementById("listeCourses");
+
+zone.innerHTML =
+
+"<div class='info'>⏳ Chargement des courses...</div>";
+
 
 database
 .ref("courses")
 .once("value")
 .then(function(snapshot){
 
-const courses =
+const data =
 snapshot.val();
 
-
-const zone =
-document.getElementById("courses");
+zone.innerHTML = "<h3>🚕 Courses disponibles</h3>";
 
 
-zone.innerHTML =
-"<h3>🚕 Courses disponibles</h3>";
-
-
-if(!courses){
+if(!data){
 
 zone.innerHTML +=
-"<p>Aucune course disponible.</p>";
+"<div class='info'>Aucune course disponible.</div>";
 
 return;
 
 }
 
 
-let trouve = false;
+let nombre = 0;
 
 
-Object.keys(courses)
-.forEach(function(id){
+Object.keys(data).forEach(function(id){
 
 const course =
-courses[id];
+data[id];
 
 
 if(course.statut !== "en_attente"){
@@ -998,12 +826,11 @@ return;
 }
 
 
-trouve = true;
+nombre++;
 
 
 const div =
 document.createElement("div");
-
 
 div.className =
 "course";
@@ -1037,8 +864,7 @@ ${course.vehicule}
 <br><br>
 
 <strong>💰 Prix :</strong>
-${course.prix.toLocaleString()}
- FC
+${Number(course.prix).toLocaleString()} FC
 
 <br><br>
 
@@ -1053,7 +879,7 @@ ${course.longitudeClient}
 </button>
 
 <button
-class="btn-green"
+class="green"
 onclick="accepterCourse('${id}')">
 
 🟢 ACCEPTER LA COURSE
@@ -1068,23 +894,122 @@ zone.appendChild(div);
 });
 
 
-if(!trouve){
+if(nombre === 0){
 
 zone.innerHTML +=
-"<p>Aucune course en attente.</p>";
+
+"<div class='info'>Aucune course en attente.</div>";
 
 }
+
+})
+.catch(function(error){
+
+zone.innerHTML =
+
+"<div class='info'>" +
+"❌ Erreur : " +
+error.message +
+"</div>";
 
 });
 
 }
 
 
+/* ============================
+   ACCEPTER COURSE
+============================ */
 
-/* =========================
-   VOIR POSITION CLIENT
-========================= */
+function accepterCourse(id){
 
+const nom =
+document.getElementById(
+"nomChauffeur"
+).value.trim();
+
+const telephone =
+document.getElementById(
+"telephoneChauffeur"
+).value.trim();
+
+
+if(!nom || !telephone){
+
+alert(
+"Entrez d'abord votre nom et votre téléphone."
+);
+
+return;
+
+}
+
+
+database
+.ref("courses/" + id)
+.update({
+
+statut:"acceptee",
+
+nomChauffeur:nom,
+
+telephoneChauffeur:telephone,
+
+chauffeurEnLigne:false
+
+})
+.then(function(){
+
+courseActiveId = id;
+
+
+document.getElementById(
+"courseActive"
+).innerHTML = `
+
+<div class="success">
+
+🟢 <strong>COURSE ACCEPTÉE !</strong>
+
+<br><br>
+
+🧑 Client connecté.
+
+<br><br>
+
+📍 Cliquez sur :
+
+<br>
+
+<strong>
+PARTAGER MA POSITION
+</strong>
+
+pour envoyer votre position au client.
+
+</div>
+
+`;
+
+
+afficherCourses();
+
+})
+.catch(function(error){
+
+alert(
+"Erreur : " +
+error.message
+);
+
+});
+
+}
+
+
+/* ============================
+   POSITION CLIENT
+============================ */
 
 function voirPositionClient(
 latitude,
@@ -1097,7 +1022,6 @@ latitude +
 "," +
 longitude;
 
-
 window.open(
 url,
 "_blank"
@@ -1106,18 +1030,27 @@ url,
 }
 
 
-
-/* =========================
+/* ============================
    GPS CHAUFFEUR
-========================= */
+============================ */
 
-
-function demarrerPositionChauffeur(){
+function demarrerGPSChauffeur(){
 
 if(!courseActiveId){
 
 alert(
 "Vous devez d'abord accepter une course."
+);
+
+return;
+
+}
+
+
+if(watchGPSChauffeur !== null){
+
+alert(
+"Le GPS est déjà actif."
 );
 
 return;
@@ -1136,24 +1069,13 @@ return;
 }
 
 
-if(watchChauffeur !== null){
-
-alert(
-"Votre position est déjà partagée."
-);
-
-return;
-
-}
-
-
 document.getElementById(
-"chauffeurStatus"
+"statutChauffeur"
 ).innerHTML =
 "🟢 Chauffeur EN LIGNE — GPS actif";
 
 
-watchChauffeur =
+watchGPSChauffeur =
 navigator.geolocation.watchPosition(
 
 function(position){
@@ -1172,9 +1094,11 @@ courseActiveId
 )
 .update({
 
-latitudeChauffeur:latitude,
+latitudeChauffeur:
+latitude,
 
-longitudeChauffeur:longitude,
+longitudeChauffeur:
+longitude,
 
 chauffeurEnLigne:true,
 
@@ -1184,7 +1108,7 @@ new Date().toISOString()
 });
 
 
-afficherPositionChauffeurSurCarte(
+afficherPositionChauffeur(
 latitude,
 longitude
 );
@@ -1194,19 +1118,15 @@ longitude
 function(error){
 
 alert(
-"Impossible d'obtenir la position du chauffeur."
+"Erreur GPS : autorisez la localisation."
 );
 
 },
 
 {
-
 enableHighAccuracy:true,
-
-timeout:10000,
-
+timeout:15000,
 maximumAge:3000
-
 }
 
 );
@@ -1214,21 +1134,19 @@ maximumAge:3000
 }
 
 
+/* ============================
+   ARRÊTER GPS
+============================ */
 
-/* =========================
-   ARRÊTER GPS CHAUFFEUR
-========================= */
+function arreterGPSChauffeur(){
 
-
-function arreterPositionChauffeur(){
-
-if(watchChauffeur !== null){
+if(watchGPSChauffeur !== null){
 
 navigator.geolocation.clearWatch(
-watchChauffeur
+watchGPSChauffeur
 );
 
-watchChauffeur = null;
+watchGPSChauffeur = null;
 
 }
 
@@ -1236,10 +1154,7 @@ watchChauffeur = null;
 if(courseActiveId){
 
 database
-.ref(
-"courses/" +
-courseActiveId
-)
+.ref("courses/" + courseActiveId)
 .update({
 
 chauffeurEnLigne:false
@@ -1250,91 +1165,68 @@ chauffeurEnLigne:false
 
 
 document.getElementById(
-"chauffeurStatus"
+"statutChauffeur"
 ).innerHTML =
 "🔴 Chauffeur hors ligne";
 
 }
 
 
+/* ============================
+   GPS CHAUFFEUR SUR SA CARTE
+============================ */
 
-/* =========================
-   POSITION CHAUFFEUR
-   SUR CARTE CHAUFFEUR
-========================= */
-
-
-function afficherPositionChauffeurSurCarte(
+function afficherPositionChauffeur(
 latitude,
 longitude
 ){
 
-if(!mapChauffeur){
-
-initialiserCarteChauffeur();
-
-}
+initialiserMapChauffeur();
 
 
-if(markerClientChauffeur){
+if(markerChauffeur){
 
-markerClientChauffeur.setLatLng(
-[
+markerChauffeur.setLatLng([
 latitude,
 longitude
-]
-);
+]);
 
 }else{
 
-markerClientChauffeur =
-L.marker(
-[
+markerChauffeur =
+L.marker([
 latitude,
 longitude
-]
-).addTo(mapChauffeur);
+])
+.addTo(mapChauffeur);
 
-markerClientChauffeur
-.bindPopup(
-"🚗 Ma position"
-);
+markerChauffeur
+.bindPopup("🚗 Votre position");
+
+}
+
+mapChauffeur.setView([
+latitude,
+longitude
+],16);
 
 }
 
 
-mapChauffeur.setView(
-[
-latitude,
-longitude
-],
-16
-);
-
-}
-
-
-
-/* =========================
-   CLIENT :
-   SUIVRE CHAUFFEUR
-========================= */
-
+/* ============================
+   CLIENT SUIVRE CHAUFFEUR
+============================ */
 
 function surveillerPositionChauffeur(
-courseId
+id
 ){
 
 database
-.ref(
-"courses/" +
-courseId
-)
+.ref("courses/" + id)
 .on("value",function(snapshot){
 
 const course =
 snapshot.val();
-
 
 if(!course){
 
@@ -1365,62 +1257,9 @@ course.chauffeurEnLigne
 }
 
 
-
-/* =========================
-   CLIENT :
-   AFFICHER CHAUFFEUR
-========================= */
-
-
-function afficherChauffeurAuClient(
-course
-){
-
-document.getElementById(
-"resultatClient"
-).innerHTML = `
-
-<div class="success">
-
-🟢 COURSE ACCEPTÉE !
-
-<br><br>
-
-👤 <strong>Chauffeur :</strong>
-
-${course.nomChauffeur || "Non disponible"}
-
-<br><br>
-
-📞 <strong>Téléphone :</strong>
-
-${course.telephoneChauffeur || "Non disponible"}
-
-<br><br>
-
-🚗 Votre chauffeur est en route.
-
-<br><br>
-
-<div id="positionChauffeurInfo">
-
-📍 Recherche de la position du chauffeur...
-
-</div>
-
-</div>
-
-`;
-
-}
-
-
-
-/* =========================
-   CLIENT :
-   MARQUEUR CHAUFFEUR
-========================= */
-
+/* ============================
+   MARQUEUR CHAUFFEUR CLIENT
+============================ */
 
 function afficherPositionChauffeurClient(
 latitude,
@@ -1428,53 +1267,30 @@ longitude,
 enLigne
 ){
 
-if(!mapClient){
-
-initialiserCarteClient();
-
-}
+initialiserMapClient();
 
 
-if(markerChauffeurClient){
+if(markerChauffeur){
 
-markerChauffeurClient.setLatLng(
-[
+markerChauffeur.setLatLng([
 latitude,
 longitude
-]
-);
+]);
 
 }else{
 
-markerChauffeurClient =
-L.marker(
-[
+markerChauffeur =
+L.marker([
 latitude,
 longitude
-]
-).addTo(mapClient);
+])
+.addTo(mapClient);
 
-markerChauffeurClient
-.bindPopup(
-"🚗 Chauffeur"
-);
+markerChauffeur
+.bindPopup("🚗 Chauffeur")
+.openPopup();
 
 }
-
-
-markerChauffeurClient
-.bindTooltip(
-"🚗 Chauffeur"
-);
-
-
-mapClient.setView(
-[
-latitude,
-longitude
-],
-15
-);
 
 
 const info =
@@ -1493,29 +1309,16 @@ info.innerHTML =
 }else{
 
 info.innerHTML =
-"🟢 <strong>Chauffeur en ligne</strong><br>📍 Position mise à jour en temps réel.";
+"🟢 <strong>Chauffeur en ligne</strong><br>" +
+"📍 Position mise à jour en temps réel.";
 
 }
 
 }
 
 }
-
-
-
-/* =========================
-   AUTO : CHAUFFEUR
-========================= */
-
-
-document.addEventListener(
-"DOMContentLoaded",
-function(){
-
-});
 
 </script>
 
 </body>
-
 </html>
