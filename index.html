@@ -1,346 +1,229 @@
-<!DOCTYPE html>
-<html lang="fr">
 
-<head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>YAMBOKA</title>
-
-<link
-rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-
-<style>
-
-*{
-box-sizing:border-box;
-}
-
-body{
-font-family:Arial,sans-serif;
-background:#f4f4f4;
-margin:0;
-padding:15px;
-}
-
-.container{
-max-width:750px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:18px;
-box-shadow:0 3px 15px rgba(0,0,0,.12);
-}
-
-h1{
-text-align:center;
-color:#f28c00;
-margin-bottom:5px;
-}
-
-.subtitle{
-text-align:center;
-color:#555;
-margin-bottom:20px;
-}
-
-h2,h3{
-color:#333;
-}
-
-button{
-width:100%;
-padding:14px;
-margin:7px 0;
-border:0;
-border-radius:10px;
-background:#f28c00;
-color:white;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-opacity:.9;
-}
-
-button.green{
-background:#159447;
-}
-
-button.red{
-background:#d93636;
-}
-
-button.blue{
-background:#1479d1;
-}
-
-button.dark{
-background:#333;
-}
-
-button.purple{
-background:#7137c8;
-}
-
-input,select{
-width:100%;
-padding:13px;
-margin:6px 0 12px;
-border:1px solid #ccc;
-border-radius:9px;
-font-size:15px;
-}
-
-.section{
-display:none;
-}
-
-.active{
-display:block;
-}
-
-.gps-info{
-margin:8px 0;
-padding:10px;
-border-radius:8px;
-background:#eef7ff;
-color:#0877c9;
-}
-
-.destination-box{
-background:#fff8eb;
-border:1px solid #f28c00;
-padding:14px;
-border-radius:12px;
-margin-top:10px;
-}
-
-.price-box{
-margin-top:12px;
-padding:15px;
-border-radius:12px;
-background:#fff4df;
-border:1px solid #f28c00;
-}
-
-.price-total{
-font-size:26px;
-font-weight:bold;
-color:#f28c00;
-text-align:center;
-margin-top:8px;
-}
-
-.route-info{
-margin-top:10px;
-padding:12px;
-background:#f5f5f5;
-border-radius:10px;
-}
-
-.status{
-padding:12px;
-border-radius:10px;
-margin:10px 0;
-font-weight:bold;
-text-align:center;
-background:#eee;
-}
-
-.status.available{
-background:#d9f8e3;
-color:#08752d;
-}
-
-.status.offline{
-background:#ffe0e0;
-color:#a00000;
-}
-
-#mapClient,
-#mapChauffeur,
-#mapAdmin{
-width:100%;
-height:350px;
-margin-top:15px;
-border-radius:12px;
-}
-
-.course{
-border:1px solid #ddd;
-border-radius:12px;
-padding:14px;
-margin:10px 0;
-background:#fafafa;
-}
-
-.course button{
-margin-top:10px;
-}
-
-.message{
-margin:10px 0;
-font-weight:bold;
-}
-
-.driver-box{
-border:1px solid #ddd;
-padding:15px;
-border-radius:12px;
-margin-top:15px;
-background:#fafafa;
-}
-
-.destination-result{
-padding:12px;
-margin-top:8px;
-border-radius:9px;
-background:#eef7ff;
-color:#0877c9;
-}
-
-.location-box{
-padding:12px;
-background:#f5f5f5;
-border-radius:10px;
-margin-top:10px;
-}
-
-.small{
-font-size:13px;
-color:#666;
-}
-
-.admin-login{
-background:#f7f3ff;
-border:1px solid #7137c8;
-padding:15px;
-border-radius:12px;
-}
-
-.admin-title{
-color:#7137c8;
-text-align:center;
-}
-
-.dashboard{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin:15px 0;
-}
-
-.stat{
-padding:18px 10px;
-border-radius:12px;
-background:#f5f5f5;
-text-align:center;
-}
-
-.stat strong{
-display:block;
-font-size:28px;
-color:#f28c00;
-}
-
-.admin-card{
-border:1px solid #ddd;
-padding:14px;
-border-radius:12px;
-margin:10px 0;
-background:#fff;
-}
-
-.admin-card strong{
-color:#333;
-}
-
-.badge{
-display:inline-block;
-padding:5px 9px;
-border-radius:20px;
-font-size:12px;
-font-weight:bold;
-}
-
-.badge.green{
-background:#d9f8e3;
-color:#08752d;
-}
-
-.badge.red{
-background:#ffe0e0;
-color:#a00000;
-}
-
-.badge.orange{
-background:#fff0d5;
-color:#a55b00;
-}
-
-.empty{
-text-align:center;
-padding:20px;
-color:#777;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>YAMBOKA</h1>
-
-<div class="subtitle">
-Votre transport, simplement.
-</div>
-
-
-<!-- =====================================================
-ACCUEIL
-===================================================== -->
-
-<div id="accueil" class="section active">
-
-<button onclick="afficherClient()">
-🧑 CLIENT
-</button>
-
-<button onclick="afficherChauffeur()">
-🚗 CHAUFFEUR
-</button>
-
-<button class="purple" onclick="afficherAdminLogin()">
-👨‍💼 ADMINISTRATEUR
-</button>
-
-</div>
-
-
-<!-- =====================================================
-CLIENT
-===================================================== -->
-
-<div id="client" class="section">
-
-<h2>🚕 Demander une course</h2>
-
-<label>Nom</label>
+<!DOCTYPE html>  <html lang="fr">  <head>  <meta charset="UTF-8">  <meta name="viewport"  
+content="width=device-width, initial-scale=1.0">
+
+<title>YAMBOKA</title>  <link  
+rel="stylesheet"  
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"  
+/>  <style>  
+  
+body{  
+font-family:Arial,sans-serif;  
+background:#f4f4f4;  
+margin:0;  
+padding:20px;  
+}  
+  
+.container{  
+max-width:700px;  
+margin:auto;  
+background:white;  
+padding:20px;  
+border-radius:15px;  
+box-shadow:0 3px 12px rgba(0,0,0,.12);  
+}  
+  
+h1{  
+text-align:center;  
+color:#f28c00;  
+margin-bottom:5px;  
+}  
+  
+.subtitle{  
+text-align:center;  
+color:#555;  
+margin-bottom:20px;  
+}  
+  
+h2{  
+color:#333;  
+}  
+  
+h3{  
+color:#333;  
+}  
+  
+button{  
+width:100%;  
+padding:14px;  
+margin:7px 0;  
+border:0;  
+border-radius:10px;  
+background:#f28c00;  
+color:white;  
+font-size:16px;  
+font-weight:bold;  
+}  
+  
+button:hover{  
+opacity:.9;  
+}  
+  
+button.green{  
+background:#159447;  
+}  
+  
+button.red{  
+background:#d93636;  
+}  
+  
+button.blue{  
+background:#1479d1;  
+}  
+  
+button.dark{  
+background:#333;  
+}  
+  
+input,  
+select{  
+width:100%;  
+box-sizing:border-box;  
+padding:13px;  
+margin:6px 0 12px;  
+border:1px solid #ccc;  
+border-radius:9px;  
+font-size:15px;  
+}  
+  
+.section{  
+display:none;  
+}  
+  
+.active{  
+display:block;  
+}  
+  
+.gps-info{  
+margin:8px 0;  
+padding:10px;  
+border-radius:8px;  
+background:#eef7ff;  
+color:#0877c9;  
+}  
+  
+.destination-box{  
+background:#fff8eb;  
+border:1px solid #f28c00;  
+padding:14px;  
+border-radius:12px;  
+margin-top:10px;  
+}  
+  
+.price-box{  
+margin-top:12px;  
+padding:15px;  
+border-radius:12px;  
+background:#fff4df;  
+border:1px solid #f28c00;  
+}  
+  
+.price-total{  
+font-size:26px;  
+font-weight:bold;  
+color:#f28c00;  
+text-align:center;  
+margin-top:8px;  
+}  
+  
+.route-info{  
+margin-top:10px;  
+padding:12px;  
+background:#f5f5f5;  
+border-radius:10px;  
+}  
+  
+.status{  
+padding:12px;  
+border-radius:10px;  
+margin:10px 0;  
+font-weight:bold;  
+text-align:center;  
+background:#eee;  
+}  
+  
+.status.available{  
+background:#d9f8e3;  
+color:#08752d;  
+}  
+  
+.status.offline{  
+background:#ffe0e0;  
+color:#a00000;  
+}  
+  
+#mapClient,  
+#mapChauffeur{  
+width:100%;  
+height:350px;  
+margin-top:15px;  
+border-radius:12px;  
+}  
+  
+.course{  
+border:1px solid #ddd;  
+border-radius:12px;  
+padding:14px;  
+margin:10px 0;  
+background:#fafafa;  
+}  
+  
+.course button{  
+margin-top:10px;  
+}  
+  
+.message{  
+margin:10px 0;  
+font-weight:bold;  
+}  
+  
+.driver-box{  
+border:1px solid #ddd;  
+padding:15px;  
+border-radius:12px;  
+margin-top:15px;  
+background:#fafafa;  
+}  
+  
+.destination-result{  
+padding:12px;  
+margin-top:8px;  
+border-radius:9px;  
+background:#eef7ff;  
+color:#0877c9;  
+}  
+  
+.location-box{  
+padding:12px;  
+background:#f5f5f5;  
+border-radius:10px;  
+margin-top:10px;  
+}  
+  
+.small{  
+font-size:13px;  
+color:#666;  
+}  
+  
+</style>  </head>  <body>  <div class="container">  <h1>YAMBOKA</h1>  <div class="subtitle">  
+Votre transport, simplement.  
+</div>  <!-- =====================================================  
+ACCUEIL  
+===================================================== -->  <div id="accueil" class="section active">  <button onclick="afficherClient()">  
+🧑 CLIENT  
+</button>  <button onclick="afficherChauffeur()">  
+🚗 CHAUFFEUR  
+</button>  </div>  <!-- =====================================================  
+CLIENT  
+===================================================== -->  <div id="client" class="section">  <h2>🚕 Demander une course</h2>  <label>Nom</label>
 
 <input
 id="nomClient"
 type="text"
 placeholder="Votre nom"
->
+
+> 
 
 <label>Téléphone</label>
 
@@ -348,7 +231,8 @@ placeholder="Votre nom"
 id="telephoneClient"
 type="tel"
 placeholder="Votre téléphone"
->
+
+> 
 
 <label>Lieu de départ</label>
 
@@ -356,26 +240,23 @@ placeholder="Votre téléphone"
 id="depart"
 type="text"
 placeholder="Exemple : Gombe"
->
+
+> 
 
 <button
 class="blue"
 onclick="utiliserMaPosition()"
->
+
+> 
+
 📍 UTILISER MA POSITION COMME DÉPART
-</button>
 
-<div
-id="gpsMessage"
-class="gps-info"
->
-📍 Position GPS non activée
-</div>
+</button>  <div  
+id="gpsMessage"  
+class="gps-info"  
+>  📍 Position GPS non activée
 
-
-<div class="destination-box">
-
-<strong>🏁 Destination</strong>
+</div>  <!-- DESTINATION -->  <div class="destination-box">  <strong>🏁 Destination</strong>
 
 <br><br>
 
@@ -383,131 +264,92 @@ class="gps-info"
 id="destination"
 type="text"
 placeholder="Écrivez votre destination"
->
+
+> 
 
 <button
 class="blue"
 onclick="rechercherDestination()"
->
+
+> 
+
 🔎 RECHERCHER LA DESTINATION
-</button>
 
-<div
-id="destinationResult"
-class="destination-result"
-style="display:none"
->
-</div>
-
-</div>
-
-
-<label>Type de véhicule</label>
+</button>  <div  
+id="destinationResult"  
+class="destination-result"  
+style="display:none"  
+>  </div>  </div>  <label>Type de véhicule</label>
 
 <select
 id="vehicule"
 onchange="recalculerPrix()"
->
 
-<option value="Moto">
-🏍️ Moto
-</option>
+> 
 
-<option value="Voiture">
-🚗 Voiture
-</option>
+<option value="Moto">  
+🏍️ Moto  
+</option>  <option value="Voiture">  
+🚗 Voiture  
+</option>  </select>  <div  
+id="routeInfo"  
+class="route-info"  
+style="display:none"  
+>  <strong>📏 Distance :</strong>
 
-</select>
-
-
-<div
-id="routeInfo"
-class="route-info"
-style="display:none"
->
-
-<strong>📏 Distance :</strong>
-
-<span id="distanceRoute">
-0
-</span>
-km
+<span id="distanceRoute">  
+0  
+</span>  km
 
 <br><br>
 
 <strong>⏱️ Durée estimée :</strong>
 
-<span id="dureeRoute">
-0
-</span>
-minutes
+<span id="dureeRoute">  
+0  
+</span>  minutes
 
-</div>
+</div>  <div  
+id="priceBox"  
+class="price-box"  
+style="display:none"  
+>  <strong>  
+💰 PRIX DE LA COURSE  
+</strong>  <div class="price-total">  <span id="prixCalcule">  
+0  
+</span>  FC
 
+</div>  <div class="small">  Frais de départ + distance parcourue
 
-<div
-id="priceBox"
-class="price-box"
-style="display:none"
->
+</div>  </div>  <div  
+id="mapClient"  
+></div>  <div  
+id="message"  
+class="message"  
+></div>  <button
+onclick="demanderCourse()"
 
-<strong>
-💰 PRIX DE LA COURSE
-</strong>
+> 
 
-<div class="price-total">
-
-<span id="prixCalcule">
-0
-</span>
-FC
-
-</div>
-
-<div class="small">
-Frais de départ + distance parcourue
-</div>
-
-</div>
-
-
-<div id="mapClient"></div>
-
-<div
-id="message"
-class="message"
-></div>
-
-
-<button onclick="demanderCourse()">
 🚕 DEMANDER UNE COURSE
-</button>
 
-<button
-class="dark"
+</button>  <button
 onclick="retourAccueil()"
->
+
+> 
+
 ⬅️ RETOUR
-</button>
 
-</div>
-
-
-<!-- =====================================================
-CHAUFFEUR
-===================================================== -->
-
-<div id="chauffeur" class="section">
-
-<h2>🚗 Espace chauffeur</h2>
-
-<label>Nom du chauffeur</label>
+</button>  </div>  <!-- =====================================================  
+CHAUFFEUR  
+===================================================== -->  <div id="chauffeur" class="section">  <h2>🚗 Espace chauffeur</h2>  <label>Nom du chauffeur</label>
 
 <input
 id="nomChauffeur"
 type="text"
 placeholder="Votre nom"
->
+
+> 
 
 <label>Téléphone du chauffeur</label>
 
@@ -515,1127 +357,1028 @@ placeholder="Votre nom"
 id="telephoneChauffeur"
 type="tel"
 placeholder="Votre téléphone"
->
 
-<div
-id="chauffeurStatus"
-class="status offline"
->
-🔴 Chauffeur hors ligne
-</div>
+> 
 
-<button
+<div  
+id="chauffeurStatus"  
+class="status offline"  
+>  🔴 Chauffeur hors ligne
+
+</div>  <button
 id="boutonDisponibilite"
 class="green"
 onclick="changerDisponibilite()"
->
-🟢 DEVENIR DISPONIBLE
-</button>
 
-<button
+> 
+
+🟢 DEVENIR DISPONIBLE
+
+</button>  <button
 class="blue"
 onclick="obtenirPositionChauffeur()"
->
+
+> 
+
 📍 ACTIVER GPS CHAUFFEUR
-</button>
 
-<div
-id="gpsChauffeurMessage"
-class="gps-info"
->
-📍 GPS chauffeur non activé
-</div>
+</button>  <div  
+id="gpsChauffeurMessage"  
+class="gps-info"  
+>  📍 GPS chauffeur non activé
 
-
-<h3>🗺️ Carte du chauffeur</h3>
-
-<div id="mapChauffeur"></div>
-
-
-<div
-id="chauffeurLocationInfo"
-class="location-box"
->
-📍 Position du chauffeur :
+</div>  <!-- CARTE CHAUFFEUR -->  <h3>  
+🗺️ Carte du chauffeur  
+</h3>  <div  
+id="mapChauffeur"  
+></div>  <div  
+id="chauffeurLocationInfo"  
+class="location-box"  
+>  📍 Position du chauffeur :
 non disponible
-</div>
 
-
-<div
-id="clientLocationInfo"
-class="location-box"
->
-👤 Position du client :
+</div>  <div  
+id="clientLocationInfo"  
+class="location-box"  
+>  👤 Position du client :
 aucune course active
-</div>
 
-
-<div
-id="courseActive"
-class="driver-box"
->
-<strong>
-🚕 Aucune course active
-</strong>
-</div>
-
-
-<h3>📋 Courses disponibles</h3>
-
-<div id="listeCourses">
-
-<p>
-Appuyez sur « Devenir disponible ».
-</p>
-
-</div>
-
-
-<button
-class="dark"
+</div>  <!-- COURSE ACTIVE -->  <div  
+id="courseActive"  
+class="driver-box"  
+>  <strong>  
+🚕 Aucune course active  
+</strong>  </div>  <h3>  
+📋 Courses disponibles  
+</h3>  <div  
+id="listeCourses"  
+>  <p>  
+Appuyez sur « Devenir disponible ».  
+</p>  </div>  <button
 onclick="retourAccueil()"
->
+
+> 
+
 ⬅️ RETOUR
-</button>
 
-</div>
-
-
-<!-- =====================================================
-ADMIN LOGIN
-===================================================== -->
-
-<div id="adminLogin" class="section">
-
-<div class="admin-login">
-
-<h2 class="admin-title">
-👨‍💼 Administration YAMBOKA
-</h2>
-
-<label>Identifiant administrateur</label>
-
-<input
-id="adminUsername"
-type="text"
-placeholder="Identifiant"
->
-
-<label>Mot de passe</label>
-
-<input
-id="adminPassword"
-type="password"
-placeholder="Mot de passe"
->
-
-<div
-id="adminLoginMessage"
-class="message"
-></div>
-
-<button
-class="purple"
-onclick="connexionAdmin()"
->
-🔐 SE CONNECTER
-</button>
-
-<button
-class="dark"
-onclick="retourAccueil()"
->
-⬅️ RETOUR
-</button>
-
-</div>
-
-</div>
-
-
-<!-- =====================================================
-ADMIN
-===================================================== -->
-
-<div id="admin" class="section">
-
-<h2 class="admin-title">
-👨‍💼 TABLEAU DE BORD YAMBOKA
-</h2>
-
-
-<div class="dashboard">
-
-<div class="stat">
-👥
-<strong id="nombreClients">0</strong>
-Clients
-</div>
-
-<div class="stat">
-🚗
-<strong id="nombreChauffeurs">0</strong>
-Chauffeurs
-</div>
-
-<div class="stat">
-🟢
-<strong id="nombreChauffeursDisponibles">0</strong>
-Disponibles
-</div>
-
-<div class="stat">
-🚕
-<strong id="nombreCourses">0</strong>
-Courses
-</div>
-
-</div>
-
-
-<h3>📋 Courses</h3>
-
-<div id="adminCourses">
-
-<div class="empty">
-Aucune course enregistrée.
-</div>
-
-</div>
-
-
-<h3>🚗 Chauffeurs</h3>
-
-<div id="adminChauffeurs">
-
-<div class="empty">
-Aucun chauffeur enregistré.
-</div>
-
-</div>
-
-
-<h3>📍 Positions GPS</h3>
-
-<div id="mapAdmin"></div>
-
-
-<button
-class="red"
-onclick="deconnexionAdmin()"
->
-🔒 DÉCONNEXION ADMIN
-</button>
-
-</div>
-
-</div>
-
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
-<script>
-
-/* =====================================================
-FIREBASE
-===================================================== */
-
-const firebaseConfig = {
-
-apiKey:
-"AIzaSyAkT203kmo4NorAa0mRJY-M2u4c8v8nZ1I",
-
-authDomain:
-"yamboka-77173.firebaseapp.com",
-
-projectId:
-"yamboka-77173",
-
-storageBucket:
-"yamboka-77173.firebasestorage.app",
-
-messagingSenderId:
-"1090966765176",
-
-appId:
-"1:1090966765176:web:8d0aa5734f7652410cb78d",
-
-measurementId:
-"G-TM41TSMKCZ"
-
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const database =
-firebase.database();
-
-
-/* =====================================================
-TARIFS
-===================================================== */
-
-const FRAIS_DEPART = 2000;
-
-const TARIF_MOTO_KM = 1000;
-
-const TARIF_VOITURE_KM = 1500;
-
-
-/* =====================================================
-VARIABLES CLIENT
-===================================================== */
-
-let latitudeClient = null;
-
-let longitudeClient = null;
-
-let latitudeDestination = null;
-
-let longitudeDestination = null;
-
-let mapClient = null;
-
-let markerClient = null;
-
-let markerDestination = null;
-
-let routeLineClient = null;
-
-let distanceKm = null;
-
-let dureeMinutes = null;
-
-let prixCalcule = null;
-
-
-/* =====================================================
-VARIABLES CHAUFFEUR
-===================================================== */
-
-let chauffeurDisponible = false;
-
-let latitudeChauffeur = null;
-
-let longitudeChauffeur = null;
-
-let chauffeurWatchId = null;
-
-let courseActiveId = null;
-
-let mapChauffeur = null;
-
-let markerChauffeur = null;
-
-let markerClientChauffeur = null;
-
-let routeLineChauffeur = null;
-
-
-/* =====================================================
-VARIABLES ADMIN
-===================================================== */
-
-let mapAdmin = null;
-
-let adminConnecte = false;
-
-
-/* =====================================================
-AFFICHER CLIENT
-===================================================== */
-
-function afficherClient(){
-
-cacherToutesLesSections();
-
-document
-.getElementById("client")
-.classList.add("active");
-
-setTimeout(function(){
-
-initialiserCarteClient();
-
-},300);
-
-}
-
-
-/* =====================================================
-AFFICHER CHAUFFEUR
-===================================================== */
-
-function afficherChauffeur(){
-
-cacherToutesLesSections();
-
-document
-.getElementById("chauffeur")
-.classList.add("active");
-
-setTimeout(function(){
-
-initialiserCarteChauffeur();
-
-chargerCoursesDisponibles();
-
-},300);
-
-}
-
-
-/* =====================================================
-ADMIN LOGIN
-===================================================== */
-
-function afficherAdminLogin(){
-
-cacherToutesLesSections();
-
-document
-.getElementById("adminLogin")
-.classList.add("active");
-
-}
-
-
-function connexionAdmin(){
-
-const username =
-document
-.getElementById("adminUsername")
-.value
-.trim();
-
-const password =
-document
-.getElementById("adminPassword")
-.value;
-
-const message =
-document
-.getElementById("adminLoginMessage");
-
-
-/*
-IDENTIFIANTS ADMIN
-*/
-
-if(
-username === "admin" &&
-password === "Yamboka2026"
-){
-
-adminConnecte = true;
-
-message.style.color = "green";
-
-message.innerHTML =
-"✅ Connexion réussie.";
-
-setTimeout(function(){
-
-afficherAdmin();
-
-},500);
-
-}else{
-
-message.style.color = "red";
-
-message.innerHTML =
-"❌ Identifiant ou mot de passe incorrect.";
-
-}
-
-}
-
-
-/* =====================================================
-AFFICHER ADMIN
-===================================================== */
-
-function afficherAdmin(){
-
-if(!adminConnecte){
-
-afficherAdminLogin();
-
-return;
-
-}
-
-cacherToutesLesSections();
-
-document
-.getElementById("admin")
-.classList.add("active");
-
-setTimeout(function(){
-
-initialiserCarteAdmin();
-
-chargerDashboardAdmin();
-
-},300);
-
-}
-
-
-/* =====================================================
-DECONNEXION ADMIN
-===================================================== */
-
-function deconnexionAdmin(){
-
-adminConnecte = false;
-
-document
-.getElementById("adminUsername")
-.value = "";
-
-document
-.getElementById("adminPassword")
-.value = "";
-
-cacherToutesLesSections();
-
-document
-.getElementById("accueil")
-.classList.add("active");
-
-}
-
-
-/* =====================================================
-CACHER SECTIONS
-===================================================== */
-
-function cacherToutesLesSections(){
-
-const sections = [
-
-"accueil",
-"client",
-"chauffeur",
-"adminLogin",
-"admin"
-
-];
-
-sections.forEach(function(id){
-
-document
-.getElementById(id)
-.classList.remove("active");
-
-});
-
-}
-
-
-/* =====================================================
-RETOUR ACCUEIL
-===================================================== */
-
-function retourAccueil(){
-
-cacherToutesLesSections();
-
-document
-.getElementById("accueil")
-.classList.add("active");
-
-}
-
-
-/* =====================================================
-CARTE CLIENT
-===================================================== */
-
-function initialiserCarteClient(){
-
-if(mapClient !== null){
-
-mapClient.invalidateSize();
-
-return;
-
-}
-
-mapClient =
-L.map("mapClient")
-.setView(
-[-4.325,15.322],
-12
-);
-
-L.tileLayer(
-
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-{
-
-maxZoom:19,
-
-attribution:
-"© OpenStreetMap"
-
-}
-
-).addTo(mapClient);
-
-}
-
-
-/* =====================================================
-CARTE CHAUFFEUR
-===================================================== */
-
-function initialiserCarteChauffeur(){
-
-if(mapChauffeur !== null){
-
-mapChauffeur.invalidateSize();
-
-return;
-
-}
-
-mapChauffeur =
-L.map("mapChauffeur")
-.setView(
-[-4.325,15.322],
-12
-);
-
-L.tileLayer(
-
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-{
-
-maxZoom:19,
-
-attribution:
-"© OpenStreetMap"
-
-}
-
-).addTo(mapChauffeur);
-
-}
-
-
-/* =====================================================
-CARTE ADMIN
-===================================================== */
-
-function initialiserCarteAdmin(){
-
-if(mapAdmin !== null){
-
-mapAdmin.invalidateSize();
-
-return;
-
-}
-
-mapAdmin =
-L.map("mapAdmin")
-.setView(
-[-4.325,15.322],
-12
-);
-
-L.tileLayer(
-
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-{
-
-maxZoom:19,
-
-attribution:
-"© OpenStreetMap"
-
-}
-
-).addTo(mapAdmin);
-
-}
-
-
-/* =====================================================
-GPS CLIENT
-===================================================== */
-
-function utiliserMaPosition(){
-
-if(!navigator.geolocation){
-
-document
-.getElementById("gpsMessage")
-.innerHTML =
-"❌ GPS non disponible.";
-
-return;
-
-}
-
-
-navigator.geolocation.getCurrentPosition(
-
-function(position){
-
-latitudeClient =
-position.coords.latitude;
-
-longitudeClient =
-position.coords.longitude;
-
-
-document
-.getElementById("gpsMessage")
-.innerHTML =
-
-"📍 Position client : " +
-
-latitudeClient.toFixed(6) +
-
-", " +
-
-longitudeClient.toFixed(6);
-
-
-initialiserCarteClient();
-
-
-mapClient.setView(
-
-[
-latitudeClient,
-longitudeClient
-],
-
-15
-
-);
-
-
-if(markerClient !== null){
-
-mapClient.removeLayer(
-markerClient
-);
-
-}
-
-
-markerClient =
-L.marker(
-[
-latitudeClient,
-longitudeClient
-]
-)
-.addTo(mapClient)
-.bindPopup(
-"👤 Votre position"
-)
-.openPopup();
-
-
-if(
-document
-.getElementById("depart")
-.value
-.trim() === ""
-){
-
-document
-.getElementById("depart")
-.value =
-"Ma position actuelle";
-
-}
-
-},
-
-function(){
-
-document
-.getElementById("gpsMessage")
-.innerHTML =
-
-"❌ Impossible d'obtenir votre position. Autorisez le GPS.";
-
-},
-
-{
-
-enableHighAccuracy:true,
-
-timeout:15000,
-
-maximumAge:0
-
-}
-
-);
-
-}
-
-
-/* =====================================================
-RECHERCHE DESTINATION
-===================================================== */
-
-async function rechercherDestination(){
-
-const destination =
-document
-.getElementById("destination")
-.value
-.trim();
-
-const result =
-document
-.getElementById("destinationResult");
-
-const message =
-document
-.getElementById("message");
-
-
-if(destination === ""){
-
-message.style.color =
-"red";
-
-message.innerHTML =
-"❌ Écrivez d'abord votre destination.";
-
-return;
-
-}
-
-
-if(
-latitudeClient === null ||
-longitudeClient === null
-){
-
-message.style.color =
-"red";
-
-message.innerHTML =
-"❌ Activez d'abord votre position GPS.";
-
-return;
-
-}
-
-
-result.style.display =
-"block";
-
-result.innerHTML =
-"🔎 Recherche de la destination...";
-
-
-const url =
-
-"https://nominatim.openstreetmap.org/search?" +
-
-"format=json" +
-
-"&q=" +
-
-encodeURIComponent(
-destination + ", Kinshasa"
-) +
-
-"&limit=1" +
-
-"&countrycodes=cd";
-
-
-try{
-
-const response =
-await fetch(url,{
-headers:{
-"Accept-Language":"fr"
-}
-});
-
-const data =
-await response.json();
-
-
-if(!data.length){
-
-result.innerHTML =
-"❌ Destination introuvable.";
-
-return;
-
-}
-
-
-latitudeDestination =
-parseFloat(
-data[0].lat
-);
-
-longitudeDestination =
-parseFloat(
-data[0].lon
-);
-
-
-const nomDestination =
-data[0].display_name;
-
-
-result.innerHTML =
-
-"✅ Destination trouvée :<br>" +
-
-"<strong>" +
-
-nomDestination +
-
-"</strong>";
-
-
-initialiserCarteClient();
-
-
-if(markerDestination !== null){
-
-mapClient.removeLayer(
-markerDestination
-);
-
-}
-
-
-markerDestination =
-L.marker(
-[
-latitudeDestination,
-longitudeDestination
-]
-)
-.addTo(mapClient)
-.bindPopup(
-"🏁 " + nomDestination
-)
-.openPopup();
-
-
-calculerItineraire();
-
-}
-
-catch(error){
-
-console.error(error);
-
-result.innerHTML =
-"❌ Erreur pendant la recherche.";
-
-}
-
-}
-
-
-/* =====================================================
-CALCUL ITINERAIRE
-===================================================== */
-
-async function calculerItineraire(){
-
-if(
-
-latitudeClient === null ||
-
-longitudeClient === null ||
-
-latitudeDestination === null ||
-
-longitudeDestination === null
-
-){
-
-return;
-
-}
-
-
-const message =
-document.getElementById("message");
-
-
-message.style.color =
-"#1479d1";
-
-message.innerHTML =
-"⏳ Calcul de la distance et du prix...";
-
-
-const url =
-
-"https://router.project-osrm.org/route/v1/driving/" +
-
-longitudeClient +
-"," +
-latitudeClient +
-
-";" +
-
-longitudeDestination +
-"," +
-latitudeDestination +
-
-"?overview=full&geometries=geojson";
-
-
-try{
-
-const response =
-await fetch(url);
-
-const data =
-await response.json();
-
-
-if(
-data.code !== "Ok" ||
-!data.routes ||
-!data.routes.length
-){
-
-throw new Error(
-"Route introuvable"
-);
-
-}
-
-
-const route =
-data.routes[0];
-
-
-distanceKm =
-route.distance / 1000;
-
-
-dureeMinutes =
-Math.ceil(
-route.duration / 60
-);
-
-
-recalculerPrix();
-
-
-document
-.getElementById("distanceRoute")
-.innerHTML =
-distanceKm.toFixed(2);
-
-
-document
-.getElementById("dureeRoute")
-.innerHTML =
-dureeMinutes;
-
-
-document
-.getElementById("routeInfo")
-.style.display =
-"block";
-
-
-document
-.getElementById("priceBox")
-.style.display =
-"block";
-
-
-if(routeLineClient !== null){
-
-mapClient.removeLayer(
-routeLineClient
-);
-
-}
-
-
-const coordinates =
-route.geometry.coordinates.map(
-
-function(coord){
-
-return [
-coord[1],
-coord[0]
-];
-
-}
-
-);
-
-
-routeLineClient =
-L.polyline(
-coordinates
-);
-
-
-routeLineClient.addTo(
-mapClient
-);
-
-
-mapClient.fitBounds(
-routeLineClient.getBounds(),
-{
-padding:[30,30]
-}
-);
-
-
-message.style.color =
-"green";
-
-message.innerHTML =
-"✅ Prix calculé automatiquement.";
-
-}
-
-catch(error){
-
-console.error(error);
-
-message.style.color =
-"red";
-
-message.innerHTML =
-"❌ Impossible de calculer l'itinéraire.";
-
-}
-
-}
-
-
-/* ====================================================
+</button>  </div>  </div>  <!-- =====================================================  
+FIREBASE  
+===================================================== -->  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>  <!-- =====================================================  
+LEAFLET  
+===================================================== -->  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>  <script>  
+  
+/* =====================================================  
+FIREBASE  
+===================================================== */  
+  
+const firebaseConfig = {  
+  
+apiKey:  
+"AIzaSyAkT203kmo4NorAa0mRJY-M2u4c8v8nZ1I",  
+  
+authDomain:  
+"yamboka-77173.firebaseapp.com",  
+  
+projectId:  
+"yamboka-77173",  
+  
+storageBucket:  
+"yamboka-77173.firebasestorage.app",  
+  
+messagingSenderId:  
+"1090966765176",  
+  
+appId:  
+"1:1090966765176:web:8d0aa5734f7652410cb78d",  
+  
+measurementId:  
+"G-TM41TSMKCZ"  
+  
+};  
+  
+  
+firebase.initializeApp(firebaseConfig);  
+  
+const database =  
+firebase.database();  
+  
+  
+  
+/* =====================================================  
+TARIFS  
+===================================================== */  
+  
+const FRAIS_DEPART = 2000;  
+  
+const TARIF_MOTO_KM = 1000;  
+  
+const TARIF_VOITURE_KM = 1500;  
+  
+  
+  
+/* =====================================================  
+VARIABLES CLIENT  
+===================================================== */  
+  
+let latitudeClient = null;  
+  
+let longitudeClient = null;  
+  
+let latitudeDestination = null;  
+  
+let longitudeDestination = null;  
+  
+let mapClient = null;  
+  
+let markerClient = null;  
+  
+let markerDestination = null;  
+  
+let routeLineClient = null;  
+  
+let distanceKm = null;  
+  
+let dureeMinutes = null;  
+  
+let prixCalcule = null;  
+  
+  
+  
+/* =====================================================  
+VARIABLES CHAUFFEUR  
+===================================================== */  
+  
+let chauffeurDisponible = false;  
+  
+let latitudeChauffeur = null;  
+  
+let longitudeChauffeur = null;  
+  
+let chauffeurWatchId = null;  
+  
+let courseActiveId = null;  
+  
+let mapChauffeur = null;  
+  
+let markerChauffeur = null;  
+  
+let markerClientChauffeur = null;  
+  
+let routeLineChauffeur = null;  
+  
+  
+  
+/* =====================================================  
+AFFICHER CLIENT  
+===================================================== */  
+  
+function afficherClient(){  
+  
+document  
+.getElementById("accueil")  
+.classList.remove("active");  
+  
+document  
+.getElementById("chauffeur")  
+.classList.remove("active");  
+  
+document  
+.getElementById("client")  
+.classList.add("active");  
+  
+  
+setTimeout(function(){  
+  
+initialiserCarteClient();  
+  
+},300);  
+  
+}  
+  
+  
+  
+/* =====================================================  
+AFFICHER CHAUFFEUR  
+===================================================== */  
+  
+function afficherChauffeur(){  
+  
+document  
+.getElementById("accueil")  
+.classList.remove("active");  
+  
+document  
+.getElementById("client")  
+.classList.remove("active");  
+  
+document  
+.getElementById("chauffeur")  
+.classList.add("active");  
+  
+  
+setTimeout(function(){  
+  
+initialiserCarteChauffeur();  
+  
+},300);  
+  
+}  
+  
+  
+  
+/* =====================================================  
+RETOUR  
+===================================================== */  
+  
+function retourAccueil(){  
+  
+document  
+.getElementById("client")  
+.classList.remove("active");  
+  
+document  
+.getElementById("chauffeur")  
+.classList.remove("active");  
+  
+document  
+.getElementById("accueil")  
+.classList.add("active");  
+  
+}  
+  
+  
+  
+/* =====================================================  
+CARTE CLIENT  
+===================================================== */  
+  
+function initialiserCarteClient(){  
+  
+if(mapClient !== null){  
+  
+mapClient.invalidateSize();  
+  
+return;  
+  
+}  
+  
+  
+mapClient =  
+L.map("mapClient")  
+.setView(  
+[-4.325,15.322],  
+12  
+);  
+  
+  
+L.tileLayer(  
+  
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",  
+  
+{  
+  
+maxZoom:19,  
+  
+attribution:  
+"© OpenStreetMap"  
+  
+}  
+  
+).addTo(mapClient);  
+  
+}  
+  
+  
+  
+/* =====================================================  
+CARTE CHAUFFEUR  
+===================================================== */  
+  
+function initialiserCarteChauffeur(){  
+  
+if(mapChauffeur !== null){  
+  
+mapChauffeur.invalidateSize();  
+  
+return;  
+  
+}  
+  
+  
+mapChauffeur =  
+L.map("mapChauffeur")  
+.setView(  
+[-4.325,15.322],  
+12  
+);  
+  
+  
+L.tileLayer(  
+  
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",  
+  
+{  
+  
+maxZoom:19,  
+  
+attribution:  
+"© OpenStreetMap"  
+  
+}  
+  
+).addTo(mapChauffeur);  
+  
+}  
+  
+  
+  
+/* =====================================================  
+GPS CLIENT  
+===================================================== */  
+  
+function utiliserMaPosition(){  
+  
+if(!navigator.geolocation){  
+  
+document  
+.getElementById("gpsMessage")  
+.innerHTML =  
+"❌ GPS non disponible.";  
+  
+return;  
+  
+}  
+  
+  
+navigator.geolocation.getCurrentPosition(  
+  
+function(position){  
+  
+latitudeClient =  
+position.coords.latitude;  
+  
+longitudeClient =  
+position.coords.longitude;  
+  
+  
+document  
+.getElementById("gpsMessage")  
+.innerHTML =  
+  
+"📍 Position client : " +  
+  
+latitudeClient.toFixed(6) +  
+  
+", " +  
+  
+longitudeClient.toFixed(6);  
+  
+  
+initialiserCarteClient();  
+  
+  
+mapClient.setView(  
+  
+[  
+latitudeClient,  
+longitudeClient  
+],  
+  
+15  
+  
+);  
+  
+  
+if(markerClient !== null){  
+  
+mapClient.removeLayer(  
+markerClient  
+);  
+  
+}  
+  
+  
+markerClient =  
+L.marker(  
+[  
+latitudeClient,  
+longitudeClient  
+]  
+)  
+.addTo(mapClient)  
+.bindPopup(  
+"👤 Votre position"  
+)  
+.openPopup();  
+  
+  
+/*  
+SI LE DÉPART EST VIDE,  
+ON MET LA POSITION GPS  
+*/  
+  
+if(  
+document  
+.getElementById("depart")  
+.value  
+.trim() === ""  
+){  
+  
+document  
+.getElementById("depart")  
+.value =  
+"Ma position actuelle";  
+  
+}  
+  
+},  
+  
+function(){  
+  
+document  
+.getElementById("gpsMessage")  
+.innerHTML =  
+  
+"❌ Impossible d'obtenir votre position. Autorisez le GPS.";  
+  
+},  
+  
+{  
+  
+enableHighAccuracy:true,  
+  
+timeout:15000,  
+  
+maximumAge:0  
+  
+}  
+  
+);  
+  
+}  
+  
+  
+  
+/* =====================================================  
+RECHERCHE DESTINATION  
+===================================================== */  
+  
+async function rechercherDestination(){  
+  
+const destination =  
+document  
+.getElementById("destination")  
+.value  
+.trim();  
+  
+  
+const result =  
+document  
+.getElementById("destinationResult");  
+  
+  
+const message =  
+document  
+.getElementById("message");  
+  
+  
+if(destination === ""){  
+  
+message.style.color =  
+"red";  
+  
+message.innerHTML =  
+"❌ Écrivez d'abord votre destination.";  
+  
+return;  
+  
+}  
+  
+  
+if(  
+latitudeClient === null ||  
+longitudeClient === null  
+){  
+  
+message.style.color =  
+"red";  
+  
+message.innerHTML =  
+"❌ Activez d'abord votre position GPS.";  
+  
+return;  
+  
+}  
+  
+  
+result.style.display =  
+"block";  
+  
+result.innerHTML =  
+"🔎 Recherche de la destination...";  
+  
+  
+/*  
+NOMINATIM  
+*/  
+  
+const url =  
+  
+"https://nominatim.openstreetmap.org/search?" +  
+  
+"format=json" +  
+  
+"&q=" +  
+  
+encodeURIComponent(  
+destination + ", Kinshasa"  
+) +  
+  
+"&limit=1" +  
+  
+"&countrycodes=cd";  
+  
+  
+try{  
+  
+const response =  
+await fetch(url,{  
+headers:{  
+"Accept-Language":"fr"  
+}  
+});  
+  
+  
+const data =  
+await response.json();  
+  
+  
+if(  
+!data.length  
+){  
+  
+result.innerHTML =  
+"❌ Destination introuvable. Essayez une autre adresse.";  
+  
+return;  
+  
+}  
+  
+  
+latitudeDestination =  
+parseFloat(  
+data[0].lat  
+);  
+  
+longitudeDestination =  
+parseFloat(  
+data[0].lon  
+);  
+  
+  
+const nomDestination =  
+data[0].display_name;  
+  
+  
+result.innerHTML =  
+  
+"✅ Destination trouvée :<br><strong>" +  
+  
+nomDestination +  
+  
+"</strong>";  
+  
+  
+/*  
+MARQUEUR DESTINATION  
+*/  
+  
+initialiserCarteClient();  
+  
+  
+if(markerDestination !== null){  
+  
+mapClient.removeLayer(  
+markerDestination  
+);  
+  
+}  
+  
+  
+markerDestination =  
+L.marker(  
+[  
+latitudeDestination,  
+longitudeDestination  
+]  
+)  
+.addTo(mapClient)  
+.bindPopup(  
+"🏁 " + nomDestination  
+)  
+.openPopup();  
+  
+  
+/*  
+CALCUL ROUTE  
+*/  
+  
+calculerItineraire();  
+  
+  
+}  
+  
+catch(error){  
+  
+console.error(error);  
+  
+result.innerHTML =  
+"❌ Erreur pendant la recherche.";  
+  
+}  
+  
+}  
+  
+  
+  
+/* =====================================================  
+CALCUL ITINERAIRE  
+===================================================== */  
+  
+async function calculerItineraire(){  
+  
+if(  
+  
+latitudeClient === null ||  
+  
+longitudeClient === null ||  
+  
+latitudeDestination === null ||  
+  
+longitudeDestination === null  
+  
+){  
+  
+return;  
+  
+}  
+  
+  
+const message =  
+document.getElementById("message");  
+  
+  
+message.style.color =  
+"#1479d1";  
+  
+message.innerHTML =  
+"⏳ Calcul de la distance et du prix...";  
+  
+  
+const url =  
+  
+"https://router.project-osrm.org/route/v1/driving/" +  
+  
+longitudeClient +  
+"," +  
+latitudeClient +  
+";" +  
+  
+longitudeDestination +  
+"," +  
+latitudeDestination +  
+  
+"?overview=full&geometries=geojson";  
+  
+  
+try{  
+  
+const response =  
+await fetch(url);  
+  
+  
+const data =  
+await response.json();  
+  
+  
+if(  
+  
+data.code !== "Ok" ||  
+  
+!data.routes ||  
+  
+!data.routes.length  
+  
+){  
+  
+throw new Error(  
+"Route introuvable"  
+);  
+  
+}  
+  
+  
+const route =  
+data.routes[0];  
+  
+  
+distanceKm =  
+route.distance / 1000;  
+  
+  
+dureeMinutes =  
+Math.ceil(  
+route.duration / 60  
+);  
+  
+  
+/*  
+PRIX  
+*/  
+  
+recalculerPrix();  
+  
+  
+document  
+.getElementById("distanceRoute")  
+innerHTML =  
+  
+distanceKm.toFixed(2);  
+  
+  
+document  
+.getElementById("dureeRoute")  
+innerHTML =  
+  
+dureeMinutes;  
+  
+  
+document  
+.getElementById("routeInfo")  
+.style.display =  
+"block";  
+  
+  
+document  
+.getElementById("priceBox")  
+.style.display =  
+"block";  
+  
+  
+/*  
+DESSINER ROUTE CLIENT  
+*/  
+  
+if(routeLineClient !== null){  
+  
+mapClient.removeLayer(  
+routeLineClient  
+);  
+  
+}  
+  
+  
+const coordinates =  
+route.geometry.coordinates.map(  
+function(coord){  
+  
+return [  
+coord[1],  
+coord[0]  
+];  
+  
+});  
+  
+  
+routeLineClient =  
+L.polyline(  
+coordinates  
+);  
+  
+  
+routeLineClient.addTo(  
+mapClient  
+);  
+  
+  
+mapClient.fitBounds(  
+routeLineClient.getBounds(),  
+{  
+padding:[30,30]  
+}  
+);  
+  
+  
+message.style.color =  
+"green";  
+  
+message.innerHTML =  
+"✅ Prix calculé automatiquement.";  
+  
+}  
+  
+catch(error){  
+  
+console.error(error);  
+  
+message.style.color =  
+"red";  
+  
+message.innerHTML =  
+"❌ Impossible de calculer l'itinéraire.";  
+  
+}  
+  
+}  
+  
+  
+  
+/* =====================================================  
+CALCUL PRIX  
+===================================================== */  
+  
+function recalculerPrix(){  
+  
+if(distanceKm === null){  
+  
+return;  
+  
+}  
+  
+  
+const vehicule =  
+document  
+.getElementById("vehicule")  
+.value;  
+  
+  
+let tarifKm;  
+  
+  
+if(  
+vehicule === "Moto"  
+){  
+  
+tarifKm =  
+TARIF_MOTO_KM;  
+  
+}else{  
+  
+tarifKm =  
+TARIF_VOITURE_KM;  
+  
+}  
+  
+  
+const prix =  
+FRAIS_DEPART +  
+(  
+distanceKm * tarifKm  
+);  
+  
+  
+prixCalcule =  
+Math.ceil(  
+prix / 500  
+) * 500;  
+  
+  
+document  
+.getElementById("prixCalcule")  
+.innerHTML =  
+  
+prixCalcule  
+.toLocaleString("fr-FR");  
+  
+  
+document  
+.getElementById("priceBox")  
+.style.display =  
+"block";  
+  
+}  
+  
+  
+  
+/* =====================================================  
+DEMANDER COURSE  
+===================================================== */  
+  
+function demanderCourse(){  
+  
+const nom =  
+document  
+.getElementById("nomClient")  
+.value  
+.trim();  
+  
+  
+const telephone =  
+document  
+.getElementById("telephoneClient")  
+.value  
+.trim();  
+  
+  
+const depart =  
+document  
+.getElementById("depart")  
+.value  
+.trim();  
+  
+  
+const destination =  
+document  
+.getElementById("destination")  
+.value  
+.trim();  
+  
+  
+const vehicule =  
+document  
+.getElementById("vehicule")  
+.value;  
+  
+  
+const message =  
+document  
+.getElementById("message");  
+  
+  
+if(  
+nom === "" ||  
+telephone === "" ||  
+depart === "" ||  
+destination === ""  
+){  
+  
+message.style.color =  
+"red";  
+  
+message.innerHTML =  
+"❌ Veuillez remplir tous les champs.";  
+  
+return;  
+  
+}  
+  
+  
+if(  
+latitudeClient === null ||  
+longitudeClient === null  
+){  
+  
+message.style.color =  
+"red";  
+  
+message.innerHTML =  
+"❌ Activez votre position GPS.";  
+  
+return;  
+  
+}  
+  
+  
+if(  
+latitudeDestination === null ||  
+longitudeDestination === null  
+){  
+  
+message.style.color =  
+"red";  
+  
+message.innerHTML =  
+"❌ Recherchez votre destination.";  
+  
+return;  
+  
+}  
+  
+  
+if(  
+prixCalcule === null  
+){  
+  
+message.style.color =  
+"red";  
+  
+message.innerHTML =  
+"❌ Le prix n'est pas encore calculé.";  
+  
+return;  
+  
+}  
+  
+  
+const course = {  
+  
+nomClient:  
+nom,  
+  
+telephoneClient:  
+telephone,  
+  
+depart:  
+depart,  
+  
+destinati
