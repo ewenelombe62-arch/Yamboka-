@@ -2,11 +2,8 @@
 <html lang="fr">
 
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>YAMBOKA</title>
 
@@ -24,20 +21,20 @@ box-sizing:border-box;
 body{
 margin:0;
 font-family:Arial,sans-serif;
-background:#f4f4f4;
+background:#f4f6f8;
 color:#222;
 }
 
 header{
 background:#ff7a00;
 color:white;
+padding:22px 15px;
 text-align:center;
-padding:20px;
 }
 
 header h1{
 margin:0;
-font-size:34px;
+font-size:32px;
 }
 
 header p{
@@ -45,223 +42,215 @@ margin:5px 0 0;
 }
 
 .container{
-max-width:600px;
+max-width:700px;
 margin:auto;
 padding:15px;
 }
 
+.card{
+background:white;
+padding:20px;
+margin:15px 0;
+border-radius:15px;
+box-shadow:0 3px 12px rgba(0,0,0,.10);
+}
+
+h2{
+margin-top:0;
+}
+
+input,select{
+width:100%;
+padding:13px;
+margin:7px 0 12px;
+border:1px solid #ccc;
+border-radius:9px;
+font-size:16px;
+}
+
 button{
 width:100%;
-padding:15px;
-margin-top:10px;
+padding:14px;
+margin:6px 0;
 border:none;
 border-radius:10px;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-}
-
-.btn-client{
 background:#ff7a00;
 color:white;
 }
 
-.btn-chauffeur{
-background:#222;
-color:white;
+button:hover{
+opacity:.9;
 }
 
-.btn-gps{
+.btn-blue{
 background:#1976d2;
-color:white;
 }
 
-.btn-course{
-background:#00a651;
-color:white;
+.btn-green{
+background:#16a34a;
 }
 
-.btn-accepter{
-background:#00a651;
-color:white;
+.btn-red{
+background:#dc2626;
 }
 
-.btn-position{
-background:#673ab7;
-color:white;
+.btn-dark{
+background:#222;
 }
 
-.btn-finish{
-background:#e53935;
-color:white;
-}
-
-.btn-retour{
-background:#555;
-color:white;
-}
-
-.btn-note{
-background:#ff9800;
-color:white;
-}
-
-input,
-select{
-width:100%;
-padding:14px;
-margin-top:6px;
-margin-bottom:12px;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:16px;
-}
-
-label{
-font-weight:bold;
-display:block;
-margin-top:10px;
-}
-
-.card{
-background:white;
-padding:18px;
-border-radius:12px;
-margin-top:15px;
-box-shadow:0 2px 8px rgba(0,0,0,.12);
+.btn-gray{
+background:#666;
 }
 
 .hidden{
-display:none;
+display:none !important;
+}
+
+.status{
+padding:12px;
+border-radius:9px;
+margin:10px 0;
+background:#eee;
+}
+
+.course{
+border:1px solid #ddd;
+border-radius:12px;
+padding:15px;
+margin:12px 0;
+background:#fafafa;
+}
+
+.badge{
+display:inline-block;
+padding:6px 10px;
+border-radius:20px;
+font-size:13px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.badge-attente{
+background:#fff3cd;
+color:#856404;
+}
+
+.badge-acceptee{
+background:#d1ecf1;
+color:#0c5460;
+}
+
+.badge-terminee{
+background:#d4edda;
+color:#155724;
+}
+
+.badge-annulee{
+background:#f8d7da;
+color:#721c24;
 }
 
 #mapClient,
 #mapChauffeur{
 height:350px;
-width:100%;
-margin-top:15px;
 border-radius:12px;
-overflow:hidden;
-}
-
-.course{
-background:#fff;
-border-left:5px solid #ff7a00;
-padding:15px;
 margin-top:12px;
-border-radius:8px;
-box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
 
-.status{
-padding:12px;
-border-radius:8px;
-background:#eee;
-margin-top:10px;
-text-align:center;
+.admin-stat{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
 }
 
-.big-info{
-font-size:18px;
-font-weight:bold;
-text-align:center;
+.stat{
+background:#f5f5f5;
 padding:15px;
-line-height:1.8;
+border-radius:12px;
+text-align:center;
 }
 
-.stars{
-display:flex;
-gap:5px;
-justify-content:center;
-margin:15px 0;
+.stat strong{
+display:block;
+font-size:25px;
+color:#ff7a00;
 }
 
 .star{
-font-size:38px;
+font-size:32px;
 cursor:pointer;
 }
 
-.history{
-background:#f8f8f8;
-padding:12px;
-border-radius:8px;
-margin-top:10px;
-border-left:4px solid #ff7a00;
+.admin-table{
+width:100%;
+border-collapse:collapse;
+font-size:13px;
+}
+
+.admin-table th,
+.admin-table td{
+border:1px solid #ddd;
+padding:8px;
+text-align:left;
+}
+
+.admin-table th{
+background:#ff7a00;
+color:white;
+}
+
+.small{
+font-size:13px;
+color:#666;
 }
 
 </style>
-
 </head>
-
 
 <body>
 
-
 <header>
-
 <h1>YAMBOKA</h1>
-
 <p>Votre transport, simplement.</p>
-
 </header>
-
 
 <div class="container">
 
+<!-- ACCUEIL -->
 
-<!-- =========================
-     ACCUEIL
-========================= -->
-
-<div id="accueil">
-
-<div class="card">
+<div id="accueil" class="card">
 
 <h2>Bienvenue sur YAMBOKA</h2>
 
-<button
-class="btn-client"
-onclick="ouvrirClient()">
-
+<button onclick="ouvrirClient()">
 🧑 CLIENT
-
 </button>
 
-<button
-class="btn-chauffeur"
-onclick="ouvrirChauffeur()">
-
+<button onclick="ouvrirChauffeur()">
 🚗 CHAUFFEUR
+</button>
 
+<button class="btn-dark" onclick="ouvrirAdmin()">
+👨‍💼 ADMINISTRATEUR
 </button>
 
 </div>
 
-</div>
 
+<!-- CLIENT -->
 
-
-<!-- =========================
-     CLIENT
-========================= -->
-
-<div id="espaceClient"
-class="hidden">
-
-
-<button
-class="btn-retour"
-onclick="retourAccueil()">
-
-⬅️ RETOUR
-
-</button>
-
+<div id="espaceClient" class="hidden">
 
 <div class="card">
 
-<h2>🧑 Espace client</h2>
+<button class="btn-gray" onclick="retourAccueil()">
+⬅️ RETOUR
+</button>
 
+<h2>🧑 Espace client</h2>
 
 <label>Nom du client</label>
 
@@ -271,7 +260,6 @@ type="text"
 placeholder="Votre nom"
 >
 
-
 <label>Téléphone</label>
 
 <input
@@ -280,261 +268,125 @@ type="tel"
 placeholder="Votre téléphone"
 >
 
-
 <label>Lieu de départ</label>
 
 <input
-id="departClient"
+id="depart"
 type="text"
 placeholder="Lieu de départ"
 >
 
-
 <label>Destination</label>
 
 <input
-id="destinationClient"
+id="destination"
 type="text"
 placeholder="Destination"
 >
 
-
 <label>Type de véhicule</label>
 
-<select id="vehiculeClient">
-
-<option value="moto">
-🏍️ Moto
-</option>
-
-<option value="voiture">
-🚗 Voiture
-</option>
-
+<select id="vehicule">
+<option value="Moto">🏍️ Moto</option>
+<option value="Voiture">🚗 Voiture</option>
 </select>
 
-
-<label>Prix proposé (FC)</label>
+<label>Prix proposé en FC</label>
 
 <input
-id="prixClient"
+id="prix"
 type="number"
-placeholder="Exemple : 5000"
+placeholder="Ex: 5000"
 >
 
-
 <button
-class="btn-gps"
-onclick="utiliserPositionClient()">
-
+class="btn-blue"
+onclick="obtenirPositionClient()"
+>
 📍 UTILISER MA POSITION
-
 </button>
 
-
-<div
-id="statutGPSClient"
-class="status">
-
+<div id="positionClientInfo" class="status">
 Position non définie
+</div>
+
+<button
+onclick="demanderCourse()"
+>
+🚕 DEMANDER UNE COURSE
+</button>
 
 </div>
 
+
+<div id="clientCourse" class="card hidden">
+
+<h2>🚕 Ma course</h2>
+
+<div id="clientStatus"></div>
+
+<div id="chauffeurInfo"></div>
+
+<div id="routeInfo"></div>
 
 <div id="mapClient"></div>
 
-
 <button
-class="btn-course"
-onclick="demanderCourse()">
-
-🚕 DEMANDER UNE COURSE
-
-</button>
-
-</div>
-
-
-
-<!-- INFORMATIONS CHAUFFEUR -->
-
-<div
-id="infoChauffeur"
-class="card hidden">
-
-<h2>🚗 Votre chauffeur</h2>
-
-
-<p>
-<strong>Nom :</strong>
-<span id="nomChauffeurClient"></span>
-</p>
-
-
-<p>
-<strong>Téléphone :</strong>
-<span id="telephoneChauffeurClient"></span>
-</p>
-
-
-<div
-id="positionChauffeurInfo"
-class="status">
-
-🟡 En attente de la position du chauffeur...
-
-</div>
-
-
-<div
-id="distanceETA"
-class="big-info">
-
-📏 Distance routière : --<br>
-
-⏱️ Temps d'arrivée : --
-
-</div>
-
-
-<div
-id="courseClientStatus"
-class="status">
-
-🟢 Course acceptée
-
-</div>
-
-
-<button
-id="boutonAnnulerClient"
-class="btn-finish"
-onclick="annulerCourseClient()">
-
+class="btn-red"
+onclick="annulerCourse()"
+>
 ❌ ANNULER LA COURSE
-
 </button>
 
+<div id="notationClient" class="hidden">
+
+<h3>⭐ Notez votre chauffeur</h3>
+
+<p>Votre avis nous aide à améliorer YAMBOKA.</p>
+
+<div id="stars"></div>
 
 <button
-id="boutonNoterClient"
-class="btn-note hidden"
-onclick="ouvrirNotation()">
-
-⭐ NOTER LE CHAUFFEUR
-
-</button>
-
-</div>
-
-
-
-<!-- NOTATION -->
-
-<div
-id="notationClient"
-class="card hidden">
-
-<h2>⭐ Évaluer votre chauffeur</h2>
-
-<p style="text-align:center">
-Comment s'est passée votre course ?
-</p>
-
-
-<div class="stars">
-
-<span
-class="star"
-onclick="choisirNote(1)">
-☆</span>
-
-<span
-class="star"
-onclick="choisirNote(2)">
-☆</span>
-
-<span
-class="star"
-onclick="choisirNote(3)">
-☆</span>
-
-<span
-class="star"
-onclick="choisirNote(4)">
-☆</span>
-
-<span
-class="star"
-onclick="choisirNote(5)">
-☆</span>
-
-</div>
-
-
-<div
-id="noteChoisie"
-class="big-info">
-
-Aucune note sélectionnée
-
-</div>
-
-
-<button
-class="btn-note"
-onclick="envoyerNote()">
-
+class="btn-green"
+onclick="envoyerNote()"
+>
 ⭐ ENVOYER LA NOTE
-
 </button>
 
 </div>
 
-
-
-<!-- HISTORIQUE CLIENT -->
-
-<div
-id="historiqueClient"
-class="card">
-
-<h2>📋 Mes courses</h2>
-
-<div id="historiqueClientContainer">
-
-Aucune course terminée.
-
 </div>
-
-</div>
-
-
-</div>
-
-
-
-<!-- =========================
-     CHAUFFEUR
-========================= -->
-
-<div id="espaceChauffeur"
-class="hidden">
-
-
-<button
-class="btn-retour"
-onclick="retourAccueil()">
-
-⬅️ RETOUR
-
-</button>
 
 
 <div class="card">
 
-<h2>🚗 Espace chauffeur</h2>
+<h2>📜 Mon historique</h2>
 
+<button
+class="btn-blue"
+onclick="chargerHistoriqueClient()"
+>
+VOIR MON HISTORIQUE
+</button>
+
+<div id="historiqueClient"></div>
+
+</div>
+
+</div>
+
+
+<!-- CHAUFFEUR -->
+
+<div id="espaceChauffeur" class="hidden">
+
+<div class="card">
+
+<button class="btn-gray" onclick="retourAccueil()">
+⬅️ RETOUR
+</button>
+
+<h2>🚗 Espace chauffeur</h2>
 
 <label>Nom du chauffeur</label>
 
@@ -544,7 +396,6 @@ type="text"
 placeholder="Votre nom"
 >
 
-
 <label>Téléphone du chauffeur</label>
 
 <input
@@ -553,118 +404,213 @@ type="tel"
 placeholder="Votre téléphone"
 >
 
-
-<div
-id="statutChauffeur"
-class="status">
-
-🔴 Chauffeur hors ligne
-
-</div>
-
-
 <button
-class="btn-course"
-onclick="voirCourses()">
-
+class="btn-green"
+onclick="voirCourses()"
+>
 📋 VOIR LES COURSES
-
 </button>
 
+</div>
+
+
+<div class="card">
+
+<h2>🟢 Statut chauffeur</h2>
+
+<div id="statutChauffeur">
+🔴 Chauffeur hors ligne
+</div>
 
 <button
-class="btn-position"
-onclick="demarrerPositionChauffeur()">
+class="btn-green"
+onclick="mettreEnLigne()"
+>
+🟢 ME METTRE EN LIGNE
+</button>
 
+<button
+class="btn-red"
+onclick="mettreHorsLigne()"
+>
+🔴 ME METTRE HORS LIGNE
+</button>
+
+</div>
+
+
+<div id="listeCourses" class="card hidden">
+
+<h2>🚕 Courses disponibles</h2>
+
+<div id="coursesDisponibles"></div>
+
+</div>
+
+
+<div id="courseChauffeur" class="card hidden">
+
+<h2>🚕 Course actuelle</h2>
+
+<div id="detailsCourseChauffeur"></div>
+
+<div id="mapChauffeur"></div>
+
+<button
+class="btn-blue"
+onclick="voirPositionClient()"
+>
+🗺️ VOIR POSITION DU CLIENT
+</button>
+
+<button
+class="btn-green"
+onclick="demarrerGPSChauffeur()"
+>
 📍 PARTAGER MA POSITION
-
 </button>
-
-</div>
-
-
-
-<!-- COURSES -->
-
-<div
-id="listeCourses"
-class="card hidden">
-
-<h2>📋 Courses disponibles</h2>
-
-<div id="coursesContainer"></div>
-
-</div>
-
-
-
-<!-- CARTE CHAUFFEUR -->
-
-<div
-id="mapChauffeur"
-class="hidden">
-</div>
-
-
-
-<!-- COURSE ACTIVE -->
-
-<div
-id="courseActive"
-class="card hidden">
-
-<h2>🚕 Course en cours</h2>
-
-<div id="detailsCourseActive"></div>
-
 
 <button
-class="btn-finish"
-onclick="terminerCourse()">
-
+class="btn-red"
+onclick="terminerCourse()"
+>
 ✅ TERMINER LA COURSE
-
 </button>
 
 </div>
 
 
+<div class="card">
 
-<!-- HISTORIQUE CHAUFFEUR -->
+<h2>📜 Historique chauffeur</h2>
 
-<div
-id="historiqueChauffeur"
-class="card">
+<button
+class="btn-blue"
+onclick="chargerHistoriqueChauffeur()"
+>
+VOIR MON HISTORIQUE
+</button>
 
-<h2>📋 Mes courses terminées</h2>
-
-<div id="historiqueChauffeurContainer">
-
-Aucune course terminée.
-
-</div>
-
-</div>
-
+<div id="historiqueChauffeur"></div>
 
 </div>
 
 </div>
 
 
+<!-- ADMIN -->
 
-<script
-src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
-</script>
+<div id="espaceAdmin" class="hidden">
 
-<script
-src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js">
-</script>
+<div class="card">
 
-<script
-src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+<button class="btn-gray" onclick="retourAccueil()">
+⬅️ RETOUR
+</button>
 
+<h2>👨‍💼 Espace administrateur</h2>
+
+<div id="adminLogin">
+
+<p>
+🔐 Entrez le mot de passe administrateur.
+</p>
+
+<input
+id="adminPassword"
+type="password"
+placeholder="Mot de passe"
+>
+
+<button
+onclick="connexionAdmin()"
+>
+🔓 SE CONNECTER
+</button>
+
+<div id="adminErreur"></div>
+
+</div>
+
+
+<div id="adminPanel" class="hidden">
+
+<h2>📊 Tableau de bord</h2>
+
+<div class="admin-stat">
+
+<div class="stat">
+<strong id="statTotal">0</strong>
+Courses
+</div>
+
+<div class="stat">
+<strong id="statAttente">0</strong>
+En attente
+</div>
+
+<div class="stat">
+<strong id="statAcceptee">0</strong>
+Acceptées
+</div>
+
+<div class="stat">
+<strong id="statTerminee">0</strong>
+Terminées
+</div>
+
+<div class="stat">
+<strong id="statAnnulee">0</strong>
+Annulées
+</div>
+
+<div class="stat">
+<strong id="statChauffeurs">0</strong>
+Chauffeurs
+</div>
+
+</div>
+
+
+<hr>
+
+<h2>🚕 Toutes les courses</h2>
+
+<button
+class="btn-blue"
+onclick="chargerAdmin()"
+>
+🔄 ACTUALISER
+</button>
+
+<div id="adminCourses"></div>
+
+
+<hr>
+
+<h2>👥 Clients</h2>
+
+<div id="adminClients"></div>
+
+
+<hr>
+
+<h2>🚗 Chauffeurs</h2>
+
+<div id="adminChauffeurs"></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
 <script>
@@ -698,127 +644,115 @@ measurementId:
 
 };
 
-
 firebase.initializeApp(firebaseConfig);
 
-const database =
-firebase.database();
-
+const db = firebase.database();
 
 
 /* =========================
    VARIABLES
 ========================= */
 
-let mapClient = null;
+let latitudeClient = null;
+let longitudeClient = null;
 
+let latitudeChauffeur = null;
+let longitudeChauffeur = null;
+
+let courseClientId = null;
+let courseChauffeurId = null;
+
+let mapClient = null;
 let mapChauffeur = null;
 
 let markerClient = null;
-
-let markerChauffeurClient = null;
-
 let markerChauffeur = null;
 
-let routeClient = null;
-
-let latitudeClient = null;
-
-let longitudeClient = null;
-
-let courseClientId = null;
-
-let courseActiveId = null;
+let routeLineClient = null;
 
 let watchChauffeur = null;
 
 let noteSelectionnee = 0;
 
+let chauffeurEnLigne = false;
 
 
 /* =========================
    NAVIGATION
 ========================= */
 
-function ouvrirClient(){
+function cacherTous(){
 
 document.getElementById("accueil")
 .classList.add("hidden");
 
 document.getElementById("espaceClient")
-.classList.remove("hidden");
-
-initialiserMapClient();
-
-chargerHistoriqueClient();
-
-}
-
-
-function ouvrirChauffeur(){
-
-document.getElementById("accueil")
 .classList.add("hidden");
 
 document.getElementById("espaceChauffeur")
-.classList.remove("hidden");
+.classList.add("hidden");
 
-chargerHistoriqueChauffeur();
+document.getElementById("espaceAdmin")
+.classList.add("hidden");
 
 }
 
 
 function retourAccueil(){
 
+cacherTous();
+
 document.getElementById("accueil")
 .classList.remove("hidden");
 
+}
+
+
+function ouvrirClient(){
+
+cacherTous();
+
 document.getElementById("espaceClient")
-.classList.add("hidden");
+.classList.remove("hidden");
+
+}
+
+
+function ouvrirChauffeur(){
+
+cacherTous();
 
 document.getElementById("espaceChauffeur")
-.classList.add("hidden");
+.classList.remove("hidden");
 
 }
 
 
+function ouvrirAdmin(){
 
-/* =========================
-   CARTE CLIENT
-========================= */
+cacherTous();
 
-function initialiserMapClient(){
-
-if(mapClient) return;
-
-
-mapClient =
-L.map("mapClient")
-.setView(
-[-4.325,15.322],
-12
-);
-
-
-L.tileLayer(
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-maxZoom:19,
-attribution:"© OpenStreetMap"
-}
-).addTo(mapClient);
+document.getElementById("espaceAdmin")
+.classList.remove("hidden");
 
 }
-
 
 
 /* =========================
    GPS CLIENT
 ========================= */
 
-function utiliserPositionClient(){
+function obtenirPositionClient(){
 
 if(!navigator.geolocation){
 
-alert(
-"
+alert("La géolocalisation n'est pas disponible.");
+
+return;
+}
+
+navigator.geolocation.getCurrentPosition(
+
+function(position){
+
+latitudeClient =
