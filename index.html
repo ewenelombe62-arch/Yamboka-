@@ -1,1851 +1,1443 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>YAMBOKA</title>
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
 <style>
-
 *{
-box-sizing:border-box;
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
 }
 
 body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#f4f6f8;
-color:#222;
+    background:#f4f5f7;
+    min-height:100vh;
 }
 
-header{
-background:#ff7a00;
-color:white;
-padding:22px 15px;
-text-align:center;
+.header{
+    background:#ff7900;
+    color:white;
+    text-align:center;
+    padding:18px;
+    font-size:30px;
+    font-weight:bold;
 }
 
-header h1{
-margin:0;
-font-size:32px;
-}
-
-header p{
-margin:5px 0 0;
-}
-
-.container{
-max-width:700px;
-margin:auto;
-padding:15px;
+.page{
+    width:94%;
+    max-width:500px;
+    margin:20px auto;
 }
 
 .card{
-background:white;
-padding:20px;
-margin:15px 0;
-border-radius:15px;
-box-shadow:0 3px 12px rgba(0,0,0,.10);
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:15px;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.logo{
+    text-align:center;
+    color:#ff7900;
+    font-size:42px;
+    font-weight:bold;
+    margin:15px 0;
+}
+
+.center{
+    text-align:center;
+}
+
+h2{
+    color:#ff7900;
+    margin-bottom:15px;
+}
+
+h3{
+    margin-bottom:8px;
+}
+
+p{
+    margin:8px 0;
+    line-height:1.5;
 }
 
 input,
-select{
-width:100%;
-padding:13px;
-margin:7px 0 12px;
-border:1px solid #ccc;
-border-radius:9px;
-font-size:16px;
+select,
+textarea{
+    width:100%;
+    padding:14px;
+    margin:7px 0;
+    border:1px solid #ddd;
+    border-radius:10px;
+    font-size:16px;
+    outline:none;
 }
 
 button{
-width:100%;
-padding:14px;
-margin:6px 0;
-border:none;
-border-radius:10px;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-background:#ff7a00;
-color:white;
+    width:100%;
+    border:0;
+    border-radius:10px;
+    padding:14px;
+    margin:7px 0;
+    font-size:16px;
+    font-weight:bold;
+    color:white;
+    background:#ff7900;
+    cursor:pointer;
 }
 
-.btn-blue{
-background:#1976d2;
-}
-
-.btn-green{
-background:#16a34a;
-}
-
-.btn-red{
-background:#dc2626;
-}
-
-.btn-dark{
-background:#222;
-}
-
-.btn-gray{
-background:#666;
-}
+.green{background:#16a34a}
+.red{background:#dc2626}
+.blue{background:#2563eb}
+.dark{background:#222}
+.gray{background:#666}
 
 .hidden{
-display:none !important;
+    display:none !important;
+}
+
+.menu{
+    display:grid;
+    gap:10px;
+}
+
+.topbar{
+    display:flex;
+    gap:5px;
+}
+
+.topbar button{
+    font-size:12px;
+    padding:11px 5px;
 }
 
 .status{
-padding:12px;
-border-radius:9px;
-margin:10px 0;
-background:#eee;
+    padding:14px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:bold;
+    margin:10px 0;
 }
 
-.course{
-border:1px solid #ddd;
-border-radius:12px;
-padding:15px;
-margin:12px 0;
-background:#fafafa;
+.offline{
+    background:#fee2e2;
+    color:#b91c1c;
 }
 
-.badge{
-display:inline-block;
-padding:6px 10px;
-border-radius:20px;
-font-size:13px;
-font-weight:bold;
-margin-bottom:8px;
-}
-
-.badge-attente{
-background:#fff3cd;
-color:#856404;
-}
-
-.badge-acceptee{
-background:#d1ecf1;
-color:#0c5460;
-}
-
-.badge-terminee{
-background:#d4edda;
-color:#155724;
-}
-
-.badge-annulee{
-background:#f8d7da;
-color:#721c24;
-}
-
-#mapClient,
-#mapChauffeur{
-height:350px;
-border-radius:12px;
-margin-top:12px;
-}
-
-.admin-stat{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
+.online{
+    background:#dcfce7;
+    color:#15803d;
 }
 
 .stat{
-background:#f5f5f5;
-padding:15px;
-border-radius:12px;
-text-align:center;
+    background:#f7f7f7;
+    padding:15px;
+    border-radius:12px;
+    margin:8px 0;
 }
 
 .stat strong{
-display:block;
-font-size:25px;
-color:#ff7a00;
+    display:block;
+    color:#ff7900;
+    font-size:24px;
+    margin-bottom:4px;
 }
 
-.star{
-font-size:32px;
-cursor:pointer;
+.driver{
+    border:1px solid #e5e5e5;
+    border-radius:12px;
+    padding:15px;
+    margin:10px 0;
+}
+
+.map{
+    height:180px;
+    border-radius:14px;
+    background:#dbeafe;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#2563eb;
+    font-weight:bold;
+    margin:12px 0;
+}
+
+.notification{
+    background:#fff7ed;
+    border-left:4px solid #ff7900;
+    padding:13px;
+    margin:8px 0;
+    border-radius:8px;
+}
+
+.admin-row{
+    display:flex;
+    justify-content:space-between;
+    padding:14px 0;
+    border-bottom:1px solid #eee;
+}
+
+.good{
+    color:#16a34a;
+    font-weight:bold;
+}
+
+.bad{
+    color:#dc2626;
+    font-weight:bold;
+}
+
+.message{
+    padding:13px;
+    border-radius:10px;
+    background:#dcfce7;
+    color:#166534;
+    margin:10px 0;
 }
 
 .small{
-font-size:13px;
-color:#666;
+    font-size:13px;
+    color:#777;
 }
 
-</style>
+.sos{
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    background:#dc2626;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:bold;
+    margin:20px auto;
+}
 
+.stars{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin:15px 0;
+}
+
+.star{
+    font-size:38px;
+    color:#ccc;
+    cursor:pointer;
+}
+
+.star.active{
+    color:#ffb000;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-
-<h1>YAMBOKA</h1>
-
-<p>Votre transport, simplement.</p>
-
-</header>
-
-
-<div class="container">
+<div class="header">
+    🚕 YAMBOKA
+</div>
 
 
 <!-- ================= ACCUEIL ================= -->
 
-<div id="accueil" class="card">
+<section id="accueil" class="page">
 
-<h2>Bienvenue sur YAMBOKA</h2>
+    <div class="card">
 
-<button onclick="ouvrirClient()">
-🧑 CLIENT
-</button>
+        <div class="logo">
+            YAMBOKA
+        </div>
 
-<button onclick="ouvrirChauffeur()">
-🚗 CHAUFFEUR
-</button>
+        <p class="center">
+            Transport simple, rapide et sécurisé.
+        </p>
 
-<button class="btn-dark" onclick="ouvrirAdmin()">
-👨‍💼 ADMINISTRATEUR
-</button>
+        <br>
 
-</div>
+        <div class="menu">
 
+            <button onclick="ouvrirConnexion('client')">
+                👤 ESPACE CLIENT
+            </button>
+
+            <button onclick="ouvrirConnexion('chauffeur')">
+                🚗 ESPACE CHAUFFEUR
+            </button>
+
+            <button class="dark" onclick="ouvrirConnexion('admin')">
+                👨‍💼 ESPACE ADMINISTRATEUR
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= CONNEXION ================= -->
+
+<section id="connexion" class="page hidden">
+
+    <div class="card">
+
+        <h2 id="titreConnexion">
+            Connexion
+        </h2>
+
+        <input
+            id="email"
+            type="email"
+            placeholder="Adresse email"
+        >
+
+        <input
+            id="motDePasse"
+            type="password"
+            placeholder="Mot de passe"
+        >
+
+        <button onclick="seConnecter()">
+            🔐 SE CONNECTER
+        </button>
+
+        <button class="blue" onclick="creerCompte()">
+            📝 CRÉER UN COMPTE
+        </button>
+
+        <button class="gray" onclick="allerAccueil()">
+            ⬅️ RETOUR
+        </button>
+
+        <p class="small center">
+            Version de test — Firebase sera ajouté après.
+        </p>
+
+    </div>
+
+</section>
 
 
 <!-- ================= CLIENT ================= -->
 
-<div id="espaceClient" class="hidden">
+<section id="client" class="page hidden">
 
-<div class="card">
+    <div class="card">
 
-<button class="btn-gray" onclick="retourAccueil()">
-⬅️ RETOUR
-</button>
+        <h2>👤 Espace Client</h2>
 
-<h2>🧑 Espace client</h2>
+        <div class="topbar">
 
-<label>Nom du client</label>
+            <button onclick="clientOuvrir('course')">
+                🚕 Course
+            </button>
 
-<input
-id="nomClient"
-type="text"
-placeholder="Votre nom"
->
+            <button onclick="clientOuvrir('chauffeurs')">
+                🚗 Chauffeurs
+            </button>
 
-<label>Téléphone</label>
+            <button onclick="clientOuvrir('notifications')">
+                🔔
+            </button>
 
-<input
-id="telephoneClient"
-type="tel"
-placeholder="Votre téléphone"
->
+            <button onclick="clientOuvrir('profil')">
+                👤
+            </button>
 
-<label>Lieu de départ</label>
+        </div>
 
-<input
-id="depart"
-type="text"
-placeholder="Lieu de départ"
->
+        <button class="red" onclick="ouvrirSOS()">
+            🆘 SOS
+        </button>
 
-<label>Destination</label>
+        <button class="gray" onclick="allerAccueil()">
+            🚪 QUITTER
+        </button>
 
-<input
-id="destination"
-type="text"
-placeholder="Destination"
->
-
-<label>Type de véhicule</label>
-
-<select id="vehicule">
-
-<option value="Moto">
-🏍️ Moto
-</option>
-
-<option value="Voiture">
-🚗 Voiture
-</option>
-
-</select>
-
-<label>Prix proposé en FC</label>
-
-<input
-id="prix"
-type="number"
-placeholder="Ex: 5000"
->
-
-<button
-class="btn-blue"
-onclick="obtenirPositionClient()"
->
-
-📍 UTILISER MA POSITION
-
-</button>
-
-<div
-id="positionClientInfo"
-class="status"
->
-
-🔴 Position non définie
-
-</div>
-
-<button onclick="demanderCourse()">
-
-🚕 DEMANDER UNE COURSE
-
-</button>
-
-</div>
+    </div>
 
 
+    <div id="client-course" class="card">
 
-<div
-id="clientCourse"
-class="card hidden"
->
+        <h2>🚕 Commander une course</h2>
 
-<h2>🚕 Ma course</h2>
+        <input
+            id="depart"
+            placeholder="📍 Lieu de départ"
+        >
 
-<div id="clientStatus"></div>
+        <input
+            id="destination"
+            placeholder="🏁 Destination"
+        >
 
-<div id="chauffeurInfo"></div>
+        <select id="typeCourse">
 
-<div id="routeInfo"></div>
+            <option>Course normale</option>
 
-<div id="mapClient"></div>
+            <option>Course premium</option>
 
-<button
-class="btn-blue"
-onclick="obtenirPositionClient()"
->
+        </select>
 
-📍 ACTUALISER MA POSITION
+        <button onclick="demanderCourse()">
+            🚕 RECHERCHER UN CHAUFFEUR
+        </button>
 
-</button>
+        <div class="map">
+            🗺️ CARTE YAMBOKA
+        </div>
 
-<button
-class="btn-red"
-onclick="annulerCourse()"
->
+        <div id="resultatCourse"></div>
 
-❌ ANNULER LA COURSE
-
-</button>
-
-
-<div
-id="notationClient"
-class="hidden"
->
-
-<h3>⭐ Notez votre chauffeur</h3>
-
-<div id="stars"></div>
-
-<button
-class="btn-green"
-onclick="envoyerNote()"
->
-
-⭐ ENVOYER LA NOTE
-
-</button>
-
-</div>
-
-</div>
+    </div>
 
 
+    <div id="client-chauffeurs" class="card hidden">
 
-<div class="card">
+        <h2>🚗 Chauffeurs disponibles</h2>
 
-<h2>📜 Mon historique</h2>
+        <div class="driver">
 
-<button
-class="btn-blue"
-onclick="chargerHistoriqueClient()"
->
+            <h3>Jean</h3>
 
-VOIR MON HISTORIQUE
+            <p>🚗 Toyota Corolla</p>
 
-</button>
+            <p class="good">
+                🟢 En ligne
+            </p>
 
-<div id="historiqueClient"></div>
+            <p>⭐⭐⭐⭐⭐</p>
 
-</div>
+            <button onclick="appeler('Jean')">
+                📞 APPELER
+            </button>
 
-</div>
+        </div>
 
+        <div class="driver">
+
+            <h3>Patrick</h3>
+
+            <p>🚗 Toyota RAV4</p>
+
+            <p class="good">
+                🟢 En ligne
+            </p>
+
+            <p>⭐⭐⭐⭐☆</p>
+
+            <button onclick="appeler('Patrick')">
+                📞 APPELER
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="client-notifications" class="card hidden">
+
+        <h2>🔔 Notifications</h2>
+
+        <div class="notification">
+            🚕 Bienvenue sur YAMBOKA.
+        </div>
+
+        <div class="notification">
+            🟢 Les chauffeurs disponibles apparaîtront ici.
+        </div>
+
+    </div>
+
+
+    <div id="client-profil" class="card hidden">
+
+        <h2>👤 Mon profil</h2>
+
+        <input
+            id="nomClient"
+            placeholder="Nom complet"
+        >
+
+        <input
+            id="telephoneClient"
+            placeholder="Téléphone"
+        >
+
+        <button onclick="enregistrerClient()">
+            💾 ENREGISTRER
+        </button>
+
+    </div>
+
+</section>
 
 
 <!-- ================= CHAUFFEUR ================= -->
 
-<div id="espaceChauffeur" class="hidden">
+<section id="chauffeur" class="page hidden">
 
-<div class="card">
+    <div class="card">
 
-<button
-class="btn-gray"
-onclick="retourAccueil()"
->
+        <h2>🚗 Espace Chauffeur</h2>
 
-⬅️ RETOUR
+        <input
+            id="nomChauffeur"
+            placeholder="Nom du chauffeur"
+        >
 
-</button>
+        <input
+            id="telephoneChauffeur"
+            placeholder="Téléphone"
+        >
 
-<h2>🚗 Espace chauffeur</h2>
+        <div
+            id="statutChauffeur"
+            class="status offline"
+        >
+            🔴 HORS LIGNE
+        </div>
 
-<label>Nom du chauffeur</label>
+        <button
+            id="boutonStatut"
+            class="green"
+            onclick="changerStatut()"
+        >
+            🟢 PASSER EN LIGNE
+        </button>
 
-<input
-id="nomChauffeur"
-type="text"
-placeholder="Votre nom"
->
-
-<label>Téléphone du chauffeur</label>
-
-<input
-id="telephoneChauffeur"
-type="tel"
-placeholder="Votre téléphone"
->
-
-<button
-class="btn-green"
-onclick="voirCourses()"
->
-
-📋 VOIR LES COURSES
-
-</button>
-
-</div>
+    </div>
 
 
-<div class="card">
+    <div class="card">
 
-<h2>🟢 Statut chauffeur</h2>
+        <div class="topbar">
 
-<div id="statutChauffeur">
+            <button onclick="chauffeurOuvrir('dashboard')">
+                🏠
+            </button>
 
-🔴 Chauffeur hors ligne
+            <button onclick="chauffeurOuvrir('courses')">
+                🚕
+            </button>
 
-</div>
+            <button onclick="chauffeurOuvrir('revenus')">
+                💰
+            </button>
 
-<button
-class="btn-green"
-onclick="mettreEnLigne()"
->
+            <button onclick="chauffeurOuvrir('profil')">
+                👤
+            </button>
 
-🟢 ME METTRE EN LIGNE
+        </div>
 
-</button>
+        <button class="gray" onclick="allerAccueil()">
+            🚪 QUITTER
+        </button>
 
-<button
-class="btn-red"
-onclick="mettreHorsLigne()"
->
-
-🔴 ME METTRE HORS LIGNE
-
-</button>
-
-</div>
+    </div>
 
 
-<div
-id="listeCourses"
-class="card hidden"
->
+    <div id="chauffeur-dashboard" class="card">
 
-<h2>🚕 Courses disponibles</h2>
+        <h2>📊 Tableau de bord</h2>
 
-<div id="coursesDisponibles"></div>
+        <div class="stat">
+            <strong>0 FC</strong>
+            Revenus aujourd'hui
+        </div>
 
-</div>
+        <div class="stat">
+            <strong>0</strong>
+            Courses aujourd'hui
+        </div>
 
+        <div class="stat">
+            <strong>⭐ 0.0</strong>
+            Note moyenne
+        </div>
 
-<div
-id="courseChauffeur"
-class="card hidden"
->
+        <div class="map">
+            🗺️ Position du chauffeur
+        </div>
 
-<h2>🚕 Course actuelle</h2>
-
-<div id="detailsCourseChauffeur"></div>
-
-<div id="mapChauffeur"></div>
-
-<button
-class="btn-blue"
-onclick="voirPositionClient()"
->
-
-🗺️ VOIR POSITION DU CLIENT
-
-</button>
-
-<button
-class="btn-green"
-onclick="demarrerGPSChauffeur()"
->
-
-📍 PARTAGER MA POSITION
-
-</button>
-
-<button
-class="btn-red"
-onclick="terminerCourse()"
->
-
-✅ TERMINER LA COURSE
-
-</button>
-
-</div>
+    </div>
 
 
-<div class="card">
+    <div id="chauffeur-courses" class="card hidden">
 
-<h2>📜 Historique chauffeur</h2>
+        <h2>🚕 Demande de course</h2>
 
-<button
-class="btn-blue"
-onclick="chargerHistoriqueChauffeur()"
->
+        <div class="driver">
 
-VOIR MON HISTORIQUE
+            <h3>Nouvelle demande</h3>
 
-</button>
+            <p>📍 Départ : Kinshasa</p>
 
-<div id="historiqueChauffeur"></div>
+            <p>🏁 Destination : Gombe</p>
 
-</div>
+            <p>💰 Prix : 15 000 FC</p>
 
-</div>
+            <button
+                class="green"
+                onclick="accepterCourse()"
+            >
+                ✅ ACCEPTER
+            </button>
 
+            <button
+                class="red"
+                onclick="refuserCourse()"
+            >
+                ❌ REFUSER
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="chauffeur-revenus" class="card hidden">
+
+        <h2>💰 Mes revenus</h2>
+
+        <div class="stat">
+            <strong>85 000 FC</strong>
+            Aujourd'hui
+        </div>
+
+        <div class="stat">
+            <strong>420 000 FC</strong>
+            Cette semaine
+        </div>
+
+        <div class="stat">
+            <strong>1 650 000 FC</strong>
+            Ce mois
+        </div>
+
+        <button onclick="demanderRetrait()">
+            💳 DEMANDER UN RETRAIT
+        </button>
+
+    </div>
+
+
+    <div id="chauffeur-profil" class="card hidden">
+
+        <h2>👤 Profil chauffeur</h2>
+
+        <input placeholder="Nom complet">
+
+        <input placeholder="Téléphone">
+
+        <input placeholder="Marque du véhicule">
+
+        <input placeholder="Plaque du véhicule">
+
+        <button onclick="enregistrerChauffeur()">
+            💾 ENREGISTRER
+        </button>
+
+    </div>
+
+</section>
 
 
 <!-- ================= ADMIN ================= -->
 
-<div id="espaceAdmin" class="hidden">
+<section id="admin" class="page hidden">
 
-<div class="card">
+    <div class="card">
 
-<button
-class="btn-gray"
-onclick="retourAccueil()"
->
+        <h2>👨‍💼 Administration YAMBOKA</h2>
 
-⬅️ RETOUR
+        <div class="topbar">
 
-</button>
+            <button onclick="adminOuvrir('dashboard')">
+                📊
+            </button>
 
-<h2>👨‍💼 Espace administrateur</h2>
+            <button onclick="adminOuvrir('chauffeurs')">
+                🚗
+            </button>
 
+            <button onclick="adminOuvrir('clients')">
+                👤
+            </button>
 
-<div id="adminLogin">
+            <button onclick="adminOuvrir('courses')">
+                🚕
+            </button>
 
-<p>
-🔐 Mot de passe administrateur
-</p>
+        </div>
 
-<input
-id="adminPassword"
-type="password"
-placeholder="Mot de passe"
->
+        <button class="gray" onclick="allerAccueil()">
+            🚪 QUITTER
+        </button>
 
-<button onclick="connexionAdmin()">
+    </div>
 
-🔓 SE CONNECTER
 
-</button>
+    <div id="admin-dashboard" class="card">
 
-<div id="adminErreur"></div>
+        <h2>📊 Dashboard</h2>
 
-</div>
+        <div class="stat">
+            <strong>0</strong>
+            Chauffeurs en ligne
+        </div>
 
+        <div class="stat">
+            <strong>0</strong>
+            Clients
+        </div>
 
-<div
-id="adminPanel"
-class="hidden"
->
+        <div class="stat">
+            <strong>0</strong>
+            Courses
+        </div>
 
-<h2>📊 Tableau de bord</h2>
+        <div class="stat">
+            <strong>0 FC</strong>
+            Revenus
+        </div>
 
+    </div>
 
-<div class="admin-stat">
 
-<div class="stat">
+    <div id="admin-chauffeurs" class="card hidden">
 
-<strong id="statTotal">
-0
-</strong>
+        <h2>🚗 Chauffeurs</h2>
 
-Courses
+        <div class="admin-row">
 
-</div>
+            <span>Jean</span>
 
+            <span class="good">
+                🟢 En ligne
+            </span>
 
-<div class="stat">
+        </div>
 
-<strong id="statAttente">
-0
-</strong>
+        <div class="admin-row">
 
-En attente
+            <span>Patrick</span>
 
-</div>
+            <span class="bad">
+                🔴 Hors ligne
+            </span>
 
+        </div>
 
-<div class="stat">
+        <button onclick="ajouterChauffeur()">
+            ➕ AJOUTER CHAUFFEUR
+        </button>
 
-<strong id="statAcceptee">
-0
-</strong>
+    </div>
 
-Acceptées
 
-</div>
+    <div id="admin-clients" class="card hidden">
 
+        <h2>👤 Clients</h2>
 
-<div class="stat">
+        <div class="stat">
 
-<strong id="statTerminee">
-0
-</strong>
+            <strong>0</strong>
 
-Terminées
+            Clients enregistrés
 
-</div>
+        </div>
 
+        <button onclick="voirClients()">
+            👁️ VOIR LES CLIENTS
+        </button>
 
-<div class="stat">
+    </div>
 
-<strong id="statAnnulee">
-0
-</strong>
 
-Annulées
+    <div id="admin-courses" class="card hidden">
 
-</div>
+        <h2>🚕 Courses</h2>
 
+        <div class="message">
+            🟢 Système prêt.
+        </div>
 
-<div class="stat">
+        <p>
+            Les courses réelles seront connectées
+            à Firebase plus tard.
+        </p>
 
-<strong id="statChauffeurs">
-0
-</strong>
+    </div>
 
-Chauffeurs
+</section>
 
-</div>
 
-</div>
+<!-- ================= SOS ================= -->
 
+<section id="sos" class="page hidden">
 
-<hr>
+    <div class="card">
 
-<h2>🚕 Toutes les courses</h2>
+        <h2 class="center">
+            🆘 URGENCE
+        </h2>
 
-<button
-class="btn-blue"
-onclick="chargerAdmin()"
->
+        <p class="center">
+            Utilisez cette fonction uniquement
+            en cas d'urgence.
+        </p>
 
-🔄 ACTUALISER
+        <div
+            class="sos"
+            onclick="activerSOS()"
+        >
+            SOS
+        </div>
 
-</button>
+        <button onclick="appelUrgence()">
+            📞 APPEL D'URGENCE
+        </button>
 
-<div id="adminCourses"></div>
+        <button
+            class="gray"
+            onclick="fermerSOS()"
+        >
+            ⬅️ RETOUR
+        </button>
 
+    </div>
 
-<hr>
+</section>
 
-<h2>👥 Clients</h2>
 
-<div id="adminClients"></div>
+<!-- ================= NOTATION ================= -->
 
+<section id="notation" class="page hidden">
 
-<hr>
+    <div class="card">
 
-<h2>🚗 Chauffeurs</h2>
+        <h2 class="center">
+            ⭐ Noter le chauffeur
+        </h2>
 
-<div id="adminChauffeurs"></div>
+        <div class="stars">
 
-</div>
+            <span class="star"
+                  onclick="selectionnerNote(1)">★</span>
 
-</div>
+            <span class="star"
+                  onclick="selectionnerNote(2)">★</span>
 
-</div>
+            <span class="star"
+                  onclick="selectionnerNote(3)">★</span>
 
+            <span class="star"
+                  onclick="selectionnerNote(4)">★</span>
 
-</div>
+            <span class="star"
+                  onclick="selectionnerNote(5)">★</span>
 
+        </div>
 
+        <textarea
+            id="commentaire"
+            placeholder="Votre commentaire"
+        ></textarea>
 
-<!-- ================= FIREBASE ================= -->
+        <button onclick="envoyerNote()">
+            ⭐ ENVOYER LA NOTE
+        </button>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+        <button
+            class="gray"
+            onclick="afficherPage('client')"
+        >
+            ⬅️ RETOUR
+        </button>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</section>
 
 
 <script>
 
 /* =====================================================
-FIREBASE
+   VARIABLES
 ===================================================== */
 
-const firebaseConfig = {
+let role = "";
 
-apiKey:
-"AIzaSyAkT203kmo4NorAa0mRJY-M2u4c8v8nZ1I",
+let chauffeurOnline = false;
 
-authDomain:
-"yamboka-77173.firebaseapp.com",
-
-projectId:
-"yamboka-77173",
-
-storageBucket:
-"yamboka-77173.firebasestorage.app",
-
-messagingSenderId:
-"1090966765176",
-
-appId:
-"1:1090966765176:web:8d0aa5734f7652410cb78d",
-
-measurementId:
-"G-TM41TSMKCZ"
-
-};
-
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.database();
-
+let note = 0;
 
 
 /* =====================================================
-VARIABLES
+   AFFICHER UNE PAGE
 ===================================================== */
 
-let latitudeClient = null;
-let longitudeClient = null;
+function afficherPage(id){
 
-let latitudeChauffeur = null;
-let longitudeChauffeur = null;
+    const pages = [
+        "accueil",
+        "connexion",
+        "client",
+        "chauffeur",
+        "admin",
+        "sos",
+        "notation"
+    ];
 
-let courseClientId = null;
-let courseChauffeurId = null;
+    pages.forEach(function(page){
 
-let mapClient = null;
-let mapChauffeur = null;
+        const element =
+            document.getElementById(page);
 
-let markerClient = null;
-let markerChauffeur = null;
-let markerClientChauffeur = null;
+        if(element){
+            element.classList.add("hidden");
+        }
 
-let routeLineClient = null;
+    });
 
-let watchClient = null;
-let watchChauffeur = null;
+    const destination =
+        document.getElementById(id);
 
-let noteSelectionnee = 0;
+    if(destination){
+        destination.classList.remove("hidden");
+    }
 
-let chauffeurEnLigne = false;
-
+}
 
 
 /* =====================================================
-NAVIGATION
+   ACCUEIL
 ===================================================== */
 
-function cacherTous(){
+function allerAccueil(){
 
-document
-.getElementById("accueil")
-.classList.add("hidden");
+    role = "";
 
-document
-.getElementById("espaceClient")
-.classList.add("hidden");
-
-document
-.getElementById("espaceChauffeur")
-.classList.add("hidden");
-
-document
-.getElementById("espaceAdmin")
-.classList.add("hidden");
+    afficherPage("accueil");
 
 }
-
-
-function retourAccueil(){
-
-cacherTous();
-
-document
-.getElementById("accueil")
-.classList.remove("hidden");
-
-}
-
-
-function ouvrirClient(){
-
-cacherTous();
-
-document
-.getElementById("espaceClient")
-.classList.remove("hidden");
-
-}
-
-
-function ouvrirChauffeur(){
-
-cacherTous();
-
-document
-.getElementById("espaceChauffeur")
-.classList.remove("hidden");
-
-}
-
-
-function ouvrirAdmin(){
-
-cacherTous();
-
-document
-.getElementById("espaceAdmin")
-.classList.remove("hidden");
-
-}
-
 
 
 /* =====================================================
-GPS CLIENT
+   CONNEXION
 ===================================================== */
 
-function obtenirPositionClient(){
+function ouvrirConnexion(type){
 
-const info =
-document.getElementById(
-"positionClientInfo"
-);
+    role = type;
 
+    afficherPage("connexion");
 
-info.innerHTML =
-"🟡 Recherche de votre position...";
+    const titre =
+        document.getElementById(
+            "titreConnexion"
+        );
 
+    if(type === "client"){
 
-if(!navigator.geolocation){
+        titre.innerText =
+            "👤 Connexion Client";
 
-info.innerHTML =
-"❌ GPS non disponible sur ce téléphone.";
+    }
 
-alert(
-"❌ La géolocalisation n'est pas disponible."
-);
+    if(type === "chauffeur"){
 
-return;
+        titre.innerText =
+            "🚗 Connexion Chauffeur";
 
-}
+    }
 
+    if(type === "admin"){
 
-navigator.geolocation.getCurrentPosition(
+        titre.innerText =
+            "👨‍💼 Connexion Administrateur";
 
-function(position){
-
-positionClientOK(
-position,
-info
-);
-
-},
-
-function(error){
-
-console.log(
-"Erreur GPS :",
-error
-);
-
-
-if(error.code === 1){
-
-info.innerHTML =
-`
-❌ <strong>LOCALISATION REFUSÉE</strong>
-<br><br>
-Autorisez la localisation pour le navigateur ou l'application.
-`;
-
-}
-
-else if(error.code === 2){
-
-info.innerHTML =
-`
-❌ <strong>POSITION INDISPONIBLE</strong>
-<br><br>
-Activez la localisation du téléphone et réessayez.
-`;
-
-}
-
-else if(error.code === 3){
-
-info.innerHTML =
-`
-⏱️ <strong>GPS TROP LENT</strong>
-<br><br>
-Nouvelle tentative...
-`;
-
-gpsSecours();
-
-}
-
-else{
-
-info.innerHTML =
-"❌ Erreur GPS.";
-
-}
-
-},
-
-{
-
-enableHighAccuracy:true,
-
-timeout:20000,
-
-maximumAge:0
-
-}
-
-);
+    }
 
 }
 
 
+function seConnecter(){
 
-function gpsSecours(){
+    const email =
+        document
+        .getElementById("email")
+        .value
+        .trim();
 
-if(!navigator.geolocation){
+    const password =
+        document
+        .getElementById("motDePasse")
+        .value
+        .trim();
 
-return;
+    if(email === "" || password === ""){
+
+        alert(
+            "Veuillez remplir l'email et le mot de passe."
+        );
+
+        return;
+    }
+
+
+    if(role === "client"){
+
+        afficherPage("client");
+
+        clientOuvrir("course");
+
+        return;
+    }
+
+
+    if(role === "chauffeur"){
+
+        afficherPage("chauffeur");
+
+        chauffeurOuvrir("dashboard");
+
+        return;
+    }
+
+
+    if(role === "admin"){
+
+        afficherPage("admin");
+
+        adminOuvrir("dashboard");
+
+        return;
+    }
 
 }
 
 
-navigator.geolocation.getCurrentPosition(
+function creerCompte(){
 
-function(position){
+    const email =
+        document
+        .getElementById("email")
+        .value
+        .trim();
 
-const info =
-document.getElementById(
-"positionClientInfo"
-);
+    const password =
+        document
+        .getElementById("motDePasse")
+        .value
+        .trim();
 
-positionClientOK(
-position,
-info
-);
+    if(email === "" || password === ""){
 
-},
+        alert(
+            "Veuillez remplir l'email et le mot de passe."
+        );
 
-function(error){
+        return;
+    }
 
-const info =
-document.getElementById(
-"positionClientInfo"
-);
-
-info.innerHTML =
-`
-❌ Impossible d'obtenir votre position.
-<br><br>
-Code erreur : ${error.code}
-`;
-
-},
-
-{
-
-enableHighAccuracy:false,
-
-timeout:30000,
-
-maximumAge:10000
+    alert(
+        "✅ Compte de test créé.\n\nFirebase sera connecté ensuite."
+    );
 
 }
-
-);
-
-}
-
 
 
 /* =====================================================
-POSITION CLIENT OK
+   CLIENT
 ===================================================== */
 
-function positionClientOK(
-position,
-info
-){
+function clientOuvrir(page){
 
-latitudeClient =
-position.coords.latitude;
+    const pages = [
+        "client-course",
+        "client-chauffeurs",
+        "client-notifications",
+        "client-profil"
+    ];
 
-longitudeClient =
-position.coords.longitude;
+    pages.forEach(function(id){
 
+        document
+        .getElementById(id)
+        .classList.add("hidden");
 
-const precision =
-Math.round(
-position.coords.accuracy || 0
-);
+    });
 
+    const element =
+        document.getElementById(
+            "client-" + page
+        );
 
-info.innerHTML =
-`
-🟢 <strong>POSITION ACTIVÉE</strong>
-<br>
-📍 Latitude : ${latitudeClient.toFixed(6)}
-<br>
-📍 Longitude : ${longitudeClient.toFixed(6)}
-<br>
-🎯 Précision : environ ${precision} m
-`;
+    if(element){
 
+        element.classList.remove("hidden");
 
-if(courseClientId){
-
-db.ref(
-"courses/" + courseClientId
-).update({
-
-latitudeClient:
-latitudeClient,
-
-longitudeClient:
-longitudeClient,
-
-precisionClient:
-position.coords.accuracy,
-
-dernierePositionClient:
-new Date().toISOString()
-
-});
+    }
 
 }
 
-}
-
-
-
-/* =====================================================
-GPS CONTINU CLIENT
-===================================================== */
-
-function demarrerGPSClient(){
-
-if(!navigator.geolocation){
-
-return;
-
-}
-
-
-if(watchClient){
-
-navigator.geolocation.clearWatch(
-watchClient
-);
-
-}
-
-
-watchClient =
-navigator.geolocation.watchPosition(
-
-function(position){
-
-latitudeClient =
-position.coords.latitude;
-
-longitudeClient =
-position.coords.longitude;
-
-
-if(courseClientId){
-
-db.ref(
-"courses/" + courseClientId
-).update({
-
-latitudeClient:
-latitudeClient,
-
-longitudeClient:
-longitudeClient,
-
-precisionClient:
-position.coords.accuracy,
-
-dernierePositionClient:
-new Date().toISOString()
-
-});
-
-}
-
-
-if(mapClient){
-
-if(markerClient){
-
-markerClient.setLatLng([
-latitudeClient,
-longitudeClient
-]);
-
-}
-
-else{
-
-markerClient =
-L.marker([
-latitudeClient,
-longitudeClient
-])
-.addTo(mapClient)
-.bindPopup(
-"📍 Position du client"
-);
-
-}
-
-}
-
-},
-
-function(error){
-
-console.log(
-"GPS continu client :",
-error.message
-);
-
-},
-
-{
-
-enableHighAccuracy:true,
-
-maximumAge:5000,
-
-timeout:15000
-
-}
-
-);
-
-}
-
-
-
-/* =====================================================
-DEMANDER COURSE
-===================================================== */
 
 function demanderCourse(){
 
-const nom =
-document.getElementById(
-"nomClient"
-).value.trim();
+    const depart =
+        document
+        .getElementById("depart")
+        .value
+        .trim();
 
-const telephone =
-document.getElementById(
-"telephoneClient"
-).value.trim();
+    const destination =
+        document
+        .getElementById("destination")
+        .value
+        .trim();
 
-const depart =
-document.getElementById(
-"depart"
-).value.trim();
+    if(depart === "" || destination === ""){
 
-const destination =
-document.getElementById(
-"destination"
-).value.trim();
+        alert(
+            "Veuillez entrer le lieu de départ et la destination."
+        );
 
-const vehicule =
-document.getElementById(
-"vehicule"
-).value;
+        return;
+    }
 
-const prix =
-document.getElementById(
-"prix"
-).value;
+    document
+    .getElementById("resultatCourse")
+    .innerHTML =
 
+        '<div class="message">' +
 
-if(
-!nom ||
-!telephone ||
-!depart ||
-!destination ||
-!prix
-){
+        '🚕 Recherche d’un chauffeur...<br><br>' +
 
-alert(
-"Veuillez remplir tous les champs."
-);
+        '📍 Départ : ' +
+        depart +
 
-return;
+        '<br>🏁 Destination : ' +
+        destination +
+
+        '</div>';
 
 }
 
 
-if(
-latitudeClient === null ||
-longitudeClient === null
-){
+function appeler(nom){
 
-alert(
-"📍 Activez d'abord votre position."
-);
-
-return;
+    alert(
+        "📞 Appel vers le chauffeur " +
+        nom
+    );
 
 }
 
 
-const course = {
+function enregistrerClient(){
 
-nomClient:
-nom,
-
-telephoneClient:
-telephone,
-
-depart:
-depart,
-
-destination:
-destination,
-
-vehicule:
-vehicule,
-
-prix:
-Number(prix),
-
-latitudeClient:
-latitudeClient,
-
-longitudeClient:
-longitudeClient,
-
-statut:
-"en_attente",
-
-nomChauffeur:
-"",
-
-telephoneChauffeur:
-"",
-
-latitudeChauffeur:
-null,
-
-longitudeChauffeur:
-null,
-
-chauffeurEnLigne:
-false,
-
-note:
-0,
-
-date:
-new Date().toISOString()
-
-};
-
-
-const ref =
-db.ref("courses").push();
-
-
-ref.set(course)
-
-.then(function(){
-
-courseClientId =
-ref.key;
-
-
-document
-.getElementById("clientCourse")
-.classList.remove("hidden");
-
-
-document
-.getElementById("clientStatus")
-.innerHTML =
-`
-<div class="status">
-🟡 Recherche d'un chauffeur...
-</div>
-`;
-
-
-ecouterCourseClient();
-
-demarrerGPSClient();
-
-
-alert(
-"🚕 Course demandée avec succès."
-);
-
-})
-
-.catch(function(error){
-
-alert(
-"Erreur Firebase : " +
-error.message
-);
-
-});
+    alert(
+        "✅ Profil client enregistré."
+    );
 
 }
-
 
 
 /* =====================================================
-ECOUTER COURSE CLIENT
+   CHAUFFEUR
 ===================================================== */
 
-function ecouterCourseClient(){
+function changerStatut(){
 
-if(!courseClientId){
+    chauffeurOnline =
+        !chauffeurOnline;
 
-return;
+    const statut =
+        document.getElementById(
+            "statutChauffeur"
+        );
 
-}
-
-
-db.ref(
-"courses/" + courseClientId
-).on(
-"value",
-function(snapshot){
-
-const course =
-snapshot.val();
+    const bouton =
+        document.getElementById(
+            "boutonStatut"
+        );
 
 
-if(!course){
+    if(chauffeurOnline){
 
-return;
+        statut.className =
+            "status online";
 
-}
+        statut.innerText =
+            "🟢 CHAUFFEUR EN LIGNE";
 
+        bouton.className =
+            "red";
 
-if(course.statut === "en_attente"){
+        bouton.innerText =
+            "🔴 PASSER HORS LIGNE";
 
-document
-.getElementById("clientStatus")
-.innerHTML =
-`
-<div class="status">
-🟡 Recherche d'un chauffeur...
-</div>
-`;
+    }
 
-document
-.getElementById("chauffeurInfo")
-.innerHTML = "";
+    else{
 
-}
+        statut.className =
+            "status offline";
 
+        statut.innerText =
+            "🔴 CHAUFFEUR HORS LIGNE";
 
-if(course.statut === "acceptee"){
+        bouton.className =
+            "green";
 
-document
-.getElementById("clientStatus")
-.innerHTML =
-`
-<div class="status">
-🟢 Chauffeur trouvé !
-</div>
-`;
+        bouton.innerText =
+            "🟢 PASSER EN LIGNE";
 
-
-document
-.getElementById("chauffeurInfo")
-.innerHTML =
-`
-<div class="course">
-
-<h3>🚗 Votre chauffeur</h3>
-
-<p>
-<strong>Nom :</strong>
-${course.nomChauffeur || "-"}
-</p>
-
-<p>
-<strong>Téléphone :</strong>
-${course.telephoneChauffeur || "-"}
-</p>
-
-<p>
-<strong>Statut :</strong>
-${course.chauffeurEnLigne
-? "🟢 En ligne"
-: "🔴 Hors ligne"}
-
-</p>
-
-</div>
-`;
-
-
-afficherPositionChauffeurClient(
-course
-);
+    }
 
 }
 
 
-if(course.statut === "terminee"){
+function chauffeurOuvrir(page){
 
-document
-.getElementById("clientStatus")
-.innerHTML =
-`
-<div class="status">
-✅ Course terminée
-</div>
-`;
+    const pages = [
+        "chauffeur-dashboard",
+        "chauffeur-courses",
+        "chauffeur-revenus",
+        "chauffeur-profil"
+    ];
+
+    pages.forEach(function(id){
+
+        document
+        .getElementById(id)
+        .classList.add("hidden");
+
+    });
+
+    const element =
+        document.getElementById(
+            "chauffeur-" + page
+        );
+
+    if(element){
+
+        element.classList.remove("hidden");
+
+    }
+
+}
 
 
-document
-.getElementById("notationClient")
-.classList.remove("hidden");
+function accepterCourse(){
 
-
-document
-.getElementById("stars")
-.innerHTML =
-creerEtoiles();
+    alert(
+        "✅ Course acceptée."
+    );
 
 }
 
 
-if(course.statut === "annulee"){
+function refuserCourse(){
 
-document
-.getElementById("clientStatus")
-.innerHTML =
-`
-<div class="status">
-❌ Course annulée
-</div>
-`;
+    alert(
+        "❌ Course refusée."
+    );
 
 }
 
-});
+
+function demanderRetrait(){
+
+    alert(
+        "💳 Demande de retrait enregistrée."
+    );
 
 }
 
+
+function enregistrerChauffeur(){
+
+    alert(
+        "✅ Profil chauffeur enregistré."
+    );
+
+}
 
 
 /* =====================================================
-CARTE CLIENT
+   ADMIN
 ===================================================== */
 
-function afficherCarteClient(){
+function adminOuvrir(page){
 
-if(mapClient){
+    const pages = [
+        "admin-dashboard",
+        "admin-chauffeurs",
+        "admin-clients",
+        "admin-courses"
+    ];
 
-return;
+    pages.forEach(function(id){
+
+        document
+        .getElementById(id)
+        .classList.add("hidden");
+
+    });
+
+    const element =
+        document.getElementById(
+            "admin-" + page
+        );
+
+    if(element){
+
+        element.classList.remove("hidden");
+
+    }
+
+}
+
+
+function ajouterChauffeur(){
+
+    alert(
+        "➕ Fonction d'ajout de chauffeur prête."
+    );
 
 }
 
 
-mapClient =
-L.map("mapClient")
-.setView(
+function voirClients(){
 
-[
-latitudeClient || -4.325,
-longitudeClient || 15.322
-],
-
-13
-
-);
-
-
-L.tileLayer(
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-
-maxZoom:19,
-
-attribution:
-"© OpenStreetMap"
+    alert(
+        "👤 Fonction de gestion des clients prête."
+    );
 
 }
-
-).addTo(mapClient);
-
-
-if(
-latitudeClient !== null &&
-longitudeClient !== null
-){
-
-markerClient =
-L.marker([
-latitudeClient,
-longitudeClient
-])
-.addTo(mapClient)
-.bindPopup(
-"📍 Position du client"
-);
-
-}
-
-}
-
 
 
 /* =====================================================
-POSITION CHAUFFEUR CHEZ CLIENT
+   SOS
 ===================================================== */
 
-function afficherPositionChauffeurClient(
-course
-){
+function ouvrirSOS(){
 
-afficherCarteClient();
-
-
-if(
-course.latitudeChauffeur == null ||
-course.longitudeChauffeur == null
-){
-
-return;
+    afficherPage("sos");
 
 }
 
 
-const position = [
+function fermerSOS(){
 
-course.latitudeChauffeur,
+    afficherPage("client");
 
-course.longitudeChauffeur
-
-];
-
-
-if(markerChauffeur){
-
-markerChauffeur.setLatLng(
-position
-);
-
-}
-
-else{
-
-markerChauffeur =
-L.marker(position)
-.addTo(mapClient)
-.bindPopup(
-"🚗 Votre chauffeur"
-);
+    clientOuvrir("course");
 
 }
 
 
-calculerItineraire(
+function activerSOS(){
 
-course.latitudeChauffeur,
-
-course.longitudeChauffeur,
-
-course.latitudeClient,
-
-course.longitudeClient
-
-);
+    alert(
+        "🆘 ALERTE SOS ACTIVÉE."
+    );
 
 }
 
+
+function appelUrgence(){
+
+    window.location.href =
+        "tel:112";
+
+}
 
 
 /* =====================================================
-ITINERAIRE
+   NOTATION
 ===================================================== */
 
-function calculerItineraire(
+function selectionnerNote(nombre){
 
-latDriver,
-lonDriver,
-latClient,
-lonClient
+    note = nombre;
 
-){
+    const etoiles =
+        document.querySelectorAll(
+            ".star"
+        );
 
-if(
-latDriver == null ||
-lonDriver == null ||
-latClient == null ||
-lonClient == null
-){
+    etoiles.forEach(
+        function(etoile,index){
 
-return;
+            if(index < nombre){
 
-}
+                etoile.classList.add(
+                    "active"
+                );
 
+            }
 
-const url =
-"https://router.project-osrm.org/route/v1/driving/"
-+
-lonDriver + "," +
-latDriver + ";" +
-lonClient + "," +
-latClient +
-"?overview=full&geometries=geojson";
+            else{
 
+                etoile.classList.remove(
+                    "active"
+                );
 
-fetch(url)
+            }
 
-.then(function(response){
-
-return response.json();
-
-})
-
-.then(function(data){
-
-if(
-!data.routes ||
-!data.routes.length
-){
-
-return;
+        }
+    );
 
 }
 
 
-const route =
-data.routes[0];
+function envoyerNote(){
 
+    if(note === 0){
 
-const distance =
-(route.distance / 1000)
-.toFixed(2);
+        alert(
+            "Veuillez sélectionner une note."
+        );
 
+        return;
+    }
 
-const minutes =
-Math.round(
-route.duration / 60
-);
+    const commentaire =
+        document
+        .getElementById("commentaire")
+        .value
+        .trim();
 
-
-document
-.getElementById("routeInfo")
-.innerHTML =
-`
-<div class="status">
-
-📏 Distance :
-<strong>${distance} km</strong>
-
-<br>
-
-⏱️ Temps :
-<strong>${minutes} min</strong>
-
-</div>
-`;
-
-
-if(routeLineClient){
-
-routeLineClient.remove();
+    alert(
+        "⭐ Note de " +
+        note +
+        "/5 enregistrée."
+    );
 
 }
-
-
-const coordinates =
-route.geometry.coordinates.map(
-function(c){
-
-return [
-c[1],
-c[0]
-];
-
-});
-
-
-routeLineClient =
-L.polyline(
-coordinates
-)
-.addTo(mapClient);
-
-})
-
-.catch(function(error){
-
-console.log(
-"Erreur itinéraire :",
-error
-);
-
-});
-
-}
-
 
 
 /* =====================================================
-ANNULER COURSE
+   DÉMARRAGE
 ===================================================== */
 
-function annulerCourse(){
+afficherPage("accueil");
 
-if(!courseClientId){
+</script>
 
-return;
-
-}
-
-
-if(
-!confirm(
-"Voulez-vous vraiment annuler cette course ?"
-)
-){
-
-return;
-
-}
-
-
-db.ref(
-"courses/" + courseClientId
-).update({
-
-statut:
-"annulee",
-
-chauffeurEnLigne:
-false
-
-});
-
-}
-
-
-
-/* =====================================================
-CHAUFFEUR EN LIGNE
-===================================================== */
-
-function mettreEnLigne(){
-
-const nom =
-document.getElementById(
-"nomChauffeur"
-).value.trim();
-
-const telephone =
-document.getElementById(
-"telephoneChauffeur"
-).value.trim();
-
-
-if(!nom || !telephone){
-
-alert(
-"Entrez votre nom et téléphone."
-);
-
-return;
-
-}
-
-
-chauffeurEnLigne =
-true;
-
-
-document
-.getElementById("statutChauffeur")
-.innerHTML =
-"🟢 Chauffeur en ligne";
-
-
-alert(
-"Vous êtes maintenant en ligne."
-);
-
-}
-
-
-
-function mettreHorsLigne(){
-
-chauffeurEnLigne =
-false;
-
-
-do
+</body>
+</html>
