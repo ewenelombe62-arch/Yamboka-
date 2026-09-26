@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -246,7 +245,8 @@ onclick="obtenirPositionClient()">
 📍 UTILISER MA POSITION
 </button>
 
-<div id="positionClientInfo" class="status">
+<div id="positionClientInfo"
+class="status">
 🔴 Position non définie
 </div>
 
@@ -594,10 +594,17 @@ NAVIGATION
 
 function cacherTous(){
 
-document.getElementById("accueil").classList.add("hidden");
-document.getElementById("espaceClient").classList.add("hidden");
-document.getElementById("espaceChauffeur").classList.add("hidden");
-document.getElementById("espaceAdmin").classList.add("hidden");
+document.getElementById("accueil")
+.classList.add("hidden");
+
+document.getElementById("espaceClient")
+.classList.add("hidden");
+
+document.getElementById("espaceChauffeur")
+.classList.add("hidden");
+
+document.getElementById("espaceAdmin")
+.classList.add("hidden");
 
 }
 
@@ -606,7 +613,8 @@ function retourAccueil(){
 
 cacherTous();
 
-document.getElementById("accueil").classList.remove("hidden");
+document.getElementById("accueil")
+.classList.remove("hidden");
 
 }
 
@@ -615,7 +623,8 @@ function ouvrirClient(){
 
 cacherTous();
 
-document.getElementById("espaceClient").classList.remove("hidden");
+document.getElementById("espaceClient")
+.classList.remove("hidden");
 
 }
 
@@ -624,7 +633,8 @@ function ouvrirChauffeur(){
 
 cacherTous();
 
-document.getElementById("espaceChauffeur").classList.remove("hidden");
+document.getElementById("espaceChauffeur")
+.classList.remove("hidden");
 
 }
 
@@ -633,90 +643,8 @@ function ouvrirAdmin(){
 
 cacherTous();
 
-document.getElementById("espaceAdmin").classList.remove("hidden");
-
-}
-
-
-/* =====================================================
-GPS CLIENT - DIAGNOSTIC
-===================================================== */
-
-async function verifierAutorisationGPS(){
-
-if(!navigator.geolocation){
-
-return {
-ok:false,
-message:"❌ Ce téléphone ou navigateur ne supporte pas la géolocalisation."
-};
-
-}
-
-
-if(window.isSecureContext === false){
-
-return {
-ok:false,
-message:"❌ YAMBOKA n'est pas ouvert dans une connexion sécurisée HTTPS."
-};
-
-}
-
-
-if(navigator.permissions){
-
-try{
-
-const permission =
-await navigator.permissions.query({
-name:"geolocation"
-});
-
-
-if(permission.state === "denied"){
-
-return {
-ok:false,
-message:
-"❌ La localisation est bloquée pour YAMBOKA dans le navigateur. Autorisez la localisation du site dans Chrome."
-};
-
-}
-
-if(permission.state === "granted"){
-
-return {
-ok:true,
-message:"🟢 Localisation autorisée."
-};
-
-}
-
-if(permission.state === "prompt"){
-
-return {
-ok:true,
-message:"🟡 Chrome va demander l'autorisation de localisation."
-};
-
-}
-
-}catch(error){
-
-console.log(
-"Permission GPS non disponible :",
-error
-);
-
-}
-
-}
-
-return {
-ok:true,
-message:"🟡 Vérification de la localisation..."
-};
+document.getElementById("espaceAdmin")
+.classList.remove("hidden");
 
 }
 
@@ -725,47 +653,19 @@ message:"🟡 Vérification de la localisation..."
 GPS CLIENT
 ===================================================== */
 
-async function obtenirPositionClient(){
-
-const info =
-document.getElementById(
-"positionClientInfo"
-);
-
-
-info.innerHTML =
-"🟡 Vérification de la localisation...";
-
-
-const verification =
-await verifierAutorisationGPS();
-
-
-if(!verification.ok){
-
-info.innerHTML =
-verification.message;
-
-alert(
-verification.message
-);
-
-return;
-
-}
-
+function obtenirPositionClient(){
 
 if(!navigator.geolocation){
 
-info.innerHTML =
-"❌ Géolocalisation non disponible.";
+alert("La géolocalisation n'est pas disponible sur ce téléphone.");
 
 return;
-
 }
 
 
-info.innerHTML =
+document.getElementById(
+"positionClientInfo"
+).innerHTML =
 "🟡 Recherche de votre position...";
 
 
@@ -780,22 +680,16 @@ longitudeClient =
 position.coords.longitude;
 
 
-const precision =
-position.coords.accuracy
-? Math.round(position.coords.accuracy)
-: "?";
-
-
-info.innerHTML =
+document.getElementById(
+"positionClientInfo"
+).innerHTML =
 
 `
 🟢 Position obtenue
 <br>
-📍 Latitude : ${latitudeClient.toFixed(6)}
+Latitude : ${latitudeClient.toFixed(6)}
 <br>
-📍 Longitude : ${longitudeClient.toFixed(6)}
-<br>
-🎯 Précision : environ ${precision} m
+Longitude : ${longitudeClient.toFixed(6)}
 `;
 
 
@@ -811,9 +705,6 @@ latitudeClient,
 longitudeClient:
 longitudeClient,
 
-precisionClient:
-position.coords.accuracy || null,
-
 dernierePositionClient:
 new Date().toISOString()
 
@@ -824,177 +715,39 @@ new Date().toISOString()
 
 },
 
-async function(error){
+function(error){
 
-console.log(
-"Erreur GPS client :",
-error
-);
-
-
-let message = "";
-
+let message =
+"Impossible d'obtenir votre position.";
 
 if(error.code === 1){
 
 message =
-"❌ LOCALISATION REFUSÉE.\n\n" +
-"Chrome bloque probablement la localisation de YAMBOKA.\n\n" +
-"Vérifiez que la localisation est autorisée pour Chrome et pour YAMBOKA.";
+"❌ Autorisation GPS refusée. Activez la localisation du navigateur.";
 
 }
 
-
-else if(error.code === 2){
+if(error.code === 2){
 
 message =
-"❌ POSITION INDISPONIBLE.\n\n" +
-"Le téléphone ne trouve pas actuellement votre position.\n\n" +
-"Activez le GPS/localisation et essayez dehors ou près d'une fenêtre.";
+"❌ Position GPS indisponible.";
 
 }
 
-
-else if(error.code === 3){
+if(error.code === 3){
 
 message =
-"⏱️ DÉLAI GPS DÉPASSÉ.\n\n" +
-"Le téléphone met trop de temps à trouver votre position.\n\n" +
-"Nous allons essayer une localisation moins précise.";
+"❌ Le GPS a mis trop de temps à répondre.";
 
 }
 
 
-else{
+document.getElementById(
+"positionClientInfo"
+).innerHTML =
+message;
 
-message =
-"❌ ERREUR GPS.\n\n" +
-(error.message || "Erreur inconnue.");
-
-}
-
-
-info.innerHTML =
-message.replace(/\n/g,"<br>");
-
-
-/*
-SI LE GPS PRÉCIS ÉCHOUE,
-ON ESSAIE UNE POSITION MOINS PRÉCISE.
-*/
-
-if(
-error.code === 2 ||
-error.code === 3
-){
-
-info.innerHTML +=
-"<br><br>🟡 Nouvelle tentative...";
-
-
-navigator.geolocation.getCurrentPosition(
-
-function(position){
-
-latitudeClient =
-position.coords.latitude;
-
-longitudeClient =
-position.coords.longitude;
-
-
-info.innerHTML =
-
-`
-🟢 Position obtenue
-<br>
-📍 Latitude : ${latitudeClient.toFixed(6)}
-<br>
-📍 Longitude : ${longitudeClient.toFixed(6)}
-<br>
-ℹ️ Position obtenue avec le réseau.
-`;
-
-
-if(courseClientId){
-
-db.ref(
-"courses/" + courseClientId
-).update({
-
-latitudeClient:
-latitudeClient,
-
-longitudeClient:
-longitudeClient,
-
-precisionClient:
-position.coords.accuracy || null,
-
-dernierePositionClient:
-new Date().toISOString()
-
-});
-
-}
-
-},
-
-function(secondError){
-
-console.log(
-"Deuxième tentative GPS :",
-secondError
-);
-
-
-let secondMessage =
-"❌ Impossible d'obtenir la position.";
-
-
-if(secondError.code === 1){
-
-secondMessage =
-"❌ La localisation est refusée par Chrome pour YAMBOKA.";
-
-}
-
-else if(secondError.code === 2){
-
-secondMessage =
-"❌ Le téléphone ne trouve pas votre position GPS.";
-
-}
-
-else if(secondError.code === 3){
-
-secondMessage =
-"⏱️ Le téléphone n'a pas trouvé la position à temps.";
-
-}
-
-
-info.innerHTML =
-secondMessage +
-"<br><br>" +
-"Code erreur : " +
-secondError.code;
-
-},
-
-{
-
-enableHighAccuracy:false,
-
-timeout:30000,
-
-maximumAge:10000
-
-}
-
-);
-
-}
+alert(message);
 
 },
 
@@ -1062,21 +815,6 @@ alert(
 );
 
 return;
-
-}
-
-
-if(
-latitudeClient === null ||
-longitudeClient === null
-){
-
-alert(
-"📍 Activez d'abord votre position avant de demander la course."
-);
-
-return;
-
 }
 
 
@@ -1143,6 +881,11 @@ document.getElementById(
 
 ecouterCourseClient();
 
+
+/*
+ACTIVER LE GPS CONTINU DU CLIENT
+*/
+
 demarrerGPSClient();
 
 
@@ -1172,7 +915,6 @@ function demarrerGPSClient(){
 if(!navigator.geolocation){
 
 return;
-
 }
 
 
@@ -1209,9 +951,6 @@ latitudeClient,
 longitudeClient:
 longitudeClient,
 
-precisionClient:
-position.coords.accuracy || null,
-
 dernierePositionClient:
 new Date().toISOString()
 
@@ -1225,20 +964,16 @@ if(mapClient){
 if(markerClient){
 
 markerClient.setLatLng([
-
 latitudeClient,
 longitudeClient
-
 ]);
 
 }else{
 
 markerClient =
 L.marker([
-
 latitudeClient,
 longitudeClient
-
 ])
 .addTo(mapClient)
 .bindPopup(
@@ -1254,38 +989,9 @@ longitudeClient
 function(error){
 
 console.log(
-"GPS continu client :",
-error
+"GPS client :",
+error.message
 );
-
-const info =
-document.getElementById(
-"positionClientInfo"
-);
-
-if(!info) return;
-
-
-if(error.code === 1){
-
-info.innerHTML =
-"❌ Localisation bloquée pour YAMBOKA.";
-
-}
-
-else if(error.code === 2){
-
-info.innerHTML =
-"❌ Position GPS temporairement indisponible.";
-
-}
-
-else if(error.code === 3){
-
-info.innerHTML =
-"⏱️ Recherche GPS trop longue.";
-
-}
 
 },
 
@@ -1432,6 +1138,7 @@ L.map("mapClient")
 
 [
 latitudeClient || -4.325,
+
 longitudeClient || 15.322
 ],
 
@@ -1459,10 +1166,8 @@ longitudeClient != null
 
 markerClient =
 L.marker([
-
 latitudeClient,
 longitudeClient
-
 ])
 .addTo(mapClient)
 .bindPopup(
@@ -1496,6 +1201,7 @@ return;
 const position = [
 
 course.latitudeChauffeur,
+
 course.longitudeChauffeur
 
 ];
@@ -1505,3 +1211,352 @@ if(markerChauffeur){
 
 markerChauffeur.setLatLng(
 position
+);
+
+}else{
+
+markerChauffeur =
+L.marker(position)
+.addTo(mapClient)
+.bindPopup(
+"🚗 Votre chauffeur"
+);
+
+}
+
+
+calculerItineraire(
+
+course.latitudeChauffeur,
+
+course.longitudeChauffeur,
+
+course.latitudeClient,
+
+course.longitudeClient
+
+);
+
+}
+
+
+/* =====================================================
+ITINERAIRE
+===================================================== */
+
+function calculerItineraire(
+latDriver,
+lonDriver,
+latClient,
+lonClient
+){
+
+if(
+latDriver == null ||
+lonDriver == null ||
+latClient == null ||
+lonClient == null
+){
+
+return;
+
+}
+
+
+const url =
+"https://router.project-osrm.org/route/v1/driving/"
++
+lonDriver + "," +
+latDriver + ";" +
+lonClient + "," +
+latClient +
+"?overview=full&geometries=geojson";
+
+
+fetch(url)
+
+.then(response => response.json())
+
+.then(data => {
+
+if(
+!data.routes ||
+!data.routes.length
+){
+
+return;
+
+}
+
+
+const route =
+data.routes[0];
+
+
+const distanceKm =
+(route.distance / 1000)
+.toFixed(2);
+
+
+const minutes =
+Math.round(
+route.duration / 60
+);
+
+
+document.getElementById(
+"routeInfo"
+).innerHTML =
+
+`
+<div class="status">
+
+📏 Distance :
+<strong>${distanceKm} km</strong>
+
+<br>
+
+⏱️ Temps :
+<strong>${minutes} min</strong>
+
+</div>
+`;
+
+
+if(routeLineClient){
+
+routeLineClient.remove();
+
+}
+
+
+const coordinates =
+route.geometry.coordinates.map(
+function(c){
+
+return [
+c[1],
+c[0]
+];
+
+});
+
+
+routeLineClient =
+L.polyline(
+coordinates
+).addTo(mapClient);
+
+})
+
+.catch(function(error){
+
+console.log(
+"Erreur itinéraire",
+error
+);
+
+});
+
+}
+
+
+/* =====================================================
+ANNULER
+===================================================== */
+
+function annulerCourse(){
+
+if(!courseClientId) return;
+
+
+if(
+!confirm(
+"Voulez-vous vraiment annuler cette course ?"
+)
+){
+
+return;
+
+}
+
+
+db.ref(
+"courses/" + courseClientId
+).update({
+
+statut:"annulee",
+
+chauffeurEnLigne:false
+
+});
+
+}
+
+
+/* =====================================================
+CHAUFFEUR EN LIGNE
+===================================================== */
+
+function mettreEnLigne(){
+
+const nom =
+document.getElementById(
+"nomChauffeur"
+).value.trim();
+
+const telephone =
+document.getElementById(
+"telephoneChauffeur"
+).value.trim();
+
+
+if(!nom || !telephone){
+
+alert(
+"Entrez votre nom et téléphone."
+);
+
+return;
+
+}
+
+
+chauffeurEnLigne = true;
+
+
+document.getElementById(
+"statutChauffeur"
+).innerHTML =
+"🟢 Chauffeur en ligne";
+
+alert(
+"Vous êtes maintenant en ligne."
+);
+
+}
+
+
+function mettreHorsLigne(){
+
+chauffeurEnLigne = false;
+
+
+document.getElementById(
+"statutChauffeur"
+).innerHTML =
+"🔴 Chauffeur hors ligne";
+
+
+if(watchChauffeur){
+
+navigator.geolocation.clearWatch(
+watchChauffeur
+);
+
+watchChauffeur = null;
+
+}
+
+}
+
+
+/* =====================================================
+VOIR COURSES
+===================================================== */
+
+function voirCourses(){
+
+document.getElementById(
+"listeCourses"
+).classList.remove("hidden");
+
+
+db.ref("courses").on(
+"value",
+function(snapshot){
+
+const data =
+snapshot.val() || {};
+
+let html = "";
+
+
+Object.keys(data)
+.forEach(function(id){
+
+const course = data[id];
+
+
+if(course.statut === "en_attente"){
+
+html +=
+
+`
+<div class="course">
+
+<span class="badge badge-attente">
+🟡 EN ATTENTE
+</span>
+
+<p>
+<strong>Client :</strong>
+${course.nomClient}
+</p>
+
+<p>
+<strong>Départ :</strong>
+${course.depart}
+</p>
+
+<p>
+<strong>Destination :</strong>
+${course.destination}
+</p>
+
+<p>
+<strong>Véhicule :</strong>
+${course.vehicule}
+</p>
+
+<p>
+<strong>Prix :</strong>
+${course.prix} FC
+</p>
+
+<button
+class="btn-green"
+onclick="accepterCourse('${id}')">
+🟢 ACCEPTER LA COURSE
+</button>
+
+</div>
+`;
+
+}
+
+});
+
+
+if(html === ""){
+
+html =
+"<p>Aucune course disponible.</p>";
+
+}
+
+
+document.getElementById(
+"coursesDisponibles"
+).innerHTML = html;
+
+});
+
+}
+
+
+/* =====================================================
+ACCEPTER
+===================================================== */
+
+function acce
