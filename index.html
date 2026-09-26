@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,98 +6,135 @@
 
 <title>YAMBOKA</title>
 
+<link
+rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
 <style>
-*{
-  box-sizing:border-box;
-}
 
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f4f4f4;
-  color:#111;
-}
-
-header{
-  background:#111;
-  color:#FFD400;
-  padding:20px;
-  text-align:center;
-  font-size:30px;
-  font-weight:bold;
+font-family:Arial,sans-serif;
+background:#f4f4f4;
+margin:0;
+padding:20px;
 }
 
 .container{
-  max-width:600px;
-  margin:auto;
-  padding:20px;
+max-width:700px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 3px 12px rgba(0,0,0,.12);
 }
 
-.card{
-  background:white;
-  padding:20px;
-  border:2px solid #111;
-  border-radius:12px;
-  margin-bottom:20px;
+h1{
+text-align:center;
+color:#f28c00;
+margin-bottom:5px;
+}
+
+.subtitle{
+text-align:center;
+color:#555;
+margin-bottom:20px;
+}
+
+h2{
+color:#333;
 }
 
 button{
-  width:100%;
-  padding:16px;
-  margin-top:12px;
-  border:0;
-  border-radius:8px;
-  background:#FFD400;
-  color:#111;
-  font-size:18px;
-  font-weight:bold;
+width:100%;
+padding:14px;
+margin:7px 0;
+border:0;
+border-radius:10px;
+background:#f28c00;
+color:white;
+font-size:16px;
+font-weight:bold;
 }
 
-.black{
-  background:#111;
-  color:#FFD400;
+button:hover{
+opacity:.9;
 }
 
-.hidden{
-  display:none !important;
+input,
+select{
+width:100%;
+box-sizing:border-box;
+padding:13px;
+margin:6px 0 12px;
+border:1px solid #ccc;
+border-radius:9px;
+font-size:15px;
 }
 
-input,select{
-  width:100%;
-  padding:14px;
-  margin-top:6px;
-  border:2px solid #111;
-  border-radius:8px;
-  font-size:16px;
+.section{
+display:none;
 }
 
-label{
-  display:block;
-  margin-top:15px;
-  font-weight:bold;
+.active{
+display:block;
 }
+
+.gps-info{
+margin:8px 0;
+padding:10px;
+border-radius:8px;
+background:#eef7ff;
+color:#0877c9;
+}
+
+#map{
+width:100%;
+height:350px;
+margin-top:15px;
+border-radius:12px;
+}
+
+.course{
+border:1px solid #ddd;
+border-radius:12px;
+padding:14px;
+margin:10px 0;
+background:#fafafa;
+}
+
+.course button{
+margin-top:10px;
+}
+
+.message{
+margin:10px 0;
+font-weight:bold;
+}
+
 </style>
 </head>
 
 <body>
 
-<header>
-YAMBOKA
-</header>
-
 <div class="container">
+
+<h1>YAMBOKA</h1>
+
+<div class="subtitle">
+Votre transport, simplement.
+</div>
+
 
 <!-- ACCUEIL -->
 
-<div id="accueil" class="card">
+<div id="accueil" class="section active">
 
-<h2>Bienvenue sur YAMBOKA</h2>
-
-<button id="btnClient">
-🚕 CLIENT
+<button onclick="afficherClient()">
+🧑 CLIENT
 </button>
 
-<button id="btnChauffeur" class="black">
+<button onclick="afficherChauffeur()">
 🚗 CHAUFFEUR
 </button>
 
@@ -107,9 +143,10 @@ YAMBOKA
 
 <!-- CLIENT -->
 
-<div id="client" class="card hidden">
+<div id="client" class="section">
 
-<h2>🚕 Espace Client</h2>
+<h2>Demander une course</h2>
+
 
 <label>Nom</label>
 
@@ -119,49 +156,92 @@ type="text"
 placeholder="Votre nom"
 >
 
+
 <label>Téléphone</label>
 
 <input
 id="telephoneClient"
 type="tel"
-placeholder="Votre numéro"
+placeholder="Votre téléphone"
 >
 
-<label>Départ</label>
+
+<label>Lieu de départ</label>
 
 <input
 id="depart"
 type="text"
-placeholder="Votre départ"
+placeholder="Lieu de départ"
 >
+
 
 <label>Destination</label>
 
 <input
 id="destination"
 type="text"
-placeholder="Votre destination"
+placeholder="Destination"
 >
+
+
+<label>Type de véhicule</label>
 
 <select id="vehicule">
 
-<option value="moto">
+<option value="Moto">
 Moto
 </option>
 
-<option value="voiture">
+<option value="Voiture">
 Voiture
 </option>
 
 </select>
 
-<button>
-🚕 DEMANDER UNE COURSE
+
+<label>Prix proposé (FC)</label>
+
+<input
+id="prix"
+type="number"
+placeholder="Exemple : 10000"
+>
+
+
+<button onclick="utiliserMaPosition()">
+
+📍 UTILISER MA POSITION
+
 </button>
 
-<button
-id="retourClient"
-class="black">
+
+<div
+id="gpsMessage"
+class="gps-info"
+>
+
+GPS non utilisé
+
+</div>
+
+
+<div id="map"></div>
+
+
+<div
+id="message"
+class="message"
+></div>
+
+
+<button onclick="demanderCourse()">
+
+🚕 DEMANDER UNE COURSE
+
+</button>
+
+
+<button onclick="retourAccueil()">
 
 ⬅️ RETOUR
 
@@ -170,13 +250,15 @@ class="black">
 </div>
 
 
+
 <!-- CHAUFFEUR -->
 
-<div id="chauffeur" class="card hidden">
+<div id="chauffeur" class="section">
 
-<h2>🚗 Espace Chauffeur</h2>
+<h2>Espace chauffeur</h2>
 
-<label>Nom</label>
+
+<label>Nom du chauffeur</label>
 
 <input
 id="nomChauffeur"
@@ -184,7 +266,8 @@ type="text"
 placeholder="Votre nom"
 >
 
-<label>Téléphone</label>
+
+<label>Téléphone du chauffeur</label>
 
 <input
 id="telephoneChauffeur"
@@ -192,112 +275,793 @@ type="tel"
 placeholder="Votre téléphone"
 >
 
-<button>
-🟢 JE SUIS DISPONIBLE
+
+<button onclick="afficherCourses()">
+
+📋 VOIR LES COURSES
+
 </button>
 
-<button
-id="retourChauffeur"
-class="black">
+
+<button onclick="retourAccueil()">
 
 ⬅️ RETOUR
 
 </button>
 
+
+<div id="listeCourses"></div>
+
 </div>
 
 </div>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 
 
 <script>
 
-/* BOUTON CLIENT */
+
+/* =========================
+FIREBASE
+========================= */
+
+const firebaseConfig = {
+
+apiKey:
+"AIzaSyAkT203kmo4NorAa0mRJY-M2u4c8v8nZ1I",
+
+authDomain:
+"yamboka-77173.firebaseapp.com",
+
+projectId:
+"yamboka-77173",
+
+storageBucket:
+"yamboka-77173.firebasestorage.app",
+
+messagingSenderId:
+"1090966765176",
+
+appId:
+"1:1090966765176:web:8d0aa5734f7652410cb78d",
+
+measurementId:
+"G-TM41TSMKCZ"
+
+};
+
+
+firebase.initializeApp(firebaseConfig);
+
+const database =
+firebase.database();
+
+
+
+/* =========================
+GPS
+========================= */
+
+let latitudeClient = null;
+
+let longitudeClient = null;
+
+let map = null;
+
+let marker = null;
+
+
+
+/* =========================
+AFFICHER CLIENT
+========================= */
+
+function afficherClient(){
 
 document
-.getElementById("btnClient")
-.addEventListener("click", function(){
+.getElementById("accueil")
+.classList.remove("active");
 
-  document
-  .getElementById("accueil")
-  .classList
-  .add("hidden");
+document
+.getElementById("chauffeur")
+.classList.remove("active");
 
-  document
-  .getElementById("chauffeur")
-  .classList
-  .add("hidden");
+document
+.getElementById("client")
+.classList.add("active");
 
-  document
-  .getElementById("client")
-  .classList
-  .remove("hidden");
+
+setTimeout(function(){
+
+initialiserCarte();
+
+},300);
+
+}
+
+
+
+/* =========================
+AFFICHER CHAUFFEUR
+========================= */
+
+function afficherChauffeur(){
+
+document
+.getElementById("accueil")
+.classList.remove("active");
+
+document
+.getElementById("client")
+.classList.remove("active");
+
+document
+.getElementById("chauffeur")
+.classList.add("active");
+
+}
+
+
+
+/* =========================
+RETOUR
+========================= */
+
+function retourAccueil(){
+
+document
+.getElementById("client")
+.classList.remove("active");
+
+document
+.getElementById("chauffeur")
+.classList.remove("active");
+
+document
+.getElementById("accueil")
+.classList.add("active");
+
+}
+
+
+
+/* =========================
+CARTE
+========================= */
+
+function initialiserCarte(){
+
+if(map !== null){
+
+map.invalidateSize();
+
+return;
+
+}
+
+
+map = L.map("map")
+.setView(
+[-4.325,15.322],
+12
+);
+
+
+L.tileLayer(
+
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+{
+
+maxZoom:19,
+
+attribution:
+"© OpenStreetMap"
+
+}
+
+).addTo(map);
+
+}
+
+
+
+/* =========================
+UTILISER GPS
+========================= */
+
+function utiliserMaPosition(){
+
+if(!navigator.geolocation){
+
+document
+.getElementById("gpsMessage")
+.innerHTML =
+"❌ GPS non disponible.";
+
+return;
+
+}
+
+
+navigator.geolocation.getCurrentPosition(
+
+function(position){
+
+latitudeClient =
+position.coords.latitude;
+
+longitudeClient =
+position.coords.longitude;
+
+
+document
+.getElementById("gpsMessage")
+.innerHTML =
+
+"📍 Votre position : " +
+
+latitudeClient.toFixed(6) +
+
+", " +
+
+longitudeClient.toFixed(6);
+
+
+initialiserCarte();
+
+
+map.setView(
+
+[
+latitudeClient,
+longitudeClient
+],
+
+16
+
+);
+
+
+if(marker !== null){
+
+map.removeLayer(marker);
+
+}
+
+
+marker =
+L.marker(
+[
+latitudeClient,
+longitudeClient
+]
+)
+
+.addTo(map)
+
+.bindPopup(
+"📍 Votre position"
+)
+
+.openPopup();
+
+},
+
+
+function(){
+
+document
+.getElementById("gpsMessage")
+.innerHTML =
+
+"❌ Impossible d'obtenir votre position. Autorisez le GPS.";
+
+},
+
+
+{
+
+enableHighAccuracy:true,
+
+timeout:15000,
+
+maximumAge:0
+
+}
+
+);
+
+}
+
+
+
+/* =========================
+DEMANDER COURSE
+========================= */
+
+function demanderCourse(){
+
+const nom =
+
+document
+.getElementById("nomClient")
+.value
+.trim();
+
+
+const telephone =
+
+document
+.getElementById("telephoneClient")
+.value
+.trim();
+
+
+const depart =
+
+document
+.getElementById("depart")
+.value
+.trim();
+
+
+const destination =
+
+document
+.getElementById("destination")
+.value
+.trim();
+
+
+const vehicule =
+
+document
+.getElementById("vehicule")
+.value;
+
+
+const prix =
+
+document
+.getElementById("prix")
+.value;
+
+
+const message =
+
+document
+.getElementById("message");
+
+
+
+if(
+
+nom === "" ||
+
+telephone === "" ||
+
+depart === "" ||
+
+destination === "" ||
+
+prix === ""
+
+){
+
+message.style.color =
+"red";
+
+message.innerHTML =
+
+"❌ Veuillez remplir tous les champs.";
+
+return;
+
+}
+
+
+
+/* COURSE */
+
+const course = {
+
+nomClient:
+nom,
+
+telephoneClient:
+telephone,
+
+depart:
+depart,
+
+destination:
+destination,
+
+vehicule:
+vehicule,
+
+prix:
+Number(prix),
+
+
+/* GPS CLIENT */
+
+latitudeClient:
+latitudeClient,
+
+longitudeClient:
+longitudeClient,
+
+
+statut:
+"en_attente",
+
+nomChauffeur:
+"",
+
+telephoneChauffeur:
+"",
+
+date:
+new Date().toISOString()
+
+};
+
+
+
+/* ENREGISTRER */
+
+database
+.ref("courses")
+.push(course)
+
+.then(function(){
+
+message.style.color =
+"green";
+
+message.innerHTML =
+
+"✅ Course enregistrée !";
+
+
+document
+.getElementById("depart")
+.value = "";
+
+document
+.getElementById("destination")
+.value = "";
+
+document
+.getElementById("prix")
+.value = "";
+
+})
+
+.catch(function(error){
+
+message.style.color =
+"red";
+
+message.innerHTML =
+
+"❌ Erreur : " +
+error.message;
 
 });
 
+}
 
-/* BOUTON CHAUFFEUR */
+
+
+/* =========================
+AFFICHER COURSES CHAUFFEUR
+========================= */
+
+function afficherCourses(){
+
+const liste =
 
 document
-.getElementById("btnChauffeur")
-.addEventListener("click", function(){
+.getElementById("listeCourses");
 
-  document
-  .getElementById("accueil")
-  .classList
-  .add("hidden");
 
-  document
-  .getElementById("client")
-  .classList
-  .add("hidden");
+liste.innerHTML =
 
-  document
-  .getElementById("chauffeur")
-  .classList
-  .remove("hidden");
+"<p>⏳ Chargement des courses...</p>";
+
+
+database
+.ref("courses")
+.orderByChild("statut")
+.equalTo("en_attente")
+
+.on(
+
+"value",
+
+function(snapshot){
+
+liste.innerHTML = "";
+
+
+if(!snapshot.exists()){
+
+liste.innerHTML =
+
+"<p>🚕 Aucune course disponible.</p>";
+
+return;
+
+}
+
+
+snapshot.forEach(
+
+function(child){
+
+const course =
+child.val();
+
+const id =
+child.key;
+
+
+
+/* GPS BUTTON */
+
+let gpsButton = "";
+
+
+if(
+
+course.latitudeClient !== null &&
+
+course.latitudeClient !== undefined &&
+
+course.longitudeClient !== null &&
+
+course.longitudeClient !== undefined
+
+){
+
+gpsButton =
+
+`
+
+<button
+
+onclick="voirPositionClient(
+
+${course.latitudeClient},
+
+${course.longitudeClient}
+
+)"
+
+>
+
+🗺️ VOIR POSITION DU CLIENT
+
+</button>
+
+`;
+
+}
+
+
+
+/* COURSE */
+
+const div =
+document.createElement("div");
+
+div.className =
+"course";
+
+
+div.innerHTML =
+
+`
+
+<strong>👤 Client :</strong>
+
+${course.nomClient || ""}
+
+<br><br>
+
+
+<strong>📞 Téléphone :</strong>
+
+${course.telephoneClient || ""}
+
+<br><br>
+
+
+<strong>📍 Départ :</strong>
+
+${course.depart || ""}
+
+<br><br>
+
+
+<strong>🏁 Destination :</strong>
+
+${course.destination || ""}
+
+<br><br>
+
+
+<strong>🚗 Véhicule :</strong>
+
+${course.vehicule || ""}
+
+<br><br>
+
+
+<strong>💰 Prix :</strong>
+
+${Number(course.prix || 0)
+.toLocaleString("fr-FR")}
+
+ FC
+
+
+${gpsButton}
+
+
+<button
+
+onclick="accepterCourse('${id}')"
+
+>
+
+🟢 ACCEPTER LA COURSE
+
+</button>
+
+`;
+
+
+liste.appendChild(div);
+
+}
+
+);
+
+}
+
+);
+
+}
+
+
+
+/* =========================
+VOIR POSITION CLIENT
+========================= */
+
+function voirPositionClient(
+
+latitude,
+
+longitude
+
+){
+
+const url =
+
+"https://www.google.com/maps?q=" +
+
+latitude +
+
+"," +
+
+longitude;
+
+
+window.open(
+url,
+"_blank"
+);
+
+}
+
+
+
+/* =========================
+ACCEPTER COURSE
+========================= */
+
+function accepterCourse(id){
+
+const nomChauffeur =
+
+document
+.getElementById("nomChauffeur")
+.value
+.trim();
+
+
+const telephoneChauffeur =
+
+document
+.getElementById("telephoneChauffeur")
+.value
+.trim();
+
+
+
+if(
+
+nomChauffeur === "" ||
+
+telephoneChauffeur === ""
+
+){
+
+alert(
+
+"Veuillez remplir le nom et le téléphone du chauffeur."
+
+);
+
+return;
+
+}
+
+
+
+database
+.ref("courses/" + id)
+.update({
+
+statut:
+"acceptee",
+
+nomChauffeur:
+nomChauffeur,
+
+telephoneChauffeur:
+telephoneChauffeur
+
+})
+
+.then(function(){
+
+alert(
+"✅ Course acceptée !"
+);
+
+afficherCourses();
+
+})
+
+.catch(function(error){
+
+alert(
+
+"❌ Erreur : " +
+error.message
+
+);
 
 });
 
+}
 
-/* RETOUR CLIENT */
-
-document
-.getElementById("retourClient")
-.addEventListener("click", function(){
-
-  document
-  .getElementById("client")
-  .classList
-  .add("hidden");
-
-  document
-  .getElementById("accueil")
-  .classList
-  .remove("hidden");
-
-});
-
-
-/* RETOUR CHAUFFEUR */
-
-document
-.getElementById("retourChauffeur")
-.addEventListener("click", function(){
-
-  document
-  .getElementById("chauffeur")
-  .classList
-  .add("hidden");
-
-  document
-  .getElementById("accueil")
-  .classList
-  .remove("hidden");
-
-});
 
 </script>
 
 </body>
 </html>
-```
