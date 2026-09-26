@@ -1,18 +1,11 @@
-
 ```html
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>YAMBOKA</title>
-
-<link
-rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
 
 <style>
 *{
@@ -29,62 +22,36 @@ body{
 header{
   background:#111;
   color:#FFD400;
-  padding:18px;
+  padding:20px;
   text-align:center;
-  font-size:28px;
+  font-size:30px;
   font-weight:bold;
 }
 
 .container{
-  width:100%;
   max-width:600px;
   margin:auto;
-  padding:15px;
+  padding:20px;
 }
 
 .card{
   background:white;
-  padding:18px;
-  margin-bottom:15px;
-  border-radius:10px;
+  padding:20px;
   border:2px solid #111;
-}
-
-h2{
-  margin-top:0;
-  color:#111;
-}
-
-label{
-  display:block;
-  margin-top:12px;
-  font-weight:bold;
-}
-
-input,select{
-  width:100%;
-  padding:13px;
-  margin-top:5px;
-  border:2px solid #111;
-  border-radius:7px;
-  font-size:16px;
+  border-radius:12px;
+  margin-bottom:20px;
 }
 
 button{
   width:100%;
-  padding:14px;
+  padding:16px;
   margin-top:12px;
-  border:none;
-  border-radius:7px;
+  border:0;
+  border-radius:8px;
   background:#FFD400;
   color:#111;
-  font-size:17px;
+  font-size:18px;
   font-weight:bold;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#e6bd00;
 }
 
 .black{
@@ -92,64 +59,32 @@ button:hover{
   color:#FFD400;
 }
 
-.black:hover{
-  background:#222;
-}
-
 .hidden{
-  display:none;
+  display:none !important;
 }
 
-#mapClient,
-#mapChauffeur{
+input,select{
   width:100%;
-  height:350px;
+  padding:14px;
+  margin-top:6px;
+  border:2px solid #111;
+  border-radius:8px;
+  font-size:16px;
+}
+
+label{
+  display:block;
   margin-top:15px;
-  border:2px solid #111;
-  border-radius:8px;
-}
-
-.result{
-  background:#111;
-  color:#FFD400;
-  padding:15px;
-  margin-top:15px;
-  border-radius:8px;
   font-weight:bold;
-}
-
-.course{
-  border:2px solid #111;
-  padding:12px;
-  margin-top:10px;
-  border-radius:8px;
-  background:#fff;
-}
-
-.status{
-  padding:12px;
-  background:#FFD400;
-  border:2px solid #111;
-  border-radius:8px;
-  margin-top:12px;
-  font-weight:bold;
-}
-
-#message{
-  margin-top:10px;
-  padding:10px;
-  border-radius:7px;
-  display:none;
-  background:#FFD400;
-  border:2px solid #111;
 }
 </style>
-
 </head>
 
 <body>
 
-<header>YAMBOKA</header>
+<header>
+YAMBOKA
+</header>
 
 <div class="container">
 
@@ -159,12 +94,12 @@ button:hover{
 
 <h2>Bienvenue sur YAMBOKA</h2>
 
-<button onclick="ouvrirClient()">
+<button id="btnClient">
 🚕 CLIENT
 </button>
 
-<button class="black" onclick="ouvrirChauffeur()">
-CHAUFFEUR
+<button id="btnChauffeur" class="black">
+🚗 CHAUFFEUR
 </button>
 
 </div>
@@ -172,11 +107,9 @@ CHAUFFEUR
 
 <!-- CLIENT -->
 
-<div id="client" class="hidden">
+<div id="client" class="card hidden">
 
-<div class="card">
-
-<h2>Demander une course</h2>
+<h2>🚕 Espace Client</h2>
 
 <label>Nom</label>
 
@@ -186,7 +119,6 @@ type="text"
 placeholder="Votre nom"
 >
 
-
 <label>Téléphone</label>
 
 <input
@@ -195,37 +127,21 @@ type="tel"
 placeholder="Votre numéro"
 >
 
-
 <label>Départ</label>
 
 <input
 id="depart"
 type="text"
-placeholder="Votre position"
-readonly
+placeholder="Votre départ"
 >
-
-
-<button onclick="obtenirPositionClient()">
-📍 Utiliser ma position
-</button>
-
 
 <label>Destination</label>
 
 <input
 id="destination"
 type="text"
-placeholder="Ex: Gombe, Kinshasa"
+placeholder="Votre destination"
 >
-
-
-<button onclick="chercherDestination()">
-🔎 Rechercher destination
-</button>
-
-
-<label>Véhicule</label>
 
 <select id="vehicule">
 
@@ -239,47 +155,15 @@ Voiture
 
 </select>
 
-
-<button onclick="calculerCourse()">
-Calculer le prix
+<button>
+🚕 DEMANDER UNE COURSE
 </button>
-
-
-<div
-id="resultatClient"
-class="result hidden">
-</div>
-
-
-<button onclick="demanderCourse()">
-🚕 DEMANDER LA COURSE
-</button>
-
 
 <button
-class="black"
-onclick="retourAccueil()">
-Retour
-</button>
+id="retourClient"
+class="black">
 
-</div>
-
-
-<div id="mapClient"></div>
-
-
-<div
-id="statutClient"
-class="status hidden">
-</div>
-
-
-<button
-id="boutonGoogleClient"
-class="hidden"
-onclick="ouvrirGoogleMaps()">
-
-🗺️ Ouvrir Google Maps
+⬅️ RETOUR
 
 </button>
 
@@ -288,341 +172,132 @@ onclick="ouvrirGoogleMaps()">
 
 <!-- CHAUFFEUR -->
 
-<div id="chauffeur" class="hidden">
+<div id="chauffeur" class="card hidden">
 
-<div class="card">
-
-<h2>Espace chauffeur</h2>
-
+<h2>🚗 Espace Chauffeur</h2>
 
 <label>Nom</label>
 
 <input
 id="nomChauffeur"
 type="text"
-placeholder="Nom du chauffeur"
+placeholder="Votre nom"
 >
-
 
 <label>Téléphone</label>
 
 <input
 id="telephoneChauffeur"
 type="tel"
-placeholder="Téléphone"
+placeholder="Votre téléphone"
 >
 
-
-<button onclick="activerChauffeur()">
-🟢 Je suis disponible
+<button>
+🟢 JE SUIS DISPONIBLE
 </button>
-
 
 <button
-class="black"
-onclick="desactiverChauffeur()">
+id="retourChauffeur"
+class="black">
 
-🔴 Je ne suis plus disponible
-
-</button>
-
-
-<div
-id="statutChauffeur"
-class="status">
-
-Chauffeur hors ligne
-
-</div>
-
-
-<button
-class="black"
-onclick="retourAccueil()">
-
-Retour
+⬅️ RETOUR
 
 </button>
 
 </div>
 
-
-<div class="card">
-
-<h2>Courses disponibles</h2>
-
-<div id="courses">
-Aucune course pour le moment.
 </div>
-
-</div>
-
-
-<div id="mapChauffeur"></div>
-
-
-<div
-id="courseActive"
-class="card hidden">
-
-<h2>Course active</h2>
-
-<div id="detailsCourseActive"></div>
-
-
-<button onclick="allerChezClient()">
-🗺️ Aller chez le client
-</button>
-
-
-<button onclick="changerStatutCourse('en_route')">
-🚕 En route
-</button>
-
-
-<button onclick="changerStatutCourse('client_recupere')">
-👤 Client récupéré
-</button>
-
-
-<button onclick="changerStatutCourse('terminee')">
-✅ Course terminée
-</button>
-
-</div>
-
-</div>
-
-
-<div id="message"></div>
-
-</div>
-
-
-<!-- FIREBASE -->
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
-
-<!-- LEAFLET -->
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
 <script>
 
-/* =========================
-   FIREBASE
-========================= */
+/* BOUTON CLIENT */
 
-const firebaseConfig = {
-
-  apiKey:
-  "AIzaSyAkT203kmo4NorAa0mRJY-M2u4c8v8nZ1I",
-
-  authDomain:
-  "yamboka-77173.firebaseapp.com",
-
-  databaseURL:
-  "https://yamboka-77173-default-rtdb.firebaseio.com/",
-
-  projectId:
-  "yamboka-77173",
-
-  storageBucket:
-  "yamboka-77173.firebasestorage.app",
-
-  messagingSenderId:
-  "1090966765176",
-
-  appId:
-  "1:1090966765176:web:8d0aa5734f7652410cb78d",
-
-  measurementId:
-  "G-TM41TSMKCZ"
-};
-
-
-let database = null;
-
-
-try{
-
-  firebase.initializeApp(firebaseConfig);
-
-  database = firebase.database();
-
-  console.log("Firebase connecté.");
-
-}catch(error){
-
-  console.error(
-    "Erreur Firebase :",
-    error
-  );
-
-}
-
-
-/* =========================
-   VARIABLES
-========================= */
-
-let positionClient = null;
-
-let destinationPosition = null;
-
-let positionChauffeur = null;
-
-let mapClient = null;
-
-let mapChauffeur = null;
-
-let markerClient = null;
-
-let markerDestination = null;
-
-let markerChauffeur = null;
-
-let courseActiveId = null;
-
-let courseCalculee = null;
-
-let googleDestination = null;
-
-let watchChauffeur = null;
-
-
-/* =========================
-   MESSAGE
-========================= */
-
-function afficherMessage(message){
-
-  const element =
-  document.getElementById("message");
-
-  element.innerText = message;
-
-  element.style.display = "block";
-
-  setTimeout(function(){
-
-    element.style.display = "none";
-
-  },4000);
-
-}
-
-
-/* =========================
-   ECRANS
-========================= */
-
-function afficherEcran(id){
+document
+.getElementById("btnClient")
+.addEventListener("click", function(){
 
   document
   .getElementById("accueil")
-  .classList.add("hidden");
-
-  document
-  .getElementById("client")
-  .classList.add("hidden");
+  .classList
+  .add("hidden");
 
   document
   .getElementById("chauffeur")
-  .classList.add("hidden");
+  .classList
+  .add("hidden");
 
   document
-  .getElementById(id)
-  .classList.remove("hidden");
+  .getElementById("client")
+  .classList
+  .remove("hidden");
 
-}
-
-
-function ouvrirClient(){
-
-  afficherEcran("client");
-
-  setTimeout(function(){
-
-    initialiserMapClient();
-
-  },300);
-
-}
+});
 
 
-function ouvrirChauffeur(){
+/* BOUTON CHAUFFEUR */
 
-  afficherEcran("chauffeur");
+document
+.getElementById("btnChauffeur")
+.addEventListener("click", function(){
 
-  setTimeout(function(){
+  document
+  .getElementById("accueil")
+  .classList
+  .add("hidden");
 
-    initialiserMapChauffeur();
+  document
+  .getElementById("client")
+  .classList
+  .add("hidden");
 
-  },300);
+  document
+  .getElementById("chauffeur")
+  .classList
+  .remove("hidden");
 
-}
-
-
-function retourAccueil(){
-
-  afficherEcran("accueil");
-
-}
-
-
-/* =========================
-   CARTE CLIENT
-========================= */
-
-function initialiserMapClient(){
-
-  if(typeof L === "undefined"){
-
-    afficherMessage(
-      "La carte n'est pas disponible."
-    );
-
-    return;
-  }
+});
 
 
-  if(mapClient){
+/* RETOUR CLIENT */
 
-    mapClient.invalidateSize();
+document
+.getElementById("retourClient")
+.addEventListener("click", function(){
 
-    return;
-  }
+  document
+  .getElementById("client")
+  .classList
+  .add("hidden");
 
+  document
+  .getElementById("accueil")
+  .classList
+  .remove("hidden");
 
-  mapClient =
-  L.map("mapClient")
-  .setView(
-    [-4.325,15.322],
-    12
-  );
-
-
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      attribution:
-      "© OpenStreetMap"
-    }
-  ).addTo(mapClient);
-
-}
+});
 
 
-/* =========================
-   GPS CLIENT
-========================= */
+/* RETOUR CHAUFFEUR */
 
-function obtenirPositionClient(){
+document
+.getElementById("retourChauffeur")
+.addEventListener("click", function(){
 
-  if(
+  document
+  .getElementById("chauffeur")
+  .classList
+  .add("hidden");
+
+  document
+  .getElementById("accueil")
+  .classList
+  .remove("hidden");
+
+});
+
+</script>
+
+</body>
+</html>
 ```
