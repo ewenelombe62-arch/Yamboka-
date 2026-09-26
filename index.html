@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>YAMBOKA</title>
 
@@ -57,10 +61,6 @@ font-size:16px;
 font-weight:bold;
 }
 
-button:hover{
-opacity:.9;
-}
-
 input,
 select{
 width:100%;
@@ -88,6 +88,15 @@ background:#eef7ff;
 color:#0877c9;
 }
 
+.success{
+margin-top:15px;
+padding:15px;
+border-radius:12px;
+background:#e9f9ee;
+color:#16803c;
+font-weight:bold;
+}
+
 #map{
 width:100%;
 height:350px;
@@ -113,11 +122,15 @@ font-weight:bold;
 }
 
 </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
+
 
 <h1>YAMBOKA</h1>
 
@@ -128,7 +141,8 @@ Votre transport, simplement.
 
 <!-- ACCUEIL -->
 
-<div id="accueil" class="section active">
+<div id="accueil"
+class="section active">
 
 <button onclick="afficherClient()">
 🧑 CLIENT
@@ -141,9 +155,11 @@ Votre transport, simplement.
 </div>
 
 
+
 <!-- CLIENT -->
 
-<div id="client" class="section">
+<div id="client"
+class="section">
 
 <h2>Demander une course</h2>
 
@@ -217,8 +233,7 @@ placeholder="Exemple : 10000"
 
 <div
 id="gpsMessage"
-class="gps-info"
->
+class="gps-info">
 
 GPS non utilisé
 
@@ -230,8 +245,13 @@ GPS non utilisé
 
 <div
 id="message"
-class="message"
-></div>
+class="message">
+</div>
+
+
+<div
+id="chauffeurInfo">
+</div>
 
 
 <button onclick="demanderCourse()">
@@ -253,7 +273,8 @@ class="message"
 
 <!-- CHAUFFEUR -->
 
-<div id="chauffeur" class="section">
+<div id="chauffeur"
+class="section">
 
 <h2>Espace chauffeur</h2>
 
@@ -294,15 +315,24 @@ placeholder="Votre téléphone"
 
 </div>
 
+
 </div>
 
 
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script
+src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+</script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script
+src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js">
+</script>
+
+
+<script
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
 
 
 
@@ -347,7 +377,7 @@ firebase.database();
 
 
 /* =========================
-GPS
+VARIABLES
 ========================= */
 
 let latitudeClient = null;
@@ -358,10 +388,12 @@ let map = null;
 
 let marker = null;
 
+let courseClientId = null;
+
 
 
 /* =========================
-AFFICHER CLIENT
+CLIENT
 ========================= */
 
 function afficherClient(){
@@ -390,7 +422,7 @@ initialiserCarte();
 
 
 /* =========================
-AFFICHER CHAUFFEUR
+CHAUFFEUR
 ========================= */
 
 function afficherChauffeur(){
@@ -475,7 +507,7 @@ attribution:
 
 
 /* =========================
-UTILISER GPS
+GPS
 ========================= */
 
 function utiliserMaPosition(){
@@ -556,17 +588,15 @@ longitudeClient
 
 },
 
-
 function(){
 
 document
 .getElementById("gpsMessage")
 .innerHTML =
 
-"❌ Impossible d'obtenir votre position. Autorisez le GPS.";
+"❌ Impossible d'obtenir votre position.";
 
 },
-
 
 {
 
@@ -591,7 +621,6 @@ DEMANDER COURSE
 function demanderCourse(){
 
 const nom =
-
 document
 .getElementById("nomClient")
 .value
@@ -599,7 +628,6 @@ document
 
 
 const telephone =
-
 document
 .getElementById("telephoneClient")
 .value
@@ -607,7 +635,6 @@ document
 
 
 const depart =
-
 document
 .getElementById("depart")
 .value
@@ -615,7 +642,6 @@ document
 
 
 const destination =
-
 document
 .getElementById("destination")
 .value
@@ -623,24 +649,20 @@ document
 
 
 const vehicule =
-
 document
 .getElementById("vehicule")
 .value;
 
 
 const prix =
-
 document
 .getElementById("prix")
 .value;
 
 
 const message =
-
 document
 .getElementById("message");
-
 
 
 if(
@@ -661,7 +683,6 @@ message.style.color =
 "red";
 
 message.innerHTML =
-
 "❌ Veuillez remplir tous les champs.";
 
 return;
@@ -669,8 +690,6 @@ return;
 }
 
 
-
-/* COURSE */
 
 const course = {
 
@@ -692,8 +711,6 @@ vehicule,
 prix:
 Number(prix),
 
-
-/* GPS CLIENT */
 
 latitudeClient:
 latitudeClient,
@@ -717,20 +734,20 @@ new Date().toISOString()
 };
 
 
-
-/* ENREGISTRER */
-
 database
 .ref("courses")
 .push(course)
 
-.then(function(){
+.then(function(result){
+
+courseClientId =
+result.key;
+
 
 message.style.color =
 "green";
 
 message.innerHTML =
-
 "✅ Course enregistrée !";
 
 
@@ -746,6 +763,11 @@ document
 .getElementById("prix")
 .value = "";
 
+
+/* SURVEILLER LA COURSE */
+
+surveillerCourse(courseClientId);
+
 })
 
 .catch(function(error){
@@ -754,11 +776,84 @@ message.style.color =
 "red";
 
 message.innerHTML =
-
 "❌ Erreur : " +
 error.message;
 
 });
+
+}
+
+
+
+/* =========================
+SURVEILLER COURSE CLIENT
+========================= */
+
+function surveillerCourse(id){
+
+database
+.ref("courses/" + id)
+.on("value",function(snapshot){
+
+if(!snapshot.exists()){
+
+return;
+
+}
+
+
+const course =
+snapshot.val();
+
+
+if(course.statut === "acceptee"){
+
+afficherChauffeurAuClient(course);
+
+}
+
+});
+
+}
+
+
+
+/* =========================
+AFFICHER CHAUFFEUR CLIENT
+========================= */
+
+function afficherChauffeurAuClient(course){
+
+const zone =
+document
+.getElementById("chauffeurInfo");
+
+
+zone.innerHTML =
+
+`
+
+<div class="success">
+
+🟢 COURSE ACCEPTÉE !
+
+<br><br>
+
+👤 Chauffeur :
+${course.nomChauffeur || "Non disponible"}
+
+<br><br>
+
+📞 Téléphone :
+${course.telephoneChauffeur || "Non disponible"}
+
+<br><br>
+
+🚗 Votre chauffeur est en route.
+
+</div>
+
+`;
 
 }
 
@@ -771,26 +866,19 @@ AFFICHER COURSES CHAUFFEUR
 function afficherCourses(){
 
 const liste =
-
 document
 .getElementById("listeCourses");
 
 
 liste.innerHTML =
-
-"<p>⏳ Chargement des courses...</p>";
+"⏳ Chargement...";
 
 
 database
 .ref("courses")
 .orderByChild("statut")
 .equalTo("en_attente")
-
-.on(
-
-"value",
-
-function(snapshot){
+.on("value",function(snapshot){
 
 liste.innerHTML = "";
 
@@ -798,7 +886,6 @@ liste.innerHTML = "";
 if(!snapshot.exists()){
 
 liste.innerHTML =
-
 "<p>🚕 Aucune course disponible.</p>";
 
 return;
@@ -806,9 +893,7 @@ return;
 }
 
 
-snapshot.forEach(
-
-function(child){
+snapshot.forEach(function(child){
 
 const course =
 child.val();
@@ -816,9 +901,6 @@ child.val();
 const id =
 child.key;
 
-
-
-/* GPS BUTTON */
 
 let gpsButton = "";
 
@@ -860,9 +942,6 @@ ${course.longitudeClient}
 }
 
 
-
-/* COURSE */
-
 const div =
 document.createElement("div");
 
@@ -875,55 +954,38 @@ div.innerHTML =
 `
 
 <strong>👤 Client :</strong>
-
 ${course.nomClient || ""}
 
 <br><br>
 
-
 <strong>📞 Téléphone :</strong>
-
 ${course.telephoneClient || ""}
 
 <br><br>
 
-
 <strong>📍 Départ :</strong>
-
 ${course.depart || ""}
 
 <br><br>
 
-
 <strong>🏁 Destination :</strong>
-
 ${course.destination || ""}
 
 <br><br>
 
-
 <strong>🚗 Véhicule :</strong>
-
 ${course.vehicule || ""}
 
 <br><br>
 
-
 <strong>💰 Prix :</strong>
-
-${Number(course.prix || 0)
-.toLocaleString("fr-FR")}
-
- FC
-
+${Number(course.prix || 0).toLocaleString("fr-FR")}
+FC
 
 ${gpsButton}
 
-
 <button
-
 onclick="accepterCourse('${id}')"
-
 >
 
 🟢 ACCEPTER LA COURSE
@@ -935,13 +997,9 @@ onclick="accepterCourse('${id}')"
 
 liste.appendChild(div);
 
-}
+});
 
-);
-
-}
-
-);
+});
 
 }
 
@@ -952,11 +1010,8 @@ VOIR POSITION CLIENT
 ========================= */
 
 function voirPositionClient(
-
 latitude,
-
 longitude
-
 ){
 
 const url =
@@ -964,9 +1019,7 @@ const url =
 "https://www.google.com/maps?q=" +
 
 latitude +
-
 "," +
-
 longitude;
 
 
@@ -986,7 +1039,6 @@ ACCEPTER COURSE
 function accepterCourse(id){
 
 const nomChauffeur =
-
 document
 .getElementById("nomChauffeur")
 .value
@@ -994,12 +1046,10 @@ document
 
 
 const telephoneChauffeur =
-
 document
 .getElementById("telephoneChauffeur")
 .value
 .trim();
-
 
 
 if(
@@ -1011,15 +1061,12 @@ telephoneChauffeur === ""
 ){
 
 alert(
-
 "Veuillez remplir le nom et le téléphone du chauffeur."
-
 );
 
 return;
 
 }
-
 
 
 database
@@ -1050,10 +1097,8 @@ afficherCourses();
 .catch(function(error){
 
 alert(
-
 "❌ Erreur : " +
 error.message
-
 );
 
 });
