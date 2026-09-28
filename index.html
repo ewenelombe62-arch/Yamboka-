@@ -1,13 +1,28 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport"
+```html
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>YAMBOKA</title><style>
+<title>YAMBOKA</title>
+
+<link
+rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
 
 *{
     box-sizing:border-box;
     margin:0;
     padding:0;
-    font-family:Arial,sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
@@ -22,25 +37,27 @@ header{
     text-align:center;
     font-size:30px;
     font-weight:bold;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
 .container{
     width:94%;
-    max-width:500px;
-    margin:30px auto;
+    max-width:650px;
+    margin:25px auto;
 }
 
 .card{
     background:white;
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 4px 15px rgba(0,0,0,.12);
+    padding:22px;
+    border-radius:16px;
+    box-shadow:0 4px 16px rgba(0,0,0,.10);
     margin-bottom:20px;
 }
 
 h2{
     text-align:center;
-    margin-bottom:20px;
+    margin-bottom:18px;
+    color:#222;
 }
 
 h3{
@@ -49,28 +66,35 @@ h3{
 
 label{
     display:block;
-    margin-top:15px;
-    margin-bottom:6px;
     font-weight:bold;
+    margin-top:14px;
+    margin-bottom:6px;
 }
 
-input{
+input,
+select{
     width:100%;
-    padding:14px;
+    padding:13px;
     border:1px solid #ccc;
-    border-radius:8px;
+    border-radius:9px;
     font-size:16px;
+    outline:none;
+}
+
+input:focus,
+select:focus{
+    border-color:#ff7900;
 }
 
 button{
     width:100%;
     padding:14px;
-    margin-top:15px;
+    margin-top:12px;
     border:none;
-    border-radius:8px;
+    border-radius:9px;
     background:#ff7900;
     color:white;
-    font-size:17px;
+    font-size:16px;
     font-weight:bold;
     cursor:pointer;
 }
@@ -79,147 +103,563 @@ button:active{
     opacity:.8;
 }
 
-.retour{
+.btn-secondary{
     background:#555;
 }
 
-.logout{
+.btn-danger{
     background:#d60000;
+}
+
+.btn-green{
+    background:#159447;
+}
+
+.btn-blue{
+    background:#1976d2;
+}
+
+.hidden{
+    display:none !important;
 }
 
 .message{
     margin-top:15px;
-    padding:13px;
-    border-radius:8px;
+    padding:12px;
+    border-radius:9px;
     text-align:center;
-    display:none;
     line-height:1.5;
 }
 
 .success{
-    display:block;
     background:#d9f7df;
     color:#08752c;
 }
 
 .error{
-    display:block;
     background:#ffdcdc;
     color:#a00000;
 }
 
 .info{
-    display:block;
     background:#fff3cd;
     color:#856404;
 }
 
-#loginAdmin{
-    display:none;
+.role-buttons{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
 }
 
-#adminPanel{
-    display:none;
-}
-
-.test{
-    background:#f5f5f5;
-    padding:15px;
-    border-radius:10px;
-    margin-top:15px;
-    line-height:1.7;
-    word-break:break-word;
-}
-
-.status{
-    font-weight:bold;
+.role-buttons button{
+    margin-top:0;
+    padding:18px;
     font-size:18px;
 }
 
-</style></head><body><header>
-🚕 YAMBOKA
-</header><div class="container"><!-- =========================
-     ACCUEIL
-========================= --><div id="accueil" class="card"><h2>
-Bienvenue sur YAMBOKA
-</h2><button onclick="ouvrirAdmin()">🔐 ESPACE ADMINISTRATEUR
+.status{
+    padding:12px;
+    border-radius:9px;
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:15px;
+}
 
-</button></div><!-- =========================
-     CONNEXION ADMIN
-========================= --><div id="loginAdmin" class="card"><button
-class="retour"
+.online{
+    background:#d9f7df;
+    color:#08752c;
+}
+
+.offline{
+    background:#ffdcdc;
+    color:#a00000;
+}
+
+#map{
+    width:100%;
+    height:300px;
+    border-radius:12px;
+    margin-top:15px;
+    overflow:hidden;
+}
+
+.course{
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:15px;
+    margin-top:12px;
+    background:#fafafa;
+}
+
+.course strong{
+    color:#ff7900;
+}
+
+.stat{
+    background:#f5f5f5;
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+    margin-top:10px;
+}
+
+.stat b{
+    display:block;
+    font-size:30px;
+    color:#ff7900;
+    margin-top:5px;
+}
+
+.admin-header{
+    text-align:center;
+    background:#222;
+    color:white;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+}
+
+.small{
+    font-size:13px;
+    color:#666;
+}
+
+.price{
+    font-size:22px;
+    color:#ff7900;
+    font-weight:bold;
+    text-align:center;
+    margin-top:10px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<header>
+🚕 YAMBOKA
+</header>
+
+
+<div class="container">
+
+
+<!-- ==================================================
+     ACCUEIL
+================================================== -->
+
+<div id="accueil" class="card">
+
+<h2>
+Bienvenue sur YAMBOKA
+</h2>
+
+<p style="text-align:center;margin-bottom:20px;">
+Votre service de transport
+</p>
+
+
+<div class="role-buttons">
+
+<button onclick="ouvrirClient()">
+👤 ESPACE CLIENT
+</button>
+
+<button
+class="btn-green"
+onclick="ouvrirChauffeur()">
+
+🚗 ESPACE CHAUFFEUR
+
+</button>
+
+<button
+class="btn-blue"
+onclick="ouvrirAdmin()">
+
+👑 ESPACE ADMINISTRATEUR
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ==================================================
+     CLIENT
+================================================== -->
+
+<div id="clientPanel"
+class="card hidden">
+
+<button
+class="btn-secondary"
 onclick="retourAccueil()">
 
 ⬅️ RETOUR
 
-</button><h2>
-👑 Administrateur
-</h2><label for="emailAdmin">Adresse e-mail
+</button>
 
-</label><input
+<h2>
+👤 Espace Client
+</h2>
+
+
+<label>
+Nom du client
+</label>
+
+<input
+id="nomClient"
+type="text"
+placeholder="Votre nom"
+>
+
+
+<label>
+Téléphone
+</label>
+
+<input
+id="telephoneClient"
+type="tel"
+placeholder="Votre numéro"
+>
+
+
+<label>
+Départ
+</label>
+
+<input
+id="departClient"
+type="text"
+placeholder="Lieu de départ"
+>
+
+
+<label>
+Destination
+</label>
+
+<input
+id="destinationClient"
+type="text"
+placeholder="Votre destination"
+>
+
+
+<label>
+Prix proposé
+</label>
+
+<input
+id="prixClient"
+type="number"
+placeholder="Prix en FC"
+>
+
+
+<button onclick="demanderCourse()">
+🚕 DEMANDER UNE COURSE
+</button>
+
+
+<div id="messageClient"></div>
+
+
+<div id="clientCourse"
+class="course hidden">
+
+<h3>
+📋 Ma course
+</h3>
+
+<div id="clientCourseInfo"></div>
+
+</div>
+
+
+<div id="mapClient"></div>
+
+</div>
+
+
+<!-- ==================================================
+     CHAUFFEUR
+================================================== -->
+
+<div id="chauffeurPanel"
+class="card hidden">
+
+<button
+class="btn-secondary"
+onclick="retourAccueil()">
+
+⬅️ RETOUR
+
+</button>
+
+<h2>
+🚗 Espace Chauffeur
+</h2>
+
+
+<label>
+Nom du chauffeur
+</label>
+
+<input
+id="nomChauffeur"
+type="text"
+placeholder="Votre nom"
+>
+
+
+<label>
+Téléphone du chauffeur
+</label>
+
+<input
+id="telephoneChauffeur"
+type="tel"
+placeholder="Votre téléphone"
+>
+
+
+<div
+id="statutChauffeur"
+class="status offline">
+
+🔴 Chauffeur hors ligne
+
+</div>
+
+
+<button
+id="btnOnline"
+class="btn-green"
+onclick="mettreEnLigne()">
+
+🟢 SE METTRE EN LIGNE
+
+</button>
+
+
+<button
+class="btn-secondary"
+onclick="actualiserCourses()">
+
+🔄 ACTUALISER LES COURSES
+
+</button>
+
+
+<div id="messageChauffeur"></div>
+
+
+<h3 style="margin-top:20px;">
+🚕 Courses disponibles
+</h3>
+
+
+<div id="listeCourses">
+
+Aucune course disponible.
+
+</div>
+
+</div>
+
+
+<!-- ==================================================
+     ADMIN LOGIN
+================================================== -->
+
+<div id="loginAdmin"
+class="card hidden">
+
+<button
+class="btn-secondary"
+onclick="retourAccueil()">
+
+⬅️ RETOUR
+
+</button>
+
+
+<h2>
+👑 Administrateur
+</h2>
+
+
+<label>
+Adresse e-mail
+</label>
+
+<input
 id="emailAdmin"
 type="email"
 placeholder="Entrez votre e-mail"
 autocomplete="email"
+>
 
-«»
 
-<label for="passwordAdmin">Mot de passe
+<label>
+Mot de passe
+</label>
 
-</label><input
+<input
 id="passwordAdmin"
 type="password"
 placeholder="Entrez votre mot de passe"
 autocomplete="current-password"
+>
 
-«»
 
-<button onclick="connexionAdmin()">🔐 SE CONNECTER
+<button onclick="connexionAdmin()">
 
-</button><div
-id="message"
-class="message">
-</div></div><!-- =========================
-     ADMIN
-========================= --><div id="adminPanel" class="card"><h2>👑 Administration YAMBOKA
+🔐 SE CONNECTER
 
-</h2><p
-id="adminEmailAffiche"
-style="text-align:center;margin-bottom:15px;">
-</p><div class="test"><div class="status">🟢 Firebase Authentication connecté
+</button>
 
-</div><p>Ton compte administrateur est connecté.
 
-</p></div><div class="test"><b>
-Test Firebase :
-</b><br><span id="firebaseStatus">Vérification...
+<div id="messageAdmin"></div>
 
-</span></div><button
-class="logout"
-onclick="deconnexion()">
+</div>
+
+
+<!-- ==================================================
+     ADMIN PANEL
+================================================== -->
+
+<div id="adminPanel"
+class="card hidden">
+
+<div class="admin-header">
+
+<h2 style="color:white;margin-bottom:5px;">
+👑 ADMINISTRATION YAMBOKA
+</h2>
+
+<div id="adminEmail">
+</div>
+
+</div>
+
+
+<div class="stat">
+
+Courses totales
+
+<b id="totalCourses">
+0
+</b>
+
+</div>
+
+
+<div class="stat">
+
+Courses en attente
+
+<b id="coursesAttente">
+0
+</b>
+
+</div>
+
+
+<div class="stat">
+
+Courses acceptées
+
+<b id="coursesAcceptees">
+0
+</b>
+
+</div>
+
+
+<div class="stat">
+
+Courses terminées
+
+<b id="coursesTerminees">
+0
+</b>
+
+</div>
+
+
+<div class="stat">
+
+Chauffeurs en ligne
+
+<b id="totalChauffeurs">
+0
+</b>
+
+</div>
+
+
+<h3 style="margin-top:25px;">
+📋 Toutes les courses
+</h3>
+
+
+<div id="adminCourses">
+
+Chargement...
+
+</div>
+
+
+<button
+class="btn-danger"
+onclick="deconnexionAdmin()">
 
 🚪 SE DÉCONNECTER
 
-</button></div><!-- =========================
-     TEST AUTOMATIQUE
-========================= --><div
-id="testFirebase"
-class="card"><h3>🔎 Test automatique Firebase
+</button>
 
-</h3><div
-id="testMessage"
-class="message info"
-style="display:block;">⏳ Vérification de Firebase...
+</div>
 
-</div></div></div><!-- =========================
+
+</div>
+
+
+<!-- ==================================================
      FIREBASE
-========================= --><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
-</script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
-</script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js">
-</script><script>
+================================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js">
+</script>
+
+
+<!-- ==================================================
+     LEAFLET
+================================================== -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script>
 
 /* ==================================================
-   CONFIGURATION FIREBASE WEB
+   CONFIGURATION FIREBASE
 ================================================== */
 
 const firebaseConfig = {
@@ -255,108 +695,43 @@ const firebaseConfig = {
    INITIALISATION
 ================================================== */
 
-let firebaseOK = false;
+firebase.initializeApp(firebaseConfig);
 
-let auth = null;
+const auth = firebase.auth();
 
-let db = null;
-
-
-try{
-
-    firebase.initializeApp(firebaseConfig);
-
-    auth = firebase.auth();
-
-    db = firebase.database();
-
-    firebaseOK = true;
-
-    afficherTest(
-        "success",
-        "✅ Firebase est correctement initialisé.<br>" +
-        "La configuration Web est chargée."
-    );
-
-}
-catch(error){
-
-    console.error(error);
-
-    firebaseOK = false;
-
-    afficherTest(
-        "error",
-        "❌ Erreur Firebase.<br><br>" +
-        error.message
-    );
-
-}
+const db = firebase.database();
 
 
 /* ==================================================
-   TEST AUTOMATIQUE AUTH
+   VARIABLES
 ================================================== */
 
-if(firebaseOK){
+let chauffeurEnLigne = false;
 
-    auth.onAuthStateChanged(function(user){
+let chauffeurId = null;
 
-        if(user){
+let intervalCourses = null;
 
-            console.log(
-                "Utilisateur connecté :",
-                user.email
-            );
+let map = null;
 
-            afficherTest(
-                "success",
-                "✅ Firebase Authentication fonctionne.<br>" +
-                "Utilisateur connecté : " +
-                user.email
-            );
-
-            afficherAdmin(user);
-
-        }
-        else{
-
-            console.log(
-                "Aucun utilisateur connecté."
-            );
-
-            document
-            .getElementById("firebaseStatus")
-            .innerHTML =
-            "🟢 Firebase fonctionne. Aucun administrateur connecté.";
-
-        }
-
-    });
-
-}
+let markerClient = null;
 
 
 /* ==================================================
-   AFFICHER TEST
+   UTILITAIRE
 ================================================== */
 
-function afficherTest(type,message){
+function afficherMessage(id,type,message){
 
     const element =
-    document.getElementById("testMessage");
+    document.getElementById(id);
 
     if(!element){
-
         return;
-
     }
 
     element.className =
     "message " + type;
-
-    element.style.display =
-    "block";
 
     element.innerHTML =
     message;
@@ -365,172 +740,949 @@ function afficherTest(type,message){
 
 
 /* ==================================================
-   OUVRIR ADMIN
+   MASQUER TOUS LES PANNEAUX
 ================================================== */
 
-function ouvrirAdmin(){
+function masquerTout(){
 
     document
     .getElementById("accueil")
-    .style.display =
-    "none";
+    .classList.add("hidden");
 
     document
-    .getElementById("testFirebase")
-    .style.display =
-    "none";
+    .getElementById("clientPanel")
+    .classList.add("hidden");
+
+    document
+    .getElementById("chauffeurPanel")
+    .classList.add("hidden");
 
     document
     .getElementById("loginAdmin")
-    .style.display =
-    "block";
+    .classList.add("hidden");
+
+    document
+    .getElementById("adminPanel")
+    .classList.add("hidden");
 
 }
 
 
 /* ==================================================
-   RETOUR
+   RETOUR ACCUEIL
 ================================================== */
 
 function retourAccueil(){
 
-    document
-    .getElementById("loginAdmin")
-    .style.display =
-    "none";
-
-    document
-    .getElementById("testFirebase")
-    .style.display =
-    "block";
+    masquerTout();
 
     document
     .getElementById("accueil")
-    .style.display =
-    "block";
+    .classList.remove("hidden");
 
 }
 
 
 /* ==================================================
-   CONNEXION ADMIN
+   CLIENT
 ================================================== */
+
+function ouvrirClient(){
+
+    masquerTout();
+
+    document
+    .getElementById("clientPanel")
+    .classList.remove("hidden");
+
+    initialiserCarte();
+
+}
+
+
+function initialiserCarte(){
+
+    if(map){
+        return;
+    }
+
+    const element =
+    document.getElementById("mapClient");
+
+    if(!element){
+        return;
+    }
+
+    map =
+    L.map("mapClient")
+    .setView(
+        [-4.325,15.3222],
+        12
+    );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution:
+            "&copy; OpenStreetMap"
+        }
+    )
+    .addTo(map);
+
+
+    if(
+        navigator.geolocation
+    ){
+
+        navigator.geolocation.getCurrentPosition(
+
+            function(position){
+
+                const lat =
+                position.coords.latitude;
+
+                const lng =
+                position.coords.longitude;
+
+
+                map.setView(
+                    [lat,lng],
+                    15
+                );
+
+
+                markerClient =
+                L.marker(
+                    [lat,lng]
+                )
+                .addTo(map)
+                .bindPopup(
+                    "📍 Votre position"
+                )
+                .openPopup();
+
+            },
+
+            function(){
+
+                console.log(
+                    "GPS non disponible"
+                );
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   DEMANDER COURSE
+================================================== */
+
+function demanderCourse(){
+
+    const nom =
+    document
+    .getElementById("nomClient")
+    .value
+    .trim();
+
+
+    const telephone =
+    document
+    .getElementById("telephoneClient")
+    .value
+    .trim();
+
+
+    const depart =
+    document
+    .getElementById("departClient")
+    .value
+    .trim();
+
+
+    const destination =
+    document
+    .getElementById("destinationClient")
+    .value
+    .trim();
+
+
+    const prix =
+    document
+    .getElementById("prixClient")
+    .value;
+
+
+    if(
+        !nom ||
+        !telephone ||
+        !depart ||
+        !destination ||
+        !prix
+    ){
+
+        afficherMessage(
+            "messageClient",
+            "error",
+            "❌ Veuillez remplir tous les champs."
+        );
+
+        return;
+
+    }
+
+
+    const courseRef =
+    db.ref("courses").push();
+
+
+    const course = {
+
+        id:
+        courseRef.key,
+
+        nomClient:
+        nom,
+
+        telephoneClient:
+        telephone,
+
+        depart:
+        depart,
+
+        destination:
+        destination,
+
+        prix:
+        Number(prix),
+
+        statut:
+        "en_attente",
+
+        chauffeurId:
+        "",
+
+        chauffeurNom:
+        "",
+
+        date:
+        new Date().toISOString()
+
+    };
+
+
+    courseRef
+    .set(course)
+
+    .then(function(){
+
+        afficherMessage(
+            "messageClient",
+            "success",
+            "✅ Votre course a été envoyée aux chauffeurs."
+        );
+
+
+        document
+        .getElementById("clientCourse")
+        .classList.remove("hidden");
+
+
+        document
+        .getElementById("clientCourseInfo")
+        .innerHTML =
+
+        "<b>Départ :</b> " +
+        depart +
+        "<br>" +
+
+        "<b>Destination :</b> " +
+        destination +
+        "<br>" +
+
+        "<b>Prix :</b> " +
+        Number(prix).toLocaleString() +
+        " FC" +
+
+        "<br><b>Statut :</b> " +
+        "⏳ En attente";
+
+
+        surveillerCourse(courseRef.key);
+
+    })
+
+    .catch(function(error){
+
+        console.error(error);
+
+        afficherMessage(
+            "messageClient",
+            "error",
+            "❌ Erreur : " +
+            error.message
+        );
+
+    });
+
+}
+
+
+/* ==================================================
+   SURVEILLER COURSE CLIENT
+================================================== */
+
+function surveillerCourse(id){
+
+    db.ref(
+        "courses/" + id
+    )
+    .on(
+        "value",
+        function(snapshot){
+
+            const course =
+            snapshot.val();
+
+
+            if(!course){
+                return;
+            }
+
+
+            let texte =
+
+            "<b>Départ :</b> " +
+            course.depart +
+
+            "<br>" +
+
+            "<b>Destination :</b> " +
+            course.destination +
+
+            "<br>" +
+
+            "<b>Prix :</b> " +
+            Number(course.prix)
+            .toLocaleString() +
+            " FC";
+
+
+            if(
+                course.statut ===
+                "en_attente"
+            ){
+
+                texte +=
+                "<br><b>Statut :</b> ⏳ En attente";
+
+            }
+
+
+            if(
+                course.statut ===
+                "acceptee"
+            ){
+
+                texte +=
+                "<br><b>Statut :</b> 🚗 Chauffeur trouvé";
+
+                texte +=
+                "<br><b>Chauffeur :</b> " +
+                course.chauffeurNom;
+
+            }
+
+
+            if(
+                course.statut ===
+                "terminee"
+            ){
+
+                texte +=
+                "<br><b>Statut :</b> ✅ Course terminée";
+
+            }
+
+
+            document
+            .getElementById(
+                "clientCourseInfo"
+            )
+            .innerHTML =
+            texte;
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   CHAUFFEUR
+================================================== */
+
+function ouvrirChauffeur(){
+
+    masquerTout();
+
+    document
+    .getElementById("chauffeurPanel")
+    .classList.remove("hidden");
+
+    chargerCoursesDisponibles();
+
+}
+
+
+function mettreEnLigne(){
+
+    const nom =
+    document
+    .getElementById("nomChauffeur")
+    .value
+    .trim();
+
+
+    const telephone =
+    document
+    .getElementById("telephoneChauffeur")
+    .value
+    .trim();
+
+
+    if(!nom || !telephone){
+
+        afficherMessage(
+            "messageChauffeur",
+            "error",
+            "❌ Entrez votre nom et votre téléphone."
+        );
+
+        return;
+
+    }
+
+
+    chauffeurId =
+    "chauffeur_" +
+    Date.now();
+
+
+    chauffeurEnLigne =
+    true;
+
+
+    db.ref(
+        "chauffeurs/" +
+        chauffeurId
+    )
+    .set({
+
+        id:
+        chauffeurId,
+
+        nom:
+        nom,
+
+        telephone:
+        telephone,
+
+        enLigne:
+        true,
+
+        date:
+        new Date().toISOString()
+
+    })
+
+    .then(function(){
+
+        document
+        .getElementById(
+            "statutChauffeur"
+        )
+        .className =
+        "status online";
+
+
+        document
+        .getElementById(
+            "statutChauffeur"
+        )
+        .innerHTML =
+        "🟢 Chauffeur en ligne";
+
+
+        document
+        .getElementById(
+            "btnOnline"
+        )
+        .innerHTML =
+        "🔴 SE METTRE HORS LIGNE";
+
+
+        document
+        .getElementById(
+            "btnOnline"
+        )
+        .className =
+        "btn-danger";
+
+
+        document
+        .getElementById(
+            "btnOnline"
+        )
+        .onclick =
+        mettreHorsLigne;
+
+
+        afficherMessage(
+            "messageChauffeur",
+            "success",
+            "✅ Vous êtes maintenant en ligne."
+        );
+
+
+        chargerCoursesDisponibles();
+
+    })
+
+    .catch(function(error){
+
+        afficherMessage(
+            "messageChauffeur",
+            "error",
+            "❌ " +
+            error.message
+        );
+
+    });
+
+}
+
+
+function mettreHorsLigne(){
+
+    chauffeurEnLigne =
+    false;
+
+
+    if(chauffeurId){
+
+        db.ref(
+            "chauffeurs/" +
+            chauffeurId
+        )
+        .update({
+
+            enLigne:false
+
+        });
+
+    }
+
+
+    document
+    .getElementById(
+        "statutChauffeur"
+    )
+    .className =
+    "status offline";
+
+
+    document
+    .getElementById(
+        "statutChauffeur"
+    )
+    .innerHTML =
+    "🔴 Chauffeur hors ligne";
+
+
+    document
+    .getElementById(
+        "btnOnline"
+    )
+    .innerHTML =
+    "🟢 SE METTRE EN LIGNE";
+
+
+    document
+    .getElementById(
+        "btnOnline"
+    )
+    .className =
+    "btn-green";
+
+
+    document
+    .getElementById(
+        "btnOnline"
+    )
+    .onclick =
+    mettreEnLigne;
+
+}
+
+
+/* ==================================================
+   COURSES CHAUFFEUR
+================================================== */
+
+function actualiserCourses(){
+
+    chargerCoursesDisponibles();
+
+}
+
+
+function chargerCoursesDisponibles(){
+
+    db.ref("courses")
+    .on(
+        "value",
+        function(snapshot){
+
+            const liste =
+            document
+            .getElementById(
+                "listeCourses"
+            );
+
+
+            if(!liste){
+                return;
+            }
+
+
+            liste.innerHTML = "";
+
+
+            let nombre = 0;
+
+
+            snapshot.forEach(
+                function(child){
+
+                    const course =
+                    child.val();
+
+
+                    if(
+                        course.statut ===
+                        "en_attente"
+                    ){
+
+                        nombre++;
+
+
+                        const div =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                        div.className =
+                        "course";
+
+
+                        div.innerHTML =
+
+                        "<b>👤 Client :</b> " +
+                        course.nomClient +
+
+                        "<br>" +
+
+                        "<b>📞 Téléphone :</b> " +
+                        course.telephoneClient +
+
+                        "<br>" +
+
+                        "<b>📍 Départ :</b> " +
+                        course.depart +
+
+                        "<br>" +
+
+                        "<b>🏁 Destination :</b> " +
+                        course.destination +
+
+                        "<div class='price'>" +
+
+                        Number(course.prix)
+                        .toLocaleString() +
+
+                        " FC</div>" +
+
+                        "<button " +
+
+                        "class='btn-green' " +
+
+                        "onclick=\"accepterCourse('" +
+                        child.key +
+                        "')\">" +
+
+                        "✅ ACCEPTER LA COURSE" +
+
+                        "</button>";
+
+
+                        liste.appendChild(
+                            div
+                        );
+
+                    }
+
+                }
+            );
+
+
+            if(nombre === 0){
+
+                liste.innerHTML =
+                "Aucune course en attente.";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   ACCEPTER COURSE
+================================================== */
+
+function accepterCourse(id){
+
+    if(!chauffeurEnLigne){
+
+        afficherMessage(
+            "messageChauffeur",
+            "error",
+            "❌ Vous devez être en ligne pour accepter une course."
+        );
+
+        return;
+
+    }
+
+
+    const nom =
+    document
+    .getElementById(
+        "nomChauffeur"
+    )
+    .value
+    .trim();
+
+
+    db.ref(
+        "courses/" + id
+    )
+    .transaction(
+        function(course){
+
+            if(course === null){
+
+                return course;
+
+            }
+
+
+            if(
+                course.statut !==
+                "en_attente"
+            ){
+
+                return;
+
+            }
+
+
+            course.statut =
+            "acceptee";
+
+            course.chauffeurId =
+            chauffeurId;
+
+            course.chauffeurNom =
+            nom;
+
+            course.dateAcceptation =
+            new Date().toISOString();
+
+
+            return course;
+
+        },
+
+        function(error,committed,snapshot){
+
+            if(error){
+
+                afficherMessage(
+                    "messageChauffeur",
+                    "error",
+                    "❌ Erreur : " +
+                    error.message
+                );
+
+                return;
+
+            }
+
+
+            if(!committed){
+
+                afficherMessage(
+                    "messageChauffeur",
+                    "error",
+                    "❌ Cette course a déjà été acceptée."
+                );
+
+                return;
+
+            }
+
+
+            afficherMessage(
+                "messageChauffeur",
+                "success",
+                "✅ Course acceptée !"
+            );
+
+
+            chargerCoursesDisponibles();
+
+        }
+
+    );
+
+}
+
+
+/* ==================================================
+   ADMIN
+================================================== */
+
+function ouvrirAdmin(){
+
+    masquerTout();
+
+    document
+    .getElementById("loginAdmin")
+    .classList.remove("hidden");
+
+}
+
 
 function connexionAdmin(){
 
     const email =
     document
-    .getElementById("emailAdmin")
+    .getElementById(
+        "emailAdmin"
+    )
     .value
     .trim();
 
 
     const password =
     document
-    .getElementById("passwordAdmin")
+    .getElementById(
+        "passwordAdmin"
+    )
     .value;
 
 
-    const message =
-    document
-    .getElementById("message");
+    if(!email){
 
-
-    if(!firebaseOK){
-
-        message.className =
-        "message error";
-
-        message.innerHTML =
-        "❌ Firebase n'est pas correctement initialisé.";
+        afficherMessage(
+            "messageAdmin",
+            "error",
+            "❌ Entrez votre adresse e-mail."
+        );
 
         return;
 
     }
 
 
-    if(email === ""){
+    if(!password){
 
-        message.className =
-        "message error";
-
-        message.innerHTML =
-        "❌ Entrez votre adresse e-mail.";
-
-        return;
-
-    }
-
-
-    if(password === ""){
-
-        message.className =
-        "message error";
-
-        message.innerHTML =
-        "❌ Entrez votre mot de passe.";
+        afficherMessage(
+            "messageAdmin",
+            "error",
+            "❌ Entrez votre mot de passe."
+        );
 
         return;
 
     }
 
 
-    message.className =
-    "message info";
+    afficherMessage(
+        "messageAdmin",
+        "info",
+        "⏳ Connexion Firebase..."
+    );
 
-    message.innerHTML =
-    "⏳ Connexion à Firebase...";
 
-
-    auth.signInWithEmailAndPassword(
+    auth
+    .signInWithEmailAndPassword(
         email,
         password
     )
 
     .then(function(result){
 
-        console.log(
-            "Connexion réussie :",
-            result.user.email
+        afficherMessage(
+            "messageAdmin",
+            "success",
+            "✅ Connexion réussie !"
         );
 
 
-        message.className =
-        "message success";
+        setTimeout(
+            function(){
 
-        message.innerHTML =
-        "✅ Connexion réussie !";
+                afficherAdmin(
+                    result.user
+                );
 
-
-        setTimeout(function(){
-
-            afficherAdmin(
-                result.user
-            );
-
-        },500);
+            },
+            500
+        );
 
     })
 
     .catch(function(error){
 
         console.error(
-            "Erreur Firebase :",
+            "Firebase:",
             error
         );
 
 
-        message.className =
-        "message error";
-
-
         if(
             error.code ===
-            "auth/invalid-credential"
+            "auth/api-key-not-valid"
         ){
 
-            message.innerHTML =
-            "❌ E-mail ou mot de passe incorrect.";
+            afficherMessage(
+                "messageAdmin",
+                "error",
+                "❌ Firebase refuse la clé API.<br>" +
+                "Code : auth/api-key-not-valid"
+            );
 
         }
 
@@ -539,38 +1691,36 @@ function connexionAdmin(){
             "auth/invalid-api-key"
         ){
 
-            message.innerHTML =
-            "❌ CLÉ API FIREBASE INVALIDE.<br><br>" +
-            "Code : auth/invalid-api-key";
+            afficherMessage(
+                "messageAdmin",
+                "error",
+                "❌ Clé API Firebase invalide.<br>" +
+                "Code : auth/invalid-api-key"
+            );
 
         }
 
         else if(
             error.code ===
-            "auth/api-key-not-valid"
+            "auth/invalid-credential"
         ){
 
-            message.innerHTML =
-            "❌ CLÉ API FIREBASE NON VALIDE.<br><br>" +
-            "Code : auth/api-key-not-valid";
-
-        }
-
-        else if(
-            error.code ===
-            "auth/network-request-failed"
-        ){
-
-            message.innerHTML =
-            "❌ Problème de connexion Internet.";
+            afficherMessage(
+                "messageAdmin",
+                "error",
+                "❌ E-mail ou mot de passe incorrect."
+            );
 
         }
 
         else{
 
-            message.innerHTML =
-            "❌ Erreur Firebase :<br>" +
-            error.message;
+            afficherMessage(
+                "messageAdmin",
+                "error",
+                "❌ Erreur Firebase :<br>" +
+                error.message
+            );
 
         }
 
@@ -580,108 +1730,325 @@ function connexionAdmin(){
 
 
 /* ==================================================
-   AFFICHER ADMIN
+   ADMIN PANEL
 ================================================== */
 
 function afficherAdmin(user){
 
-    document
-    .getElementById("accueil")
-    .style.display =
-    "none";
-
+    masquerTout();
 
     document
-    .getElementById("loginAdmin")
-    .style.display =
-    "none";
+    .getElementById(
+        "adminPanel"
+    )
+    .classList.remove("hidden");
 
 
     document
-    .getElementById("testFirebase")
-    .style.display =
-    "none";
-
-
-    document
-    .getElementById("adminPanel")
-    .style.display =
-    "block";
-
-
-    document
-    .getElementById("adminEmailAffiche")
+    .getElementById(
+        "adminEmail"
+    )
     .innerHTML =
-    "🟢 Connecté avec : <b>" +
-    user.email +
-    "</b>";
+    "🟢 Connecté : " +
+    user.email;
 
 
-    document
-    .getElementById("firebaseStatus")
-    .innerHTML =
-    "✅ Authentification Firebase active.";
+    chargerStatistiques();
+
+    chargerCoursesAdmin();
+
+    chargerChauffeursAdmin();
+
+}
+
+
+function chargerStatistiques(){
+
+    db.ref("courses")
+    .on(
+        "value",
+        function(snapshot){
+
+            let total = 0;
+
+            let attente = 0;
+
+            let acceptees = 0;
+
+            let terminees = 0;
+
+
+            snapshot.forEach(
+                function(child){
+
+                    total++;
+
+
+                    const course =
+                    child.val();
+
+
+                    if(
+                        course.statut ===
+                        "en_attente"
+                    ){
+
+                        attente++;
+
+                    }
+
+
+                    if(
+                        course.statut ===
+                        "acceptee"
+                    ){
+
+                        acceptees++;
+
+                    }
+
+
+                    if(
+                        course.statut ===
+                        "terminee"
+                    ){
+
+                        terminees++;
+
+                    }
+
+                }
+            );
+
+
+            document
+            .getElementById(
+                "totalCourses"
+            )
+            .innerText =
+            total;
+
+
+            document
+            .getElementById(
+                "coursesAttente"
+            )
+            .innerText =
+            attente;
+
+
+            document
+            .getElementById(
+                "coursesAcceptees"
+            )
+            .innerText =
+            acceptees;
+
+
+            document
+            .getElementById(
+                "coursesTerminees"
+            )
+            .innerText =
+            terminees;
+
+        }
+    );
+
+}
+
+
+function chargerChauffeursAdmin(){
+
+    db.ref("chauffeurs")
+    .on(
+        "value",
+        function(snapshot){
+
+            let total = 0;
+
+
+            snapshot.forEach(
+                function(child){
+
+                    const chauffeur =
+                    child.val();
+
+
+                    if(
+                        chauffeur.enLigne ===
+                        true
+                    ){
+
+                        total++;
+
+                    }
+
+                }
+            );
+
+
+            document
+            .getElementById(
+                "totalChauffeurs"
+            )
+            .innerText =
+            total;
+
+        }
+    );
 
 }
 
 
 /* ==================================================
-   DECONNEXION
+   LISTE COURSES ADMIN
 ================================================== */
 
-function deconnexion(){
+function chargerCoursesAdmin(){
 
-    if(!auth){
+    db.ref("courses")
+    .on(
+        "value",
+        function(snapshot){
 
-        return;
+            const container =
+            document
+            .getElementById(
+                "adminCourses"
+            );
 
-    }
+
+            container.innerHTML = "";
 
 
-    auth.signOut()
+            let nombre = 0;
+
+
+            snapshot.forEach(
+                function(child){
+
+                    nombre++;
+
+
+                    const course =
+                    child.val();
+
+
+                    const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                    div.className =
+                    "course";
+
+
+                    let statut =
+                    "⏳ En attente";
+
+
+                    if(
+                        course.statut ===
+                        "acceptee"
+                    ){
+
+                        statut =
+                        "🚗 Acceptée";
+
+                    }
+
+
+                    if(
+                        course.statut ===
+                        "terminee"
+                    ){
+
+                        statut =
+                        "✅ Terminée";
+
+                    }
+
+
+                    div.innerHTML =
+
+                    "<b>Client :</b> " +
+                    course.nomClient +
+
+                    "<br>" +
+
+                    "<b>Téléphone :</b> " +
+                    course.telephoneClient +
+
+                    "<br>" +
+
+                    "<b>Départ :</b> " +
+                    course.depart +
+
+                    "<br>" +
+
+                    "<b>Destination :</b> " +
+                    course.destination +
+
+                    "<br>" +
+
+                    "<b>Prix :</b> " +
+                    Number(course.prix)
+                    .toLocaleString() +
+                    " FC" +
+
+                    "<br>" +
+
+                    "<b>Statut :</b> " +
+                    statut;
+
+
+                    if(
+                        course.chauffeurNom
+                    ){
+
+                        div.innerHTML +=
+
+                        "<br><b>Chauffeur :</b> " +
+                        course.chauffeurNom;
+
+                    }
+
+
+                    container.appendChild(
+                        div
+                    );
+
+                }
+            );
+
+
+            if(nombre === 0){
+
+                container.innerHTML =
+                "Aucune course enregistrée.";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   DECONNEXION ADMIN
+================================================== */
+
+function deconnexionAdmin(){
+
+    auth
+    .signOut()
 
     .then(function(){
 
-        document
-        .getElementById("adminPanel")
-        .style.display =
-        "none";
-
-
-        document
-        .getElementById("testFirebase")
-        .style.display =
-        "block";
-
-
-        document
-        .getElementById("accueil")
-        .style.display =
-        "block";
-
-
-        document
-        .getElementById("emailAdmin")
-        .value =
-        "";
-
-
-        document
-        .getElementById("passwordAdmin")
-        .value =
-        "";
-
-
-        document
-        .getElementById("message")
-        .innerHTML =
-        "";
-
-
-        document
-        .getElementById("message")
-        .className =
-        "message";
+        retourAccueil();
 
     })
 
@@ -693,4 +2060,29 @@ function deconnexion(){
 
 }
 
-</script></body></html>
+
+/* ==================================================
+   SESSION FIREBASE
+================================================== */
+
+auth.onAuthStateChanged(
+    function(user){
+
+        if(user){
+
+            console.log(
+                "Administrateur connecté :",
+                user.email
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
+```
