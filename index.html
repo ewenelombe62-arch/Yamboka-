@@ -805,6 +805,27 @@ footer p{
     font-size:12px;
 }
 
+/* =====================================================
+   ADMIN AVANCE / GALERIE
+===================================================== */
+.admin-management{margin-top:25px;}
+.admin-card{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-top:18px;}
+.admin-card h4{margin-bottom:12px;font-size:20px;}
+.admin-help{color:#666;font-size:14px;margin-bottom:12px;}
+.admin-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+.admin-form-grid input,.admin-card input[type=file]{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;background:white;}
+.photo-admin-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.photo-admin-row label{display:block;font-weight:bold;margin-bottom:6px;font-size:13px;}
+.admin-photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:15px;}
+.admin-photo-grid img{width:100%;height:180px;object-fit:cover;border-radius:16px;display:block;}
+.public-photo-placeholder{min-height:180px;border-radius:16px;background:linear-gradient(135deg,#111,#ffcc00);display:flex;align-items:center;justify-content:center;color:white;font-size:22px;font-weight:700;}
+.media-preview img{max-width:220px;max-height:160px;object-fit:cover;border-radius:14px;margin-top:10px;}
+.admin-list{margin-top:12px;}
+.admin-course-item,.admin-driver-item{background:white;border:1px solid #e5e7eb;border-radius:14px;padding:14px;margin-bottom:10px;}
+.admin-course-item .status{display:inline-block;padding:5px 9px;border-radius:20px;background:#eee;font-size:12px;font-weight:bold;}
+.admin-map-legend{display:flex;gap:15px;flex-wrap:wrap;margin:10px 0;font-size:13px;}
+@media(max-width:700px){.admin-form-grid,.photo-admin-row,.admin-photo-grid{grid-template-columns:1fr;} .admin-photo-grid img{height:220px;}}
+
 </style>
 
 </head>
@@ -821,8 +842,9 @@ footer p{
 <div class="logo-zone">
 
 <img
+id="logoHeader"
 src="logo.png"
-class="logo"
+class="logo yamboka-logo"
 alt="Logo YAMBOKA"
 >
 
@@ -966,6 +988,22 @@ onclick="ouvrirApplication('admin')"
 
 </div>
 
+
+
+<!-- =====================================================
+     GALERIE YAMBOKA
+===================================================== -->
+<section class="section" id="galerieYamboka" style="padding-top:30px;">
+<div class="section-title">
+<h2>Découvrez YAMBOKA</h2>
+<p>Les images de la plateforme sont gérées depuis l’espace administrateur.</p>
+</div>
+<div id="publicGallery" class="admin-photo-grid">
+<div class="public-photo-placeholder">🚕 YAMBOKA</div>
+<div class="public-photo-placeholder">📍 Kinshasa</div>
+<div class="public-photo-placeholder">🚗 Chauffeurs</div>
+</div>
+</section>
 
 
 <!-- =====================================================
@@ -1496,6 +1534,59 @@ Terminées
 </div>
 
 
+<!-- GESTION DE LA PLATEFORME -->
+<div class="admin-management">
+<h3>⚙️ Gestion de la plateforme</h3>
+<p class="admin-help">Modifiez le logo et les photos visibles sur la plateforme.</p>
+
+<div class="admin-card">
+<h4>🖼️ Changer le logo</h4>
+<input id="adminLogoFile" type="file" accept="image/*">
+<button class="main-button yellow" onclick="enregistrerLogoAdmin()">💾 ENREGISTRER LE LOGO</button>
+<div id="adminLogoPreview" class="media-preview"></div>
+</div>
+
+<div class="admin-card">
+<h4>📸 Ajouter / remplacer les photos</h4>
+<div class="photo-admin-row">
+<div><label>Photo 1</label><input id="adminPhoto1" type="file" accept="image/*"></div>
+<div><label>Photo 2</label><input id="adminPhoto2" type="file" accept="image/*"></div>
+<div><label>Photo 3</label><input id="adminPhoto3" type="file" accept="image/*"></div>
+<div><label>Photo 4</label><input id="adminPhoto4" type="file" accept="image/*"></div>
+</div>
+<button class="main-button" onclick="enregistrerPhotosAdmin()">📸 ENREGISTRER LES PHOTOS</button>
+<div id="adminPhotosPreview" class="admin-photo-grid"></div>
+</div>
+
+<!-- ENREGISTREMENT CHAUFFEUR -->
+<div class="admin-card">
+<h4>🚗 Enregistrer un chauffeur</h4>
+<div class="admin-form-grid">
+<input id="adminChauffeurNom" type="text" placeholder="Nom complet du chauffeur">
+<input id="adminChauffeurTelephone" type="tel" placeholder="Téléphone">
+<input id="adminChauffeurVehicule" type="text" placeholder="Véhicule / modèle">
+<input id="adminChauffeurPlaque" type="text" placeholder="Plaque d’immatriculation">
+<input id="adminChauffeurEmail" type="email" placeholder="E-mail (optionnel)">
+</div>
+<button class="main-button green" onclick="enregistrerChauffeurAdmin()">➕ ENREGISTRER LE CHAUFFEUR</button>
+<div id="adminDriverMessage" class="admin-message"></div>
+<div id="adminDriversList"></div>
+</div>
+
+<!-- CARTE GPS ADMIN -->
+<div class="admin-card">
+<h4>🗺️ Carte GPS — courses et demandes clients</h4>
+<p class="admin-help">Les marqueurs montrent les positions GPS enregistrées des demandes et des chauffeurs.</p>
+<div id="mapAdmin" style="height:480px;border-radius:16px;overflow:hidden;"></div>
+<button class="main-button" onclick="actualiserCarteAdmin()">🔄 ACTUALISER LA CARTE</button>
+</div>
+
+<!-- DEMANDES CLIENTS -->
+<div class="admin-card">
+<h4>📋 Toutes les demandes des clients</h4>
+<div id="adminCoursesList" class="admin-list"></div>
+</div>
+
 <button
 class="main-button red"
 onclick="deconnexionAdmin()"
@@ -1520,7 +1611,9 @@ onclick="deconnexionAdmin()"
 <footer>
 
 <img
+id="logoFooter"
 src="logo.png"
+class="yamboka-logo"
 alt="YAMBOKA"
 >
 
@@ -1635,6 +1728,8 @@ let mapClient = null;
 let mapChauffeur = null;
 
 let mapSuivi = null;
+let mapAdmin = null;
+let adminCourseMarkers = [];
 
 let markerClient = null;
 
@@ -3633,6 +3728,192 @@ if(auth){
 
 
 /* =====================================================
+   ADMIN — GESTION LOGO / PHOTOS
+===================================================== */
+
+function lireImageEnDataURL(file, maxSize, quality){
+    return new Promise(function(resolve,reject){
+        if(!file){ reject(new Error("Aucune image")); return; }
+        const reader = new FileReader();
+        reader.onload = function(e){
+            const img = new Image();
+            img.onload = function(){
+                let w = img.width, h = img.height;
+                const max = maxSize || 1000;
+                if(w > max || h > max){
+                    const ratio = Math.min(max / w, max / h);
+                    w = Math.round(w * ratio); h = Math.round(h * ratio);
+                }
+                const canvas = document.createElement("canvas");
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img,0,0,w,h);
+                resolve(canvas.toDataURL("image/jpeg", quality || 0.75));
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function appliquerLogoYamboka(url){
+    if(!url) return;
+    document.querySelectorAll(".yamboka-logo").forEach(function(img){ img.src = url; });
+}
+
+function chargerMediasYamboka(){
+    if(!db) return;
+    db.ref("parametres/medias").once("value").then(function(snapshot){
+        const media = snapshot.val() || {};
+        if(media.logo) appliquerLogoYamboka(media.logo);
+        const gallery = document.getElementById("publicGallery");
+        if(gallery && Array.isArray(media.photos) && media.photos.length){
+            gallery.innerHTML = media.photos.filter(Boolean).map(function(url){
+                return '<img src="'+url.replace(/"/g,'&quot;')+'" alt="YAMBOKA">';
+            }).join("");
+        }
+        const logoPreview = document.getElementById("adminLogoPreview");
+        if(logoPreview && media.logo){ logoPreview.innerHTML = '<img src="'+media.logo+'" alt="Logo">'; }
+        const photosPreview = document.getElementById("adminPhotosPreview");
+        if(photosPreview && Array.isArray(media.photos)){
+            photosPreview.innerHTML = media.photos.filter(Boolean).map(function(url){ return '<img src="'+url+'" alt="Photo">'; }).join("");
+        }
+    }).catch(console.error);
+}
+
+async function enregistrerLogoAdmin(){
+    if(!db) return alert("Firebase n'est pas disponible.");
+    const file = document.getElementById("adminLogoFile").files[0];
+    if(!file) return alert("Choisissez d'abord le nouveau logo.");
+    try{
+        const url = await lireImageEnDataURL(file, 700, 0.82);
+        await db.ref("parametres/medias/logo").set(url);
+        appliquerLogoYamboka(url);
+        document.getElementById("adminLogoPreview").innerHTML = '<img src="'+url+'" alt="Logo">';
+        alert("✅ Logo enregistré.");
+    }catch(e){ alert("❌ Impossible d'enregistrer le logo."); }
+}
+
+async function enregistrerPhotosAdmin(){
+    if(!db) return alert("Firebase n'est pas disponible.");
+    const files = [1,2,3,4].map(function(i){ return document.getElementById("adminPhoto"+i).files[0]; });
+    const selected = files.filter(Boolean);
+    if(!selected.length) return alert("Choisissez au moins une photo.");
+    try{
+        const current = (await db.ref("parametres/medias/photos").once("value")).val() || [];
+        const photos = Array.isArray(current) ? current.slice(0,4) : [];
+        for(let i=0;i<4;i++){
+            if(files[i]) photos[i] = await lireImageEnDataURL(files[i], 1100, 0.72);
+        }
+        while(photos.length < 4) photos.push("");
+        await db.ref("parametres/medias/photos").set(photos);
+        chargerMediasYamboka();
+        alert("✅ Photos enregistrées.");
+    }catch(e){ console.error(e); alert("❌ Impossible d'enregistrer les photos."); }
+}
+
+/* =====================================================
+   ADMIN — ENREGISTRER CHAUFFEUR
+===================================================== */
+
+function enregistrerChauffeurAdmin(){
+    if(!db) return;
+    const nom = document.getElementById("adminChauffeurNom").value.trim();
+    const telephone = document.getElementById("adminChauffeurTelephone").value.trim();
+    const vehicule = document.getElementById("adminChauffeurVehicule").value.trim();
+    const plaque = document.getElementById("adminChauffeurPlaque").value.trim();
+    const email = document.getElementById("adminChauffeurEmail").value.trim();
+    const msg = document.getElementById("adminDriverMessage");
+    if(!nom || !telephone){ msg.className="admin-message error"; msg.innerHTML="❌ Nom et téléphone obligatoires."; return; }
+    const id = db.ref("chauffeurs").push().key;
+    const data = {id:id, nom:nom, telephone:telephone, vehicule:vehicule, plaque:plaque, email:email, enLigne:false, dateEnregistrement:Date.now()};
+    db.ref("chauffeurs/"+id).set(data).then(function(){
+        msg.className="admin-message success"; msg.innerHTML="✅ Chauffeur enregistré.";
+        ["adminChauffeurNom","adminChauffeurTelephone","adminChauffeurVehicule","adminChauffeurPlaque","adminChauffeurEmail"].forEach(function(id){document.getElementById(id).value="";});
+        chargerChauffeursAdmin();
+    }).catch(function(e){ msg.className="admin-message error"; msg.innerHTML="❌ "+e.message; });
+}
+
+function chargerChauffeursAdmin(){
+    if(!db) return;
+    db.ref("chauffeurs").on("value",function(snapshot){
+        const box=document.getElementById("adminDriversList"); if(!box) return;
+        let html="<h4 style='margin-top:18px;'>👥 Chauffeurs enregistrés</h4>";
+        let count=0;
+        snapshot.forEach(function(child){
+            count++; const c=child.val()||{};
+            html += '<div class="admin-driver-item"><b>🚗 '+(c.nom||"Sans nom")+'</b><br>📞 '+(c.telephone||"")+'<br>🚘 '+(c.vehicule||"Non renseigné")+' — '+(c.plaque||"Sans plaque")+'<br><span class="status">'+(c.enLigne?'🟢 EN LIGNE':'🔴 HORS LIGNE')+'</span></div>';
+        });
+        box.innerHTML = count ? html : "<p>Aucun chauffeur enregistré.</p>";
+    });
+}
+
+/* =====================================================
+   ADMIN — CARTE GPS ET COURSES
+===================================================== */
+
+function initialiserMapAdmin(){
+    const el=document.getElementById("mapAdmin");
+    if(!el || typeof L === "undefined") return;
+    if(mapAdmin) return;
+    mapAdmin=L.map("mapAdmin").setView([-4.325,15.322],12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(mapAdmin);
+}
+
+function actualiserCarteAdmin(){
+    if(!db) return;
+    initialiserMapAdmin();
+    if(!mapAdmin) return;
+    adminCourseMarkers.forEach(function(m){mapAdmin.removeLayer(m);}); adminCourseMarkers=[];
+    const bounds=[];
+    db.ref("courses").once("value").then(function(snapshot){
+        snapshot.forEach(function(child){
+            const c=child.val()||{};
+            if(c.clientLatitude && c.clientLongitude){
+                const m=L.marker([c.clientLatitude,c.clientLongitude]).addTo(mapAdmin).bindPopup(
+                    "👤 <b>"+(c.clientNom||"Client")+"</b><br>📍 "+(c.depart||"")+"<br>🏁 "+(c.destination||"")+"<br>💰 "+Number(c.prix||0).toLocaleString()+" FC<br>📌 "+(c.statut||"")
+                );
+                adminCourseMarkers.push(m); bounds.push([c.clientLatitude,c.clientLongitude]);
+            }
+        });
+        db.ref("chauffeurs").once("value").then(function(ds){
+            ds.forEach(function(child){
+                const c=child.val()||{};
+                if(c.latitude && c.longitude){
+                    const m=L.marker([c.latitude,c.longitude]).addTo(mapAdmin).bindPopup("🚗 <b>"+(c.nom||"Chauffeur")+"</b><br>"+(c.enLigne?"🟢 En ligne":"🔴 Hors ligne"));
+                    adminCourseMarkers.push(m); bounds.push([c.latitude,c.longitude]);
+                }
+            });
+            if(bounds.length) mapAdmin.fitBounds(bounds,{padding:[25,25],maxZoom:14});
+            setTimeout(function(){mapAdmin.invalidateSize();},300);
+        });
+    });
+}
+
+function chargerCoursesAdmin(){
+    if(!db) return;
+    db.ref("courses").on("value",function(snapshot){
+        const box=document.getElementById("adminCoursesList"); if(!box) return;
+        let html="", count=0;
+        snapshot.forEach(function(child){
+            count++; const c=child.val()||{};
+            html += '<div class="admin-course-item"><b>👤 '+(c.clientNom||"Client")+'</b> — 📞 '+(c.clientTelephone||"")+'<br>📍 '+(c.depart||"")+'<br>🏁 '+(c.destination||"")+'<br>💰 '+Number(c.prix||0).toLocaleString()+" FC<br><span class='status'>"+(c.statut||"inconnu")+'</span></div>';
+        });
+        box.innerHTML=count?html:"<p>Aucune demande client.</p>";
+        actualiserCarteAdmin();
+    });
+}
+
+function demarrerAdminAvance(){
+    chargerMediasYamboka();
+    chargerChauffeursAdmin();
+    chargerCoursesAdmin();
+    setTimeout(function(){ initialiserMapAdmin(); actualiserCarteAdmin(); },500);
+}
+
+/* =====================================================
    NETTOYAGE DES CLÉS FIREBASE
 ===================================================== */
 
@@ -3651,6 +3932,8 @@ function nettoyerCle(texte){
 window.addEventListener(
     "load",
     function(){
+
+        chargerMediasYamboka();
 
         const status =
         document.createElement(
