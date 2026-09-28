@@ -805,6 +805,39 @@ footer p{
     font-size:12px;
 }
 
+
+/* YAMBOKA PREMIUM ADMIN */
+body{background:#f5f6f8;}
+.card,.panel-box,.stat{transition:transform .25s ease,box-shadow .25s ease;}
+.card:hover,.stat:hover{transform:translateY(-4px);box-shadow:0 18px 45px rgba(0,0,0,.12);}
+#panelAdmin .panel-box{background:linear-gradient(145deg,#10151f,#171e2a);color:white;box-shadow:0 20px 60px rgba(0,0,0,.18);}
+#panelAdmin .panel-box h2{color:white;}
+.admin-top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px;}
+.admin-brand{display:flex;align-items:center;gap:14px;}
+.admin-brand img{width:64px;height:64px;object-fit:contain;border-radius:16px;background:#fff;padding:5px;}
+.admin-brand strong{font-size:25px;color:#ffd000;}
+.admin-live{background:#0d2418;color:#86efac;padding:10px 14px;border-radius:999px;font-weight:bold;}
+.admin-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:20px 0;}
+.admin-stat{background:#fff;color:#111;padding:18px;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,.12);}
+.admin-stat small{display:block;color:#666;font-weight:bold;margin-bottom:8px;}
+.admin-stat strong{font-size:30px;}
+.admin-map-wrap{background:#fff;color:#111;border-radius:22px;padding:14px;margin-top:20px;}
+.admin-map-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:5px 5px 14px;}
+#mapAdmin{height:520px;border-radius:16px;overflow:hidden;}
+.admin-course-list{display:grid;gap:12px;margin-top:18px;}
+.admin-course{background:#fff;color:#111;border-radius:16px;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,.08);}
+.admin-course .course-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:bold;}
+.badge.wait{background:#fff7cc;color:#8a6500}.badge.ok{background:#dcfce7;color:#166534}.badge.done{background:#e0e7ff;color:#3730a3}.badge.cancel{background:#fee2e2;color:#991b1b}
+.admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.admin-actions button{border:0;border-radius:10px;padding:10px 13px;font-weight:bold;cursor:pointer;}
+.btn-call{background:#16a34a;color:#fff}.btn-focus{background:#ffd000;color:#111}.btn-route{background:#111722;color:#fff}
+.admin-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:10px 0;color:#555;}
+.legend-item{display:flex;align-items:center;gap:6px}.dot{width:12px;height:12px;border-radius:50%;display:inline-block}.dot.client{background:#2563eb}.dot.driver{background:#16a34a}.dot.pending{background:#f59e0b}
+.admin-empty{padding:25px;text-align:center;color:#666;background:#f7f7f7;border-radius:15px;}
+@media(max-width:900px){.admin-stats{grid-template-columns:repeat(2,1fr)}#mapAdmin{height:420px}}
+@media(max-width:600px){.admin-stats{grid-template-columns:1fr 1fr}.admin-stat strong{font-size:24px}}
+
 </style>
 
 </head>
@@ -1466,76 +1499,44 @@ class="admin-message"
 <div
 id="adminDashboard"
 class="admin-panel"
+style="display:none;"
 >
 
-<h2>
-👑 Tableau de bord YAMBOKA
-</h2>
-
-
-<p
-id="adminConnecte"
-style="color:#666;"
->
-</p>
-
-
-<div class="stats">
-
-
-<div class="stat">
-
-Courses
-
-<strong id="totalCourses">
-0
-</strong>
-
+<div class="admin-top">
+  <div class="admin-brand">
+    <img src="logo.png" alt="YAMBOKA">
+    <div><strong>YAMBOKA</strong><div style="color:#cbd5e1;margin-top:4px;">Centre de contrôle • Kinshasa</div></div>
+  </div>
+  <div class="admin-live">🟢 Administration active</div>
 </div>
 
-
-<div class="stat">
-
-En attente
-
-<strong id="coursesAttente">
-0
-</strong>
-
+<div class="admin-stats">
+  <div class="admin-stat"><small>🚕 Toutes les courses</small><strong id="totalCourses">0</strong></div>
+  <div class="admin-stat"><small>⏳ Demandes</small><strong id="coursesAttente">0</strong></div>
+  <div class="admin-stat"><small>🚗 Acceptées</small><strong id="coursesAcceptees">0</strong></div>
+  <div class="admin-stat"><small>🏁 Terminées</small><strong id="coursesTerminees">0</strong></div>
+  <div class="admin-stat"><small>👤 Chauffeurs en ligne</small><strong id="chauffeursEnLigne">0</strong></div>
 </div>
 
-
-<div class="stat">
-
-Acceptées
-
-<strong id="coursesAcceptees">
-0
-</strong>
-
+<div class="admin-map-wrap">
+  <div class="admin-map-head"><div><h3>📍 Carte GPS en direct</h3><p style="color:#666;margin-top:5px;">Clients et chauffeurs enregistrés dans YAMBOKA.</p></div>
+  <button class="main-button yellow" style="width:auto;margin:0;padding:12px 18px;" onclick="actualiserCarteAdmin()">🔄 Actualiser</button></div>
+  <div class="admin-legend"><span class="legend-item"><span class="dot client"></span> Client</span><span class="legend-item"><span class="dot driver"></span> Chauffeur en ligne</span><span class="legend-item"><span class="dot pending"></span> Demande en attente</span></div>
+  <div id="mapAdmin"></div>
 </div>
 
+<div class="admin-map-wrap">
+  <div class="admin-map-head"><div><h3>📋 Demandes des clients</h3><p style="color:#666;margin-top:5px;">Voir chaque client et contacter le chauffeur disponible le plus proche.</p></div></div>
+  <div id="adminCourseList" class="admin-course-list"><div class="admin-empty">Chargement des courses...</div></div>
+</div>
 
-<div class="stat">
-
-Terminées
-
-<strong id="coursesTerminees">
-0
-</strong>
+<button class="main-button red" onclick="deconnexionAdmin()">🚪 SE DÉCONNECTER</button>
 
 </div>
 
 </div>
 
-
-<button
-class="main-button red"
-onclick="deconnexionAdmin()"
->
-🚪 SE DÉCONNECTER
-</button>
-
+</div>
 </div>
 
 </div>
@@ -3529,6 +3530,7 @@ function afficherAdmin(){
     .innerHTML = "🟢 Administrateur connecté";
 
     chargerStatistiques();
+    setTimeout(function(){ if(mapAdmin) mapAdmin.invalidateSize(); },300);
 
 }
 
@@ -3576,6 +3578,23 @@ function nettoyerCle(texte){
 
 }
 
+
+/* =====================================================
+   ADMIN — CARTE GPS ET CENTRE DE CONTRÔLE
+===================================================== */
+let mapAdmin=null, adminMarkers={}, adminCoursesCache={}, adminChauffeursCache={}, adminListenersActifs=false;
+function initialiserMapAdmin(){if(mapAdmin){mapAdmin.invalidateSize();return;}mapAdmin=L.map("mapAdmin").setView([-4.325,15.322],12);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(mapAdmin);}
+function couleurStatut(s){if(s==="acceptee")return"ok";if(s==="terminee")return"done";if(s==="annulee")return"cancel";return"wait";}
+function libelleStatut(s){if(s==="acceptee")return"🚗 Chauffeur en route";if(s==="terminee")return"🏁 Terminée";if(s==="annulee")return"❌ Annulée";return"⏳ En attente";}
+function distanceKm(a,b,c,d){const R=6371,p=Math.PI/180,x=.5-Math.cos((c-a)*p)/2+Math.cos(a*p)*Math.cos(c*p)*(1-Math.cos((d-b)*p))/2;return R*2*Math.asin(Math.sqrt(x));}
+function trouverChauffeurPlusProche(course){const a=Number(course.clientLatitude),b=Number(course.clientLongitude);if(!Number.isFinite(a)||!Number.isFinite(b))return null;let best=null;Object.keys(adminChauffeursCache).forEach(k=>{const c=adminChauffeursCache[k],x=Number(c.latitude),y=Number(c.longitude);if(c.enLigne!==true||!Number.isFinite(x)||!Number.isFinite(y))return;const d=distanceKm(a,b,x,y);if(!best||d<best.distance)best={key:k,data:c,distance:d};});return best;}
+function appelerChauffeurPlusProche(id){const c=adminCoursesCache[id],p=trouverChauffeurPlusProche(c||{});if(!p){alert("Aucun chauffeur en ligne avec une position GPS disponible près du client.");return;}if(!p.data.telephone){alert("Le chauffeur le plus proche n'a pas de numéro enregistré.");return;}if(confirm("Chauffeur le plus proche : "+(p.data.nom||p.key)+"\nDistance : "+p.distance.toFixed(2)+" km\n\nAppeler maintenant ?"))window.location.href="tel:"+p.data.telephone;}
+function centrerCourseAdmin(id){const c=adminCoursesCache[id];if(!c||!mapAdmin)return;const pts=[];if(Number.isFinite(Number(c.clientLatitude))&&Number.isFinite(Number(c.clientLongitude)))pts.push([Number(c.clientLatitude),Number(c.clientLongitude)]);if(Number.isFinite(Number(c.chauffeurLatitude))&&Number.isFinite(Number(c.chauffeurLongitude)))pts.push([Number(c.chauffeurLatitude),Number(c.chauffeurLongitude)]);if(pts.length===1)mapAdmin.setView(pts[0],15);if(pts.length>1)mapAdmin.fitBounds(pts,{padding:[40,40]});}
+function ouvrirItineraireAdmin(id){const c=adminCoursesCache[id];if(!c||!Number.isFinite(Number(c.clientLatitude))||!Number.isFinite(Number(c.clientLongitude))){alert("Position GPS du client indisponible.");return;}window.open("https://www.google.com/maps/dir/?api=1&destination="+Number(c.clientLatitude)+","+Number(c.clientLongitude),"_blank");}
+function dessinerCarteAdmin(){if(!mapAdmin)return;Object.keys(adminMarkers).forEach(k=>mapAdmin.removeLayer(adminMarkers[k]));adminMarkers={};const bounds=[];Object.keys(adminChauffeursCache).forEach(k=>{const c=adminChauffeursCache[k],a=Number(c.latitude),b=Number(c.longitude);if(c.enLigne!==true||!Number.isFinite(a)||!Number.isFinite(b))return;const m=L.circleMarker([a,b],{radius:10,color:"#15803d",fillColor:"#22c55e",fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>🚗 Chauffeur</b><br>"+(c.nom||k)+"<br>📞 "+(c.telephone||"Non renseigné")+"<br>🟢 En ligne");adminMarkers["d_"+k]=m;bounds.push([a,b]);});Object.keys(adminCoursesCache).forEach(k=>{const c=adminCoursesCache[k],a=Number(c.clientLatitude),b=Number(c.clientLongitude);if(!Number.isFinite(a)||!Number.isFinite(b))return;const col=c.statut==="en_attente"?"#f59e0b":"#2563eb";const m=L.circleMarker([a,b],{radius:9,color:col,fillColor:col,fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>👤 Client</b><br>"+(c.clientNom||"Client")+"<br>📞 "+(c.clientTelephone||"Non renseigné")+"<br>📍 "+(c.depart||"Départ")+" → "+(c.destination||"Destination")+"<br>"+libelleStatut(c.statut));adminMarkers["c_"+k]=m;bounds.push([a,b]);});if(bounds.length&&!mapAdmin._adminInitialFit){mapAdmin.fitBounds(bounds,{padding:[35,35]});mapAdmin._adminInitialFit=true;}}
+function afficherListeCoursesAdmin(){const box=document.getElementById("adminCourseList");if(!box)return;const arr=Object.keys(adminCoursesCache).map(id=>({id,...adminCoursesCache[id]})).sort((a,b)=>(b.dateCreation||0)-(a.dateCreation||0));if(!arr.length){box.innerHTML='<div class="admin-empty">Aucune course enregistrée.</div>';return;}box.innerHTML=arr.map(c=>{const p=trouverChauffeurPlusProche(c),d=p?p.distance.toFixed(2)+" km":"Aucun chauffeur proche";return '<div class="admin-course"><div class="course-head"><strong>🚕 '+(c.clientNom||"Client")+'</strong><span class="badge '+couleurStatut(c.statut)+'">'+libelleStatut(c.statut)+'</span></div><div>📞 '+(c.clientTelephone||"Non renseigné")+'</div><div style="margin-top:6px;">📍 <b>'+(c.depart||"Départ")+'</b> → '+(c.destination||"Destination")+'</div><div style="margin-top:6px;">💰 '+Number(c.prix||0).toLocaleString()+' FC</div><div style="margin-top:6px;color:#666;">🚗 Plus proche : '+d+(p?' • '+(p.data.nom||p.key):'')+'</div><div class="admin-actions"><button class="btn-focus" onclick="centrerCourseAdmin(\''+c.id+'\')">📍 Voir sur carte</button><button class="btn-call" onclick="appelerChauffeurPlusProche(\''+c.id+'\')">📞 Appeler proche</button><button class="btn-route" onclick="ouvrirItineraireAdmin(\''+c.id+'\')">🗺️ Itinéraire</button></div></div>';}).join("");}
+function chargerStatistiques(){initialiserMapAdmin();if(!db)return;if(adminListenersActifs){actualiserCarteAdmin();return;}adminListenersActifs=true;db.ref("courses").on("value",snap=>{adminCoursesCache={};let total=0,att=0,acc=0,done=0;snap.forEach(ch=>{const c=ch.val()||{};adminCoursesCache[ch.key]=c;total++;if(c.statut==="en_attente")att++;if(c.statut==="acceptee")acc++;if(c.statut==="terminee")done++;});document.getElementById("totalCourses").textContent=total;document.getElementById("coursesAttente").textContent=att;document.getElementById("coursesAcceptees").textContent=acc;document.getElementById("coursesTerminees").textContent=done;afficherListeCoursesAdmin();dessinerCarteAdmin();});db.ref("chauffeurs").on("value",snap=>{adminChauffeursCache={};let online=0;snap.forEach(ch=>{const c=ch.val()||{};adminChauffeursCache[ch.key]=c;if(c.enLigne===true)online++;});const e=document.getElementById("chauffeursEnLigne");if(e)e.textContent=online;afficherListeCoursesAdmin();dessinerCarteAdmin();});}
+function actualiserCarteAdmin(){if(!mapAdmin)initialiserMapAdmin();dessinerCarteAdmin();afficherListeCoursesAdmin();}
 
 /* =====================================================
    TEST FIREBASE
