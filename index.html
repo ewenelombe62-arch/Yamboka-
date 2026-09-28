@@ -1243,9 +1243,51 @@ id="panelChauffeur"
 class="panel"
 >
 
+<!-- CONNEXION CHAUFFEUR -->
+<div
+id="chauffeurLogin"
+class="panel-box admin-login"
+>
+
+<h2>🚗 Espace Chauffeur YAMBOKA</h2>
+
+<p style="color:#666;margin-bottom:20px;">
+Entrez votre mot de passe chauffeur pour ouvrir votre espace.
+</p>
+
+<div class="field">
+
+<label>Mot de passe chauffeur</label>
+
+<input
+id="passwordChauffeur"
+type="password"
+placeholder="Entrez le mot de passe"
+autocomplete="current-password"
+>
+
+</div>
+
+<button
+class="main-button green"
+onclick="connexionChauffeur()"
+>
+🔐 OUVRIR L'ESPACE CHAUFFEUR
+</button>
+
+<div
+id="chauffeurLoginMessage"
+class="admin-message"
+>
+</div>
+
+</div>
+
+
 <div
 class="panel-box"
 id="chauffeurSection"
+style="display:none;"
 >
 
 <h2>🚗 Espace Chauffeur</h2>
@@ -1347,6 +1389,14 @@ style="margin-top:15px;"
 Aucune course disponible.
 </div>
 
+<button
+class="main-button red"
+onclick="deconnexionChauffeur()"
+style="margin-top:20px;"
+>
+🚪 FERMER L'ESPACE CHAUFFEUR
+</button>
+
 </div>
 
 </div>
@@ -1381,30 +1431,13 @@ Connexion sécurisée Firebase.
 
 <div class="field">
 
-<label>Adresse e-mail</label>
+<label>Mot de passe administrateur</label>
 
 <input
-id="emailAdmin"
-type="email"
-placeholder="admin@email.com"
-autocomplete="email"
->
-
-</div>
-
-
-<div
-class="field"
-style="margin-top:15px;"
->
-
-<label>Mot de passe</label>
-
-<input
-id="passwordAdmin"
-type="password"
-placeholder="Mot de passe"
-autocomplete="current-password"
+ id="passwordAdmin"
+ type="password"
+ placeholder="Entrez le mot de passe"
+ autocomplete="current-password"
 >
 
 </div>
@@ -1715,7 +1748,25 @@ function ouvrirPanel(type){
         .getElementById("btnChauffeur")
         .classList.add("active");
 
-        setTimeout(initialiserMapChauffeur,100);
+        const section =
+        document.getElementById("chauffeurSection");
+
+        const login =
+        document.getElementById("chauffeurLogin");
+
+        if(window.chauffeurConnecte === true){
+
+            login.style.display = "none";
+            section.style.display = "block";
+
+            setTimeout(initialiserMapChauffeur,100);
+
+        }else{
+
+            login.style.display = "block";
+            section.style.display = "none";
+
+        }
 
     }
 
@@ -2632,6 +2683,95 @@ function ecouterCourseClient(id){
 
 
 /* =====================================================
+   CONNEXION CHAUFFEUR
+===================================================== */
+
+window.chauffeurConnecte = false;
+
+function connexionChauffeur(){
+
+    const password =
+    document
+    .getElementById("passwordChauffeur")
+    .value;
+
+    const message =
+    document
+    .getElementById("chauffeurLoginMessage");
+
+    const MOT_DE_PASSE_CHAUFFEUR = "Yamboka26";
+
+    if(!password){
+
+        message.className =
+        "admin-message error";
+
+        message.innerHTML =
+        "❌ Entrez le mot de passe.";
+
+        return;
+
+    }
+
+    if(password !== MOT_DE_PASSE_CHAUFFEUR){
+
+        message.className =
+        "admin-message error";
+
+        message.innerHTML =
+        "❌ Mot de passe incorrect.";
+
+        return;
+
+    }
+
+    window.chauffeurConnecte = true;
+
+    message.className =
+    "admin-message success";
+
+    message.innerHTML =
+    "✅ Accès chauffeur autorisé.";
+
+    document
+    .getElementById("chauffeurLogin")
+    .style.display = "none";
+
+    document
+    .getElementById("chauffeurSection")
+    .style.display = "block";
+
+    setTimeout(
+        initialiserMapChauffeur,
+        100
+    );
+
+}
+
+function deconnexionChauffeur(){
+
+    window.chauffeurConnecte = false;
+
+    document
+    .getElementById("chauffeurSection")
+    .style.display = "none";
+
+    document
+    .getElementById("chauffeurLogin")
+    .style.display = "block";
+
+    document
+    .getElementById("passwordChauffeur")
+    .value = "";
+
+    document
+    .getElementById("chauffeurLoginMessage")
+    .innerHTML = "";
+
+}
+
+
+/* =====================================================
    CHAUFFEUR — COURSES
 ===================================================== */
 
@@ -3341,103 +3481,32 @@ function appelerChauffeur(){
 
 function connexionAdmin(){
 
-    const email =
-    document
-    .getElementById("emailAdmin")
-    .value
-    .trim();
-
-
     const password =
     document
     .getElementById("passwordAdmin")
     .value;
 
-
     const message =
     document
     .getElementById("adminMessage");
 
+    const MOT_DE_PASSE_ADMIN = "Ndjoli28";
 
-    if(!email || !password){
-
-        message.className =
-        "admin-message error";
-
-        message.innerHTML =
-        "❌ Entrez l'e-mail et le mot de passe.";
-
+    if(!password){
+        message.className = "admin-message error";
+        message.innerHTML = "❌ Entrez le mot de passe.";
         return;
-
     }
 
-
-    if(!firebaseOK || !auth){
-
-        message.className =
-        "admin-message error";
-
-        message.innerHTML =
-        "❌ Firebase n'est pas correctement initialisé.";
-
+    if(password !== MOT_DE_PASSE_ADMIN){
+        message.className = "admin-message error";
+        message.innerHTML = "❌ Mot de passe incorrect.";
         return;
-
     }
 
-
-    message.className =
-    "admin-message success";
-
-    message.innerHTML =
-    "⏳ Connexion en cours...";
-
-
-    auth
-    .signInWithEmailAndPassword(
-        email,
-        password
-    )
-    .then(function(result){
-
-        message.className =
-        "admin-message success";
-
-        message.innerHTML =
-        "✅ Connexion réussie.";
-
-
-        afficherAdmin(
-            result.user
-        );
-
-    })
-    .catch(function(error){
-
-        console.error(error);
-
-        message.className =
-        "admin-message error";
-
-
-        if(
-            error.code ===
-            "auth/invalid-credential"
-        ){
-
-            message.innerHTML =
-            "❌ E-mail ou mot de passe incorrect.";
-
-        }
-        else{
-
-            message.innerHTML =
-            "❌ " +
-            error.message;
-
-        }
-
-    });
-
+    message.className = "admin-message success";
+    message.innerHTML = "✅ Accès administrateur autorisé.";
+    afficherAdmin();
 }
 
 
@@ -3445,123 +3514,21 @@ function connexionAdmin(){
    AFFICHER ADMIN
 ===================================================== */
 
-function afficherAdmin(user){
+function afficherAdmin(){
 
     document
     .getElementById("adminLogin")
-    .style.display =
-    "none";
-
+    .style.display = "none";
 
     document
     .getElementById("adminDashboard")
-    .style.display =
-    "block";
-
+    .style.display = "block";
 
     document
     .getElementById("adminConnecte")
-    .innerHTML =
-    "🟢 Connecté : <b>" +
-    user.email +
-    "</b>";
-
+    .innerHTML = "🟢 Administrateur connecté";
 
     chargerStatistiques();
-
-}
-
-
-/* =====================================================
-   STATISTIQUES ADMIN
-===================================================== */
-
-function chargerStatistiques(){
-
-    if(!db){
-
-        return;
-
-    }
-
-
-    db.ref("courses")
-    .on("value",function(snapshot){
-
-        let total = 0;
-
-        let attente = 0;
-
-        let acceptees = 0;
-
-        let terminees = 0;
-
-
-        snapshot.forEach(function(child){
-
-            const course =
-            child.val();
-
-
-            total++;
-
-
-            if(
-                course.statut ===
-                "en_attente"
-            ){
-
-                attente++;
-
-            }
-
-
-            if(
-                course.statut ===
-                "acceptee"
-            ){
-
-                acceptees++;
-
-            }
-
-
-            if(
-                course.statut ===
-                "terminee"
-            ){
-
-                terminees++;
-
-            }
-
-        });
-
-
-        document
-        .getElementById("totalCourses")
-        .innerText =
-        total;
-
-
-        document
-        .getElementById("coursesAttente")
-        .innerText =
-        attente;
-
-
-        document
-        .getElementById("coursesAcceptees")
-        .innerText =
-        acceptees;
-
-
-        document
-        .getElementById("coursesTerminees")
-        .innerText =
-        terminees;
-
-    });
 
 }
 
@@ -3572,41 +3539,21 @@ function chargerStatistiques(){
 
 function deconnexionAdmin(){
 
-    if(!auth){
+    document
+    .getElementById("adminDashboard")
+    .style.display = "none";
 
-        return;
+    document
+    .getElementById("adminLogin")
+    .style.display = "block";
 
-    }
+    document
+    .getElementById("passwordAdmin")
+    .value = "";
 
-
-    auth
-    .signOut()
-    .then(function(){
-
-        document
-        .getElementById("adminDashboard")
-        .style.display =
-        "none";
-
-
-        document
-        .getElementById("adminLogin")
-        .style.display =
-        "block";
-
-
-        document
-        .getElementById("emailAdmin")
-        .value =
-        "";
-
-
-        document
-        .getElementById("passwordAdmin")
-        .value =
-        "";
-
-    });
+    document
+    .getElementById("adminMessage")
+    .innerHTML = "";
 
 }
 
@@ -3615,21 +3562,7 @@ function deconnexionAdmin(){
    SESSION ADMIN
 ===================================================== */
 
-if(auth){
-
-    auth.onAuthStateChanged(
-        function(user){
-
-            if(user){
-
-                afficherAdmin(user);
-
-            }
-
-        }
-    );
-
-}
+/* Accès administrateur par mot de passe local. */
 
 
 /* =====================================================
