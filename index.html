@@ -1,16 +1,13 @@
-```html
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<title>YAMBOKA — Mobilité à Kinshasa</title>
 
-<title>YAMBOKA</title>
-
+<!-- LEAFLET -->
 <link
 rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -18,301 +15,1106 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 
 <style>
 
+/* =====================================================
+   BASE
+===================================================== */
+
 *{
     box-sizing:border-box;
     margin:0;
     padding:0;
-    font-family:Arial,Helvetica,sans-serif;
+}
+
+html{
+    scroll-behavior:smooth;
 }
 
 body{
-    background:#f4f5f7;
-    min-height:100vh;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#ffffff;
+    color:#111;
 }
+
+button,
+input,
+select{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* =====================================================
+   COULEURS YAMBOKA
+===================================================== */
+
+:root{
+    --jaune:#ffd000;
+    --jaune2:#ffb800;
+    --noir:#080b12;
+    --noir2:#111722;
+    --blanc:#ffffff;
+    --gris:#f4f5f7;
+    --gris2:#777;
+    --vert:#16a34a;
+    --rouge:#dc2626;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 header{
-    background:#ff7900;
+    height:82px;
+    background:var(--noir);
     color:white;
-    padding:20px;
-    text-align:center;
-    font-size:30px;
-    font-weight:bold;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 4%;
+
+    position:sticky;
+    top:0;
+    z-index:1000;
+
+    box-shadow:0 3px 20px rgba(0,0,0,.18);
 }
 
-.container{
-    width:94%;
-    max-width:650px;
-    margin:25px auto;
+.logo-zone{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo{
+    width:62px;
+    height:62px;
+    object-fit:contain;
+    border-radius:14px;
+}
+
+.logo-text{
+    font-size:25px;
+    font-weight:900;
+    letter-spacing:-1px;
+}
+
+.logo-text span{
+    color:var(--jaune);
+}
+
+.nav{
+    display:flex;
+    align-items:center;
+    gap:35px;
+}
+
+.nav a{
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    font-size:16px;
+}
+
+.nav a:hover{
+    color:var(--jaune);
+}
+
+.header-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.btn-header{
+    border:0;
+    background:var(--jaune);
+    color:#111;
+    padding:13px 24px;
+    border-radius:30px;
+    font-weight:bold;
+    font-size:15px;
+}
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero{
+    min-height:650px;
+
+    display:grid;
+    grid-template-columns:50% 50%;
+
+    background:
+        radial-gradient(
+            circle at 80% 30%,
+            rgba(255,208,0,.20),
+            transparent 35%
+        ),
+        var(--noir);
+}
+
+.hero-left{
+    padding:85px 8%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.hero-small{
+    display:inline-block;
+    color:var(--jaune);
+    font-size:15px;
+    font-weight:bold;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    margin-bottom:20px;
+}
+
+.hero h1{
+    color:white;
+    font-size:clamp(45px,5vw,78px);
+    line-height:.98;
+    letter-spacing:-4px;
+    margin-bottom:28px;
+}
+
+.hero h1 span{
+    color:var(--jaune);
+}
+
+.hero p{
+    color:#d4d7dc;
+    font-size:20px;
+    line-height:1.5;
+    max-width:600px;
+    margin-bottom:35px;
+}
+
+.hero-buttons{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+}
+
+.btn-yellow{
+    background:var(--jaune);
+    color:#111;
+    border:0;
+    border-radius:35px;
+    padding:17px 32px;
+    font-size:17px;
+    font-weight:900;
+}
+
+.btn-white{
+    background:white;
+    color:#111;
+    border:0;
+    border-radius:35px;
+    padding:17px 32px;
+    font-size:17px;
+    font-weight:bold;
+}
+
+.hero-right{
+    min-height:650px;
+    position:relative;
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,208,0,.20),
+            rgba(0,0,0,.35)
+        ),
+        radial-gradient(
+            circle at 50% 40%,
+            #4d5360,
+            #111722 65%
+        );
+}
+
+/* Décor véhicule */
+
+.car{
+    position:absolute;
+    width:430px;
+    height:190px;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+}
+
+.car-body{
+    position:absolute;
+    width:390px;
+    height:105px;
+    background:#171b23;
+    border:6px solid var(--jaune);
+    border-radius:65px 85px 30px 30px;
+    left:20px;
+    top:55px;
+    box-shadow:0 25px 50px rgba(0,0,0,.45);
+}
+
+.car-window{
+    position:absolute;
+    width:190px;
+    height:65px;
+    background:#2d3543;
+    border:4px solid white;
+    left:100px;
+    top:12px;
+    border-radius:50px 50px 10px 10px;
+}
+
+.car-window:after{
+    content:"";
+    position:absolute;
+    width:4px;
+    height:55px;
+    background:white;
+    left:91px;
+    top:2px;
+    transform:rotate(5deg);
+}
+
+.wheel{
+    position:absolute;
+    width:65px;
+    height:65px;
+    background:#050609;
+    border:10px solid #5e6570;
+    border-radius:50%;
+    bottom:0;
+}
+
+.wheel1{
+    left:55px;
+}
+
+.wheel2{
+    right:55px;
+}
+
+.car-light{
+    position:absolute;
+    width:18px;
+    height:25px;
+    background:var(--jaune);
+    border-radius:8px;
+    right:28px;
+    top:91px;
+}
+
+.map-lines{
+    position:absolute;
+    inset:0;
+    opacity:.13;
+    background-image:
+        linear-gradient(30deg,#fff 1px,transparent 1px),
+        linear-gradient(150deg,#fff 1px,transparent 1px);
+    background-size:90px 90px;
+}
+
+/* =====================================================
+   BARRE ACTION
+===================================================== */
+
+.action-bar{
+    background:white;
+    padding:22px 5%;
+
+    display:flex;
+    justify-content:center;
+    gap:20px;
+
+    box-shadow:0 -5px 25px rgba(0,0,0,.08);
+
+    position:relative;
+    z-index:20;
+}
+
+.action-button{
+    min-width:220px;
+    border:0;
+    padding:18px 28px;
+    border-radius:35px;
+    font-weight:bold;
+    font-size:16px;
+}
+
+.client-btn{
+    background:var(--jaune);
+}
+
+.driver-btn{
+    background:var(--noir);
+    color:white;
+}
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+.section{
+    padding:80px 6%;
+}
+
+.section-title{
+    text-align:center;
+    margin-bottom:45px;
+}
+
+.section-title h2{
+    font-size:42px;
+    margin-bottom:12px;
+}
+
+.section-title p{
+    color:#666;
+    font-size:18px;
+}
+
+/* =====================================================
+   SERVICES
+===================================================== */
+
+.services{
+    background:#f7f7f7;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:25px;
+    max-width:1200px;
+    margin:auto;
 }
 
 .card{
     background:white;
-    padding:22px;
-    border-radius:16px;
-    box-shadow:0 4px 16px rgba(0,0,0,.10);
+    padding:35px;
+    border-radius:22px;
+    box-shadow:0 8px 30px rgba(0,0,0,.08);
+}
+
+.card-icon{
+    width:60px;
+    height:60px;
+    background:var(--jaune);
+    border-radius:18px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:30px;
     margin-bottom:20px;
 }
 
-h2{
-    text-align:center;
-    margin-bottom:18px;
-    color:#222;
-}
-
-h3{
+.card h3{
     margin-bottom:12px;
+    font-size:22px;
 }
 
-label{
-    display:block;
+.card p{
+    color:#666;
+    line-height:1.6;
+}
+
+/* =====================================================
+   ESPACES
+===================================================== */
+
+#application{
+    background:white;
+}
+
+.space-buttons{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:35px;
+}
+
+.space-button{
+    padding:15px 25px;
+    border-radius:30px;
+    border:2px solid #ddd;
+    background:white;
     font-weight:bold;
-    margin-top:14px;
-    margin-bottom:6px;
 }
 
-input,
-select{
-    width:100%;
-    padding:13px;
-    border:1px solid #ccc;
-    border-radius:9px;
-    font-size:16px;
-    outline:none;
-}
-
-input:focus,
-select:focus{
-    border-color:#ff7900;
-}
-
-button{
-    width:100%;
-    padding:14px;
-    margin-top:12px;
-    border:none;
-    border-radius:9px;
-    background:#ff7900;
+.space-button.active{
+    background:var(--noir);
     color:white;
-    font-size:16px;
+    border-color:var(--noir);
+}
+
+/* =====================================================
+   PANELS
+===================================================== */
+
+.panel{
+    display:none;
+    max-width:1100px;
+    margin:auto;
+}
+
+.panel.active{
+    display:block;
+}
+
+.panel-box{
+    background:#f7f7f7;
+    border-radius:25px;
+    padding:30px;
+}
+
+.panel-box h2{
+    margin-bottom:25px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+}
+
+.field label{
     font-weight:bold;
-    cursor:pointer;
+    margin-bottom:8px;
 }
 
-button:active{
-    opacity:.8;
+.field input,
+.field select{
+    width:100%;
+    padding:15px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    background:white;
+    font-size:16px;
 }
 
-.btn-secondary{
-    background:#555;
+.full{
+    grid-column:1/-1;
 }
 
-.btn-danger{
-    background:#d60000;
+.main-button{
+    margin-top:20px;
+    width:100%;
+    padding:17px;
+    border:0;
+    border-radius:12px;
+    background:var(--noir);
+    color:white;
+    font-weight:bold;
+    font-size:17px;
 }
 
-.btn-green{
-    background:#159447;
+.main-button.yellow{
+    background:var(--jaune);
+    color:#111;
 }
 
-.btn-blue{
-    background:#1976d2;
+.main-button.green{
+    background:var(--vert);
 }
 
-.hidden{
-    display:none !important;
+.main-button.red{
+    background:var(--rouge);
 }
 
-.message{
+/* =====================================================
+   GPS / CARTE
+===================================================== */
+
+.gps-box{
+    margin-top:25px;
+    background:white;
+    border-radius:18px;
+    padding:20px;
+}
+
+.gps-status{
+    padding:13px;
+    border-radius:10px;
+    background:#eee;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.gps-status.online{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.gps-status.offline{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+#mapClient,
+#mapChauffeur,
+#mapSuivi{
+    width:100%;
+    height:430px;
+    border-radius:18px;
+    margin-top:20px;
+}
+
+.map-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
     margin-top:15px;
-    padding:12px;
-    border-radius:9px;
-    text-align:center;
-    line-height:1.5;
 }
 
-.success{
-    background:#d9f7df;
-    color:#08752c;
+.map-buttons button{
+    padding:12px 18px;
+    border:0;
+    border-radius:10px;
+    background:var(--noir);
+    color:white;
+    font-weight:bold;
 }
 
-.error{
-    background:#ffdcdc;
-    color:#a00000;
+/* =====================================================
+   COURSE
+===================================================== */
+
+.course-info{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    margin-top:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.07);
 }
 
-.info{
+.course-info p{
+    padding:7px 0;
+}
+
+.status-course{
+    display:inline-block;
+    margin-top:10px;
+    padding:8px 13px;
+    border-radius:20px;
     background:#fff3cd;
     color:#856404;
-}
-
-.role-buttons{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:12px;
-}
-
-.role-buttons button{
-    margin-top:0;
-    padding:18px;
-    font-size:18px;
-}
-
-.status{
-    padding:12px;
-    border-radius:9px;
-    text-align:center;
     font-weight:bold;
-    margin-bottom:15px;
 }
 
-.online{
-    background:#d9f7df;
-    color:#08752c;
+/* =====================================================
+   ADMIN
+===================================================== */
+
+.admin-login{
+    max-width:500px;
+    margin:auto;
 }
 
-.offline{
-    background:#ffdcdc;
-    color:#a00000;
+.admin-panel{
+    display:none;
 }
 
-#map{
-    width:100%;
-    height:300px;
-    border-radius:12px;
-    margin-top:15px;
-    overflow:hidden;
-}
-
-.course{
-    border:1px solid #ddd;
-    border-radius:12px;
-    padding:15px;
-    margin-top:12px;
-    background:#fafafa;
-}
-
-.course strong{
-    color:#ff7900;
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-top:20px;
 }
 
 .stat{
-    background:#f5f5f5;
-    border-radius:12px;
-    padding:18px;
+    background:white;
+    padding:25px;
     text-align:center;
+    border-radius:18px;
+    box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+
+.stat strong{
+    display:block;
+    font-size:35px;
+    color:#111;
     margin-top:10px;
 }
 
-.stat b{
-    display:block;
-    font-size:30px;
-    color:#ff7900;
-    margin-top:5px;
+.admin-message{
+    padding:14px;
+    border-radius:10px;
+    margin-top:15px;
+    display:none;
 }
 
-.admin-header{
-    text-align:center;
-    background:#222;
+.success{
+    display:block;
+    background:#dcfce7;
+    color:#166534;
+}
+
+.error{
+    display:block;
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer{
+    background:var(--noir);
     color:white;
-    padding:15px;
-    border-radius:12px;
+    padding:50px 6%;
+    text-align:center;
+}
+
+footer img{
+    width:75px;
+    border-radius:15px;
     margin-bottom:15px;
 }
 
-.small{
-    font-size:13px;
-    color:#666;
+footer p{
+    color:#aaa;
+    margin-top:10px;
 }
 
-.price{
-    font-size:22px;
-    color:#ff7900;
-    font-weight:bold;
-    text-align:center;
-    margin-top:10px;
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:900px){
+
+    .nav{
+        display:none;
+    }
+
+    .hero{
+        grid-template-columns:1fr;
+    }
+
+    .hero-right{
+        min-height:400px;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:600px){
+
+    header{
+        height:70px;
+        padding:0 15px;
+    }
+
+    .logo{
+        width:50px;
+        height:50px;
+    }
+
+    .logo-text{
+        font-size:21px;
+    }
+
+    .header-actions{
+        display:none;
+    }
+
+    .hero-left{
+        padding:60px 25px;
+    }
+
+    .hero h1{
+        font-size:48px;
+        letter-spacing:-2px;
+    }
+
+    .hero p{
+        font-size:17px;
+    }
+
+    .action-bar{
+        flex-direction:column;
+    }
+
+    .action-button{
+        width:100%;
+    }
+
+    .section{
+        padding:55px 20px;
+    }
+
+    .section-title h2{
+        font-size:32px;
+    }
+
+    .panel-box{
+        padding:20px;
+    }
+
+    #mapClient,
+    #mapChauffeur,
+    #mapSuivi{
+        height:350px;
+    }
+
+}
+
+/* =====================================================
+   LOADER
+===================================================== */
+
+#firebaseStatus{
+    position:fixed;
+    bottom:15px;
+    left:15px;
+    z-index:5000;
+
+    padding:10px 15px;
+    border-radius:30px;
+
+    background:#111;
+    color:white;
+
+    font-size:12px;
 }
 
 </style>
 
 </head>
 
-
 <body>
 
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
 <header>
-🚕 YAMBOKA
+
+<div class="logo-zone">
+
+<img
+src="logo.png"
+class="logo"
+alt="Logo YAMBOKA"
+>
+
+<div class="logo-text">
+YAM<span>BOKA</span>
+</div>
+
+</div>
+
+
+<nav class="nav">
+
+<a href="#accueil">Accueil</a>
+<a href="#application">Passagers</a>
+<a href="#chauffeurSection">Chauffeurs</a>
+<a href="#services">Services</a>
+
+</nav>
+
+
+<div class="header-actions">
+
+<button
+class="btn-header"
+onclick="ouvrirApplication('client')"
+>
+Commander
+</button>
+
+</div>
+
 </header>
 
 
-<div class="container">
 
+<!-- =====================================================
+     HERO
+===================================================== -->
 
-<!-- ==================================================
-     ACCUEIL
-================================================== -->
+<section
+class="hero"
+id="accueil"
+>
 
-<div id="accueil" class="card">
+<div class="hero-left">
 
-<h2>
-Bienvenue sur YAMBOKA
-</h2>
+<span class="hero-small">
+Mobilité intelligente à Kinshasa
+</span>
 
-<p style="text-align:center;margin-bottom:20px;">
-Votre service de transport
+<h1>
+Déplacez-vous
+<br>
+simplement avec
+<br>
+<span>YAMBOKA</span>
+</h1>
+
+<p>
+Commandez une course, trouvez un chauffeur
+et suivez votre trajet en temps réel grâce
+au système GPS YAMBOKA.
 </p>
 
 
-<div class="role-buttons">
+<div class="hero-buttons">
 
-<button onclick="ouvrirClient()">
+<button
+class="btn-yellow"
+onclick="ouvrirApplication('client')"
+>
+🚕 Commander une course
+</button>
+
+
+<button
+class="btn-white"
+onclick="ouvrirApplication('chauffeur')"
+>
+🚗 Devenir chauffeur
+</button>
+
+</div>
+
+</div>
+
+
+<div class="hero-right">
+
+<div class="map-lines"></div>
+
+<div class="car">
+
+<div class="car-body"></div>
+
+<div class="car-window"></div>
+
+<div class="wheel wheel1"></div>
+
+<div class="wheel wheel2"></div>
+
+<div class="car-light"></div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ACTION BAR
+===================================================== -->
+
+<div class="action-bar">
+
+<button
+class="action-button client-btn"
+onclick="ouvrirApplication('client')"
+>
 👤 ESPACE CLIENT
 </button>
 
-<button
-class="btn-green"
-onclick="ouvrirChauffeur()">
 
+<button
+class="action-button driver-btn"
+onclick="ouvrirApplication('chauffeur')"
+>
 🚗 ESPACE CHAUFFEUR
-
 </button>
+
 
 <button
-class="btn-blue"
-onclick="ouvrirAdmin()">
-
-👑 ESPACE ADMINISTRATEUR
-
+class="action-button"
+style="background:#eee;"
+onclick="ouvrirApplication('admin')"
+>
+👑 ADMINISTRATEUR
 </button>
 
 </div>
 
+
+
+<!-- =====================================================
+     SERVICES
+===================================================== -->
+
+<section
+class="section services"
+id="services"
+>
+
+<div class="section-title">
+
+<h2>Une mobilité pensée pour Kinshasa</h2>
+
+<p>
+YAMBOKA connecte les passagers et les chauffeurs.
+</p>
+
 </div>
 
 
-<!-- ==================================================
+<div class="cards">
+
+
+<div class="card">
+
+<div class="card-icon">
+📍
+</div>
+
+<h3>GPS en temps réel</h3>
+
+<p>
+Le client peut partager sa position et suivre
+la position du chauffeur sur la carte.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-icon">
+🚕
+</div>
+
+<h3>Course rapide</h3>
+
+<p>
+Le client indique son départ, sa destination
+et le prix proposé pour demander une course.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-icon">
+🛡️
+</div>
+
+<h3>Suivi de course</h3>
+
+<p>
+Une fois la course acceptée, les positions
+du client et du chauffeur peuvent être suivies.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     APPLICATION
+===================================================== -->
+
+<section
+class="section"
+id="application"
+>
+
+<div class="section-title">
+
+<h2>Bienvenue dans YAMBOKA</h2>
+
+<p>
+Choisissez votre espace.
+</p>
+
+</div>
+
+
+<div class="space-buttons">
+
+<button
+class="space-button active"
+onclick="ouvrirPanel('client')"
+id="btnClient"
+>
+👤 Client
+</button>
+
+
+<button
+class="space-button"
+onclick="ouvrirPanel('chauffeur')"
+id="btnChauffeur"
+>
+🚗 Chauffeur
+</button>
+
+
+<button
+class="space-button"
+onclick="ouvrirPanel('admin')"
+id="btnAdmin"
+>
+👑 Administrateur
+</button>
+
+</div>
+
+
+
+<!-- =====================================================
      CLIENT
-================================================== -->
+===================================================== -->
 
-<div id="clientPanel"
-class="card hidden">
+<div
+id="panelClient"
+class="panel active"
+>
 
-<button
-class="btn-secondary"
-onclick="retourAccueil()">
+<div class="panel-box">
 
-⬅️ RETOUR
-
-</button>
-
-<h2>
-👤 Espace Client
-</h2>
+<h2>👤 Espace Client</h2>
 
 
-<label>
-Nom du client
-</label>
+<div class="form-grid">
+
+<div class="field">
+
+<label>Votre nom</label>
 
 <input
 id="nomClient"
@@ -320,99 +1122,140 @@ type="text"
 placeholder="Votre nom"
 >
 
+</div>
 
-<label>
-Téléphone
-</label>
+
+<div class="field">
+
+<label>Téléphone</label>
 
 <input
 id="telephoneClient"
 type="tel"
-placeholder="Votre numéro"
+placeholder="+243..."
 >
 
+</div>
 
-<label>
-Départ
-</label>
+
+<div class="field">
+
+<label>Départ</label>
 
 <input
 id="departClient"
 type="text"
-placeholder="Lieu de départ"
+placeholder="Ex : Gombe"
 >
 
+</div>
 
-<label>
-Destination
-</label>
+
+<div class="field">
+
+<label>Destination</label>
 
 <input
 id="destinationClient"
 type="text"
-placeholder="Votre destination"
+placeholder="Ex : Limete"
 >
 
+</div>
 
-<label>
-Prix proposé
-</label>
+
+<div class="field full">
+
+<label>Prix proposé en FC</label>
 
 <input
 id="prixClient"
 type="number"
-placeholder="Prix en FC"
+placeholder="Ex : 3000"
 >
 
+</div>
 
-<button onclick="demanderCourse()">
+</div>
+
+
+<button
+class="main-button yellow"
+onclick="demanderPositionClient()"
+>
+📍 UTILISER MA POSITION GPS
+</button>
+
+
+<div
+id="gpsClientStatus"
+class="gps-status"
+>
+🔴 GPS client non activé
+</div>
+
+
+<button
+class="main-button"
+onclick="demanderCourse()"
+>
 🚕 DEMANDER UNE COURSE
 </button>
 
 
-<div id="messageClient"></div>
-
-
-<div id="clientCourse"
-class="course hidden">
-
-<h3>
-📋 Ma course
-</h3>
-
-<div id="clientCourseInfo"></div>
-
+<div
+id="clientCourseInfo"
+class="course-info"
+style="display:none;"
+>
 </div>
 
 
-<div id="mapClient"></div>
+<div
+id="mapClient"
+></div>
 
-</div>
 
+<div class="map-buttons">
 
-<!-- ==================================================
-     CHAUFFEUR
-================================================== -->
-
-<div id="chauffeurPanel"
-class="card hidden">
-
-<button
-class="btn-secondary"
-onclick="retourAccueil()">
-
-⬅️ RETOUR
-
+<button onclick="centrerClient()">
+📍 Ma position
 </button>
 
-<h2>
-🚗 Espace Chauffeur
-</h2>
+<button onclick="ouvrirGoogleClient()">
+🗺️ Google Maps
+</button>
+
+</div>
+
+</div>
+
+</div>
 
 
-<label>
-Nom du chauffeur
-</label>
+
+<!-- =====================================================
+     CHAUFFEUR
+===================================================== -->
+
+<div
+id="panelChauffeur"
+class="panel"
+>
+
+<div
+class="panel-box"
+id="chauffeurSection"
+>
+
+<h2>🚗 Espace Chauffeur</h2>
+
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>Nom du chauffeur</label>
 
 <input
 id="nomChauffeur"
@@ -420,247 +1263,305 @@ type="text"
 placeholder="Votre nom"
 >
 
+</div>
 
-<label>
-Téléphone du chauffeur
-</label>
+
+<div class="field">
+
+<label>Téléphone</label>
 
 <input
 id="telephoneChauffeur"
 type="tel"
-placeholder="Votre téléphone"
+placeholder="+243..."
 >
+
+</div>
+
+</div>
 
 
 <div
-id="statutChauffeur"
-class="status offline">
-
+id="gpsChauffeurStatus"
+class="gps-status offline"
+style="margin-top:20px;"
+>
 🔴 Chauffeur hors ligne
-
 </div>
 
 
 <button
+class="main-button green"
+onclick="mettreEnLigne()"
 id="btnOnline"
-class="btn-green"
-onclick="mettreEnLigne()">
-
+>
 🟢 SE METTRE EN LIGNE
-
 </button>
 
 
 <button
-class="btn-secondary"
-onclick="actualiserCourses()">
-
-🔄 ACTUALISER LES COURSES
-
+class="main-button red"
+onclick="mettreHorsLigne()"
+id="btnOffline"
+style="display:none;"
+>
+🔴 SE METTRE HORS LIGNE
 </button>
 
 
-<div id="messageChauffeur"></div>
+<div
+id="chauffeurCourseInfo"
+class="course-info"
+style="display:none;"
+>
+</div>
 
 
-<h3 style="margin-top:20px;">
-🚕 Courses disponibles
+<div
+id="mapChauffeur"
+></div>
+
+
+<div class="map-buttons">
+
+<button onclick="centrerChauffeur()">
+📍 Ma position
+</button>
+
+<button onclick="ouvrirGoogleChauffeur()">
+🗺️ Google Maps
+</button>
+
+</div>
+
+
+<h3 style="margin-top:30px;">
+📋 Courses disponibles
 </h3>
 
 
-<div id="listeCourses">
-
+<div
+id="listeCourses"
+style="margin-top:15px;"
+>
 Aucune course disponible.
-
 </div>
 
 </div>
 
-
-<!-- ==================================================
-     ADMIN LOGIN
-================================================== -->
-
-<div id="loginAdmin"
-class="card hidden">
-
-<button
-class="btn-secondary"
-onclick="retourAccueil()">
-
-⬅️ RETOUR
-
-</button>
+</div>
 
 
-<h2>
-👑 Administrateur
-</h2>
+
+<!-- =====================================================
+     ADMIN
+===================================================== -->
+
+<div
+id="panelAdmin"
+class="panel"
+>
+
+<div class="panel-box">
 
 
-<label>
-Adresse e-mail
-</label>
+<!-- LOGIN -->
+
+<div
+id="adminLogin"
+class="admin-login"
+>
+
+<h2>👑 Administrateur YAMBOKA</h2>
+
+<p style="color:#666;margin-bottom:20px;">
+Connexion sécurisée Firebase.
+</p>
+
+
+<div class="field">
+
+<label>Adresse e-mail</label>
 
 <input
 id="emailAdmin"
 type="email"
-placeholder="Entrez votre e-mail"
+placeholder="admin@email.com"
 autocomplete="email"
 >
 
+</div>
 
-<label>
-Mot de passe
-</label>
+
+<div
+class="field"
+style="margin-top:15px;"
+>
+
+<label>Mot de passe</label>
 
 <input
 id="passwordAdmin"
 type="password"
-placeholder="Entrez votre mot de passe"
+placeholder="Mot de passe"
 autocomplete="current-password"
 >
-
-
-<button onclick="connexionAdmin()">
-
-🔐 SE CONNECTER
-
-</button>
-
-
-<div id="messageAdmin"></div>
-
-</div>
-
-
-<!-- ==================================================
-     ADMIN PANEL
-================================================== -->
-
-<div id="adminPanel"
-class="card hidden">
-
-<div class="admin-header">
-
-<h2 style="color:white;margin-bottom:5px;">
-👑 ADMINISTRATION YAMBOKA
-</h2>
-
-<div id="adminEmail">
-</div>
-
-</div>
-
-
-<div class="stat">
-
-Courses totales
-
-<b id="totalCourses">
-0
-</b>
-
-</div>
-
-
-<div class="stat">
-
-Courses en attente
-
-<b id="coursesAttente">
-0
-</b>
-
-</div>
-
-
-<div class="stat">
-
-Courses acceptées
-
-<b id="coursesAcceptees">
-0
-</b>
-
-</div>
-
-
-<div class="stat">
-
-Courses terminées
-
-<b id="coursesTerminees">
-0
-</b>
-
-</div>
-
-
-<div class="stat">
-
-Chauffeurs en ligne
-
-<b id="totalChauffeurs">
-0
-</b>
-
-</div>
-
-
-<h3 style="margin-top:25px;">
-📋 Toutes les courses
-</h3>
-
-
-<div id="adminCourses">
-
-Chargement...
 
 </div>
 
 
 <button
-class="btn-danger"
-onclick="deconnexionAdmin()">
+class="main-button yellow"
+onclick="connexionAdmin()"
+>
+🔐 SE CONNECTER
+</button>
 
+
+<div
+id="adminMessage"
+class="admin-message"
+>
+</div>
+
+</div>
+
+
+
+<!-- ADMIN PANEL -->
+
+<div
+id="adminDashboard"
+class="admin-panel"
+>
+
+<h2>
+👑 Tableau de bord YAMBOKA
+</h2>
+
+
+<p
+id="adminConnecte"
+style="color:#666;"
+>
+</p>
+
+
+<div class="stats">
+
+
+<div class="stat">
+
+Courses
+
+<strong id="totalCourses">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+En attente
+
+<strong id="coursesAttente">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+Acceptées
+
+<strong id="coursesAcceptees">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+Terminées
+
+<strong id="coursesTerminees">
+0
+</strong>
+
+</div>
+
+</div>
+
+
+<button
+class="main-button red"
+onclick="deconnexionAdmin()"
+>
 🚪 SE DÉCONNECTER
-
 </button>
 
 </div>
 
+</div>
 
 </div>
 
+</section>
 
-<!-- ==================================================
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+<img
+src="logo.png"
+alt="YAMBOKA"
+>
+
+<h2>
+YAMBOKA
+</h2>
+
+<p>
+Votre mobilité. Votre ville. Votre choix.
+</p>
+
+<p>
+© 2026 YAMBOKA — Kinshasa, RDC
+</p>
+
+</footer>
+
+
+
+<!-- =====================================================
      FIREBASE
-================================================== -->
+===================================================== -->
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
-</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
-</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js">
-</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 
-<!-- ==================================================
-     LEAFLET
-================================================== -->
+<!-- LEAFLET -->
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 
 
 <script>
 
-/* ==================================================
+/* =====================================================
    CONFIGURATION FIREBASE
-================================================== */
+===================================================== */
 
 const firebaseConfig = {
 
@@ -691,132 +1592,164 @@ const firebaseConfig = {
 };
 
 
-/* ==================================================
+/* =====================================================
    INITIALISATION
-================================================== */
+===================================================== */
 
-firebase.initializeApp(firebaseConfig);
+let firebaseOK = false;
+let auth = null;
+let db = null;
 
-const auth = firebase.auth();
+try{
 
-const db = firebase.database();
+    firebase.initializeApp(firebaseConfig);
+
+    auth = firebase.auth();
+
+    db = firebase.database();
+
+    firebaseOK = true;
+
+}
+catch(error){
+
+    console.error(error);
+
+}
 
 
-/* ==================================================
-   VARIABLES
-================================================== */
+/* =====================================================
+   VARIABLES GPS
+===================================================== */
 
-let chauffeurEnLigne = false;
+let positionClient = null;
 
-let chauffeurId = null;
+let positionChauffeur = null;
 
-let intervalCourses = null;
+let watchClient = null;
 
-let map = null;
+let watchChauffeur = null;
+
+let mapClient = null;
+
+let mapChauffeur = null;
+
+let mapSuivi = null;
 
 let markerClient = null;
 
+let markerChauffeur = null;
 
-/* ==================================================
-   UTILITAIRE
-================================================== */
+let courseActuelle = null;
 
-function afficherMessage(id,type,message){
+let chauffeurEnLigne = false;
 
-    const element =
-    document.getElementById(id);
 
-    if(!element){
+/* =====================================================
+   OUVRIR APPLICATION
+===================================================== */
+
+function ouvrirApplication(type){
+
+    document
+    .getElementById("application")
+    .scrollIntoView({
+        behavior:"smooth"
+    });
+
+    setTimeout(function(){
+
+        ouvrirPanel(type);
+
+    },400);
+
+}
+
+
+/* =====================================================
+   PANELS
+===================================================== */
+
+function ouvrirPanel(type){
+
+    document
+    .querySelectorAll(".panel")
+    .forEach(function(panel){
+
+        panel.classList.remove("active");
+
+    });
+
+
+    document
+    .querySelectorAll(".space-button")
+    .forEach(function(button){
+
+        button.classList.remove("active");
+
+    });
+
+
+    if(type === "client"){
+
+        document
+        .getElementById("panelClient")
+        .classList.add("active");
+
+        document
+        .getElementById("btnClient")
+        .classList.add("active");
+
+        setTimeout(initialiserMapClient,100);
+
+    }
+
+
+    if(type === "chauffeur"){
+
+        document
+        .getElementById("panelChauffeur")
+        .classList.add("active");
+
+        document
+        .getElementById("btnChauffeur")
+        .classList.add("active");
+
+        setTimeout(initialiserMapChauffeur,100);
+
+    }
+
+
+    if(type === "admin"){
+
+        document
+        .getElementById("panelAdmin")
+        .classList.add("active");
+
+        document
+        .getElementById("btnAdmin")
+        .classList.add("active");
+
+    }
+
+}
+
+
+/* =====================================================
+   MAP CLIENT
+===================================================== */
+
+function initialiserMapClient(){
+
+    if(mapClient){
+        mapClient.invalidateSize();
         return;
     }
 
-    element.className =
-    "message " + type;
 
-    element.innerHTML =
-    message;
-
-}
-
-
-/* ==================================================
-   MASQUER TOUS LES PANNEAUX
-================================================== */
-
-function masquerTout(){
-
-    document
-    .getElementById("accueil")
-    .classList.add("hidden");
-
-    document
-    .getElementById("clientPanel")
-    .classList.add("hidden");
-
-    document
-    .getElementById("chauffeurPanel")
-    .classList.add("hidden");
-
-    document
-    .getElementById("loginAdmin")
-    .classList.add("hidden");
-
-    document
-    .getElementById("adminPanel")
-    .classList.add("hidden");
-
-}
-
-
-/* ==================================================
-   RETOUR ACCUEIL
-================================================== */
-
-function retourAccueil(){
-
-    masquerTout();
-
-    document
-    .getElementById("accueil")
-    .classList.remove("hidden");
-
-}
-
-
-/* ==================================================
-   CLIENT
-================================================== */
-
-function ouvrirClient(){
-
-    masquerTout();
-
-    document
-    .getElementById("clientPanel")
-    .classList.remove("hidden");
-
-    initialiserCarte();
-
-}
-
-
-function initialiserCarte(){
-
-    if(map){
-        return;
-    }
-
-    const element =
-    document.getElementById("mapClient");
-
-    if(!element){
-        return;
-    }
-
-    map =
-    L.map("mapClient")
+    mapClient = L.map("mapClient")
     .setView(
-        [-4.325,15.3222],
+        [-4.325,15.322],
         12
     );
 
@@ -824,66 +1757,619 @@ function initialiserCarte(){
     L.tileLayer(
         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
-            attribution:
-            "&copy; OpenStreetMap"
+            attribution:"© OpenStreetMap"
         }
     )
-    .addTo(map);
+    .addTo(mapClient);
+
+}
 
 
-    if(
-        navigator.geolocation
-    ){
+/* =====================================================
+   MAP CHAUFFEUR
+===================================================== */
 
-        navigator.geolocation.getCurrentPosition(
+function initialiserMapChauffeur(){
 
-            function(position){
+    if(mapChauffeur){
 
-                const lat =
-                position.coords.latitude;
+        mapChauffeur.invalidateSize();
 
-                const lng =
-                position.coords.longitude;
+        return;
 
-
-                map.setView(
-                    [lat,lng],
-                    15
-                );
+    }
 
 
-                markerClient =
-                L.marker(
-                    [lat,lng]
-                )
-                .addTo(map)
-                .bindPopup(
-                    "📍 Votre position"
-                )
-                .openPopup();
+    mapChauffeur = L.map("mapChauffeur")
+    .setView(
+        [-4.325,15.322],
+        12
+    );
 
-            },
 
-            function(){
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution:"© OpenStreetMap"
+        }
+    )
+    .addTo(mapChauffeur);
 
-                console.log(
-                    "GPS non disponible"
+}
+
+
+/* =====================================================
+   GPS CLIENT
+===================================================== */
+
+function demanderPositionClient(){
+
+    if(!navigator.geolocation){
+
+        alert("Votre appareil ne supporte pas le GPS.");
+
+        return;
+
+    }
+
+
+    document
+    .getElementById("gpsClientStatus")
+    .innerHTML =
+    "🟡 Recherche de votre position...";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position){
+
+            positionClient = {
+
+                lat:position.coords.latitude,
+
+                lng:position.coords.longitude
+
+            };
+
+
+            document
+            .getElementById("gpsClientStatus")
+            .className =
+            "gps-status online";
+
+
+            document
+            .getElementById("gpsClientStatus")
+            .innerHTML =
+            "🟢 Position GPS client trouvée";
+
+
+            initialiserMapClient();
+
+
+            afficherPositionClient();
+
+
+            if(watchClient){
+
+                navigator.geolocation.clearWatch(
+                    watchClient
                 );
 
             }
 
+
+            watchClient =
+            navigator.geolocation.watchPosition(
+
+                function(pos){
+
+                    positionClient = {
+
+                        lat:pos.coords.latitude,
+
+                        lng:pos.coords.longitude
+
+                    };
+
+                    afficherPositionClient();
+
+                },
+
+                function(error){
+
+                    console.log(error);
+
+                },
+
+                {
+                    enableHighAccuracy:true,
+                    maximumAge:3000,
+                    timeout:10000
+                }
+
+            );
+
+        },
+
+        function(error){
+
+            console.log(error);
+
+            document
+            .getElementById("gpsClientStatus")
+            .className =
+            "gps-status offline";
+
+            document
+            .getElementById("gpsClientStatus")
+            .innerHTML =
+            "🔴 Autorisation GPS refusée";
+
+        },
+
+        {
+            enableHighAccuracy:true,
+            timeout:10000,
+            maximumAge:0
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   AFFICHER CLIENT
+===================================================== */
+
+function afficherPositionClient(){
+
+    if(!positionClient || !mapClient){
+
+        return;
+
+    }
+
+
+    if(!markerClient){
+
+        markerClient =
+        L.marker([
+            positionClient.lat,
+            positionClient.lng
+        ])
+        .addTo(mapClient)
+        .bindPopup("👤 Votre position");
+
+    }
+    else{
+
+        markerClient.setLatLng([
+            positionClient.lat,
+            positionClient.lng
+        ]);
+
+    }
+
+
+    mapClient.setView(
+        [
+            positionClient.lat,
+            positionClient.lng
+        ],
+        15
+    );
+
+}
+
+
+/* =====================================================
+   GPS CHAUFFEUR
+===================================================== */
+
+function demarrerGPSChauffeur(){
+
+    if(!navigator.geolocation){
+
+        alert("GPS non disponible.");
+
+        return;
+
+    }
+
+
+    if(watchChauffeur){
+
+        navigator.geolocation.clearWatch(
+            watchChauffeur
         );
+
+    }
+
+
+    watchChauffeur =
+    navigator.geolocation.watchPosition(
+
+        function(position){
+
+            positionChauffeur = {
+
+                lat:position.coords.latitude,
+
+                lng:position.coords.longitude
+
+            };
+
+
+            afficherPositionChauffeur();
+
+
+            enregistrerPositionChauffeur();
+
+        },
+
+        function(error){
+
+            console.log(error);
+
+            document
+            .getElementById("gpsChauffeurStatus")
+            .innerHTML =
+            "🔴 GPS non autorisé";
+
+        },
+
+        {
+            enableHighAccuracy:true,
+            maximumAge:3000,
+            timeout:10000
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   AFFICHER CHAUFFEUR
+===================================================== */
+
+function afficherPositionChauffeur(){
+
+    if(!positionChauffeur || !mapChauffeur){
+
+        return;
+
+    }
+
+
+    if(!markerChauffeur){
+
+        markerChauffeur =
+        L.marker([
+            positionChauffeur.lat,
+            positionChauffeur.lng
+        ])
+        .addTo(mapChauffeur)
+        .bindPopup("🚗 Votre position");
+
+    }
+    else{
+
+        markerChauffeur.setLatLng([
+            positionChauffeur.lat,
+            positionChauffeur.lng
+        ]);
+
+    }
+
+
+    mapChauffeur.setView(
+        [
+            positionChauffeur.lat,
+            positionChauffeur.lng
+        ],
+        15
+    );
+
+}
+
+
+/* =====================================================
+   CHAUFFEUR EN LIGNE
+===================================================== */
+
+function mettreEnLigne(){
+
+    const nom =
+    document
+    .getElementById("nomChauffeur")
+    .value
+    .trim();
+
+
+    const telephone =
+    document
+    .getElementById("telephoneChauffeur")
+    .value
+    .trim();
+
+
+    if(nom === "" || telephone === ""){
+
+        alert(
+            "Entrez votre nom et votre téléphone."
+        );
+
+        return;
+
+    }
+
+
+    chauffeurEnLigne = true;
+
+
+    document
+    .getElementById("gpsChauffeurStatus")
+    .className =
+    "gps-status online";
+
+
+    document
+    .getElementById("gpsChauffeurStatus")
+    .innerHTML =
+    "🟢 Chauffeur EN LIGNE — GPS actif";
+
+
+    document
+    .getElementById("btnOnline")
+    .style.display =
+    "none";
+
+
+    document
+    .getElementById("btnOffline")
+    .style.display =
+    "block";
+
+
+    initialiserMapChauffeur();
+
+    demarrerGPSChauffeur();
+
+
+    enregistrerChauffeur();
+
+    chargerCoursesChauffeur();
+
+}
+
+
+/* =====================================================
+   HORS LIGNE
+===================================================== */
+
+function mettreHorsLigne(){
+
+    chauffeurEnLigne = false;
+
+
+    if(watchChauffeur){
+
+        navigator.geolocation.clearWatch(
+            watchChauffeur
+        );
+
+        watchChauffeur = null;
+
+    }
+
+
+    document
+    .getElementById("gpsChauffeurStatus")
+    .className =
+    "gps-status offline";
+
+
+    document
+    .getElementById("gpsChauffeurStatus")
+    .innerHTML =
+    "🔴 Chauffeur hors ligne";
+
+
+    document
+    .getElementById("btnOnline")
+    .style.display =
+    "block";
+
+
+    document
+    .getElementById("btnOffline")
+    .style.display =
+    "none";
+
+
+    const nom =
+    document
+    .getElementById("nomChauffeur")
+    .value
+    .trim();
+
+
+    if(db && nom){
+
+        db.ref(
+            "chauffeurs/" +
+            nettoyerCle(nom)
+        )
+        .update({
+
+            enLigne:false
+
+        });
 
     }
 
 }
 
 
-/* ==================================================
+/* =====================================================
+   ENREGISTRER CHAUFFEUR
+===================================================== */
+
+function enregistrerChauffeur(){
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    const nom =
+    document
+    .getElementById("nomChauffeur")
+    .value
+    .trim();
+
+
+    const telephone =
+    document
+    .getElementById("telephoneChauffeur")
+    .value
+    .trim();
+
+
+    if(!nom){
+
+        return;
+
+    }
+
+
+    const data = {
+
+        nom:nom,
+
+        telephone:telephone,
+
+        enLigne:true,
+
+        derniereConnexion:
+        Date.now()
+
+    };
+
+
+    if(positionChauffeur){
+
+        data.latitude =
+        positionChauffeur.lat;
+
+        data.longitude =
+        positionChauffeur.lng;
+
+    }
+
+
+    db.ref(
+        "chauffeurs/" +
+        nettoyerCle(nom)
+    )
+    .set(data);
+
+}
+
+
+/* =====================================================
+   POSITION CHAUFFEUR FIREBASE
+===================================================== */
+
+function enregistrerPositionChauffeur(){
+
+    if(
+        !db ||
+        !chauffeurEnLigne ||
+        !positionChauffeur
+    ){
+
+        return;
+
+    }
+
+
+    const nom =
+    document
+    .getElementById("nomChauffeur")
+    .value
+    .trim();
+
+
+    if(!nom){
+
+        return;
+
+    }
+
+
+    db.ref(
+        "chauffeurs/" +
+        nettoyerCle(nom)
+    )
+    .update({
+
+        latitude:
+        positionChauffeur.lat,
+
+        longitude:
+        positionChauffeur.lng,
+
+        enLigne:true,
+
+        dernierePosition:
+        Date.now()
+
+    });
+
+
+    if(courseActuelle){
+
+        db.ref(
+            "courses/" +
+            courseActuelle.id
+        )
+        .update({
+
+            chauffeurLatitude:
+            positionChauffeur.lat,
+
+            chauffeurLongitude:
+            positionChauffeur.lng
+
+        });
+
+    }
+
+}
+
+
+/* =====================================================
    DEMANDER COURSE
-================================================== */
+===================================================== */
 
 function demanderCourse(){
+
+    if(!db){
+
+        alert(
+            "Firebase n'est pas disponible."
+        );
+
+        return;
+
+    }
+
 
     const nom =
     document
@@ -914,9 +2400,11 @@ function demanderCourse(){
 
 
     const prix =
-    document
-    .getElementById("prixClient")
-    .value;
+    Number(
+        document
+        .getElementById("prixClient")
+        .value
+    );
 
 
     if(
@@ -927,10 +2415,8 @@ function demanderCourse(){
         !prix
     ){
 
-        afficherMessage(
-            "messageClient",
-            "error",
-            "❌ Veuillez remplir tous les champs."
+        alert(
+            "Veuillez remplir tous les champs."
         );
 
         return;
@@ -938,94 +2424,79 @@ function demanderCourse(){
     }
 
 
-    const courseRef =
-    db.ref("courses").push();
+    if(!positionClient){
+
+        alert(
+            "Activez d'abord votre position GPS."
+        );
+
+        demanderPositionClient();
+
+        return;
+
+    }
 
 
     const course = {
 
-        id:
-        courseRef.key,
+        clientNom:nom,
 
-        nomClient:
-        nom,
+        clientTelephone:telephone,
 
-        telephoneClient:
-        telephone,
+        depart:depart,
 
-        depart:
-        depart,
+        destination:destination,
 
-        destination:
-        destination,
+        prix:prix,
 
-        prix:
-        Number(prix),
+        clientLatitude:
+        positionClient.lat,
 
-        statut:
-        "en_attente",
+        clientLongitude:
+        positionClient.lng,
 
-        chauffeurId:
-        "",
+        statut:"en_attente",
 
-        chauffeurNom:
-        "",
-
-        date:
-        new Date().toISOString()
+        dateCreation:
+        Date.now()
 
     };
 
 
-    courseRef
-    .set(course)
+    db.ref("courses")
+    .push(course)
+    .then(function(result){
 
-    .then(function(){
+        courseActuelle = {
 
-        afficherMessage(
-            "messageClient",
-            "success",
-            "✅ Votre course a été envoyée aux chauffeurs."
+            id:result.key,
+
+            ...course
+
+        };
+
+
+        afficherCourseClient(
+            courseActuelle
         );
 
 
-        document
-        .getElementById("clientCourse")
-        .classList.remove("hidden");
+        ecouterCourseClient(
+            result.key
+        );
 
 
-        document
-        .getElementById("clientCourseInfo")
-        .innerHTML =
-
-        "<b>Départ :</b> " +
-        depart +
-        "<br>" +
-
-        "<b>Destination :</b> " +
-        destination +
-        "<br>" +
-
-        "<b>Prix :</b> " +
-        Number(prix).toLocaleString() +
-        " FC" +
-
-        "<br><b>Statut :</b> " +
-        "⏳ En attente";
-
-
-        surveillerCourse(courseRef.key);
+        alert(
+            "✅ Course envoyée aux chauffeurs."
+        );
 
     })
-
     .catch(function(error){
 
         console.error(error);
 
-        afficherMessage(
-            "messageClient",
-            "error",
-            "❌ Erreur : " +
+        alert(
+            "❌ Erreur Firebase : " +
             error.message
         );
 
@@ -1034,44 +2505,165 @@ function demanderCourse(){
 }
 
 
-/* ==================================================
-   SURVEILLER COURSE CLIENT
-================================================== */
+/* =====================================================
+   AFFICHER COURSE CLIENT
+===================================================== */
 
-function surveillerCourse(id){
+function afficherCourseClient(course){
+
+    const box =
+    document
+    .getElementById("clientCourseInfo");
+
+
+    box.style.display =
+    "block";
+
+
+    box.innerHTML = `
+
+        <h3>🚕 Votre course</h3>
+
+        <p>
+        <b>Départ :</b>
+        ${course.depart}
+        </p>
+
+        <p>
+        <b>Destination :</b>
+        ${course.destination}
+        </p>
+
+        <p>
+        <b>Prix :</b>
+        ${course.prix.toLocaleString()}
+        FC
+        </p>
+
+        <span class="status-course">
+        ⏳ Recherche d'un chauffeur...
+        </span>
+
+    `;
+
+}
+
+
+/* =====================================================
+   ÉCOUTER COURSE CLIENT
+===================================================== */
+
+function ecouterCourseClient(id){
 
     db.ref(
         "courses/" + id
     )
-    .on(
-        "value",
-        function(snapshot){
+    .on("value",function(snapshot){
+
+        const course =
+        snapshot.val();
+
+
+        if(!course){
+
+            return;
+
+        }
+
+
+        courseActuelle = {
+
+            id:id,
+
+            ...course
+
+        };
+
+
+        afficherCourseClient(
+            courseActuelle
+        );
+
+
+        if(
+            course.statut ===
+            "acceptee"
+        ){
+
+            afficherChauffeurAuClient(
+                course
+            );
+
+        }
+
+
+        if(
+            course.statut ===
+            "terminee"
+        ){
+
+            const box =
+            document
+            .getElementById(
+                "clientCourseInfo"
+            );
+
+
+            box.innerHTML += `
+
+                <div
+                style="
+                margin-top:15px;
+                padding:12px;
+                background:#dcfce7;
+                border-radius:10px;
+                "
+                >
+                🏁 Course terminée.
+                </div>
+
+            `;
+
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   CHAUFFEUR — COURSES
+===================================================== */
+
+function chargerCoursesChauffeur(){
+
+    if(!db){
+
+        return;
+
+    }
+
+
+    db.ref("courses")
+    .on("value",function(snapshot){
+
+        const liste =
+        document
+        .getElementById(
+            "listeCourses"
+        );
+
+
+        liste.innerHTML = "";
+
+
+        let trouve = false;
+
+
+        snapshot.forEach(function(child){
 
             const course =
-            snapshot.val();
-
-
-            if(!course){
-                return;
-            }
-
-
-            let texte =
-
-            "<b>Départ :</b> " +
-            course.depart +
-
-            "<br>" +
-
-            "<b>Destination :</b> " +
-            course.destination +
-
-            "<br>" +
-
-            "<b>Prix :</b> " +
-            Number(course.prix)
-            .toLocaleString() +
-            " FC";
+            child.val();
 
 
             if(
@@ -1079,69 +2671,90 @@ function surveillerCourse(id){
                 "en_attente"
             ){
 
-                texte +=
-                "<br><b>Statut :</b> ⏳ En attente";
+                trouve = true;
+
+
+                const div =
+                document.createElement(
+                    "div"
+                );
+
+
+                div.style.background =
+                "white";
+
+                div.style.padding =
+                "18px";
+
+                div.style.marginBottom =
+                "12px";
+
+                div.style.borderRadius =
+                "15px";
+
+                div.innerHTML = `
+
+                    <b>👤 ${course.clientNom}</b>
+
+                    <p>
+                    📍 ${course.depart}
+                    </p>
+
+                    <p>
+                    🏁 ${course.destination}
+                    </p>
+
+                    <p>
+                    💰
+                    ${Number(course.prix).toLocaleString()}
+                    FC
+                    </p>
+
+                    <button
+                    class="main-button green"
+                    onclick="accepterCourse('${child.key}')"
+                    >
+                    ✅ ACCEPTER LA COURSE
+                    </button>
+
+                `;
+
+
+                liste.appendChild(div);
 
             }
 
-
-            if(
-                course.statut ===
-                "acceptee"
-            ){
-
-                texte +=
-                "<br><b>Statut :</b> 🚗 Chauffeur trouvé";
-
-                texte +=
-                "<br><b>Chauffeur :</b> " +
-                course.chauffeurNom;
-
-            }
+        });
 
 
-            if(
-                course.statut ===
-                "terminee"
-            ){
+        if(!trouve){
 
-                texte +=
-                "<br><b>Statut :</b> ✅ Course terminée";
-
-            }
-
-
-            document
-            .getElementById(
-                "clientCourseInfo"
-            )
-            .innerHTML =
-            texte;
+            liste.innerHTML =
+            "<p>Aucune course disponible pour le moment.</p>";
 
         }
-    );
+
+    });
 
 }
 
 
-/* ==================================================
-   CHAUFFEUR
-================================================== */
+/* =====================================================
+   ACCEPTER COURSE
+===================================================== */
 
-function ouvrirChauffeur(){
+function accepterCourse(id){
 
-    masquerTout();
+    if(!chauffeurEnLigne){
 
-    document
-    .getElementById("chauffeurPanel")
-    .classList.remove("hidden");
+        alert(
+            "Vous devez être en ligne."
+        );
 
-    chargerCoursesDisponibles();
+        return;
 
-}
+    }
 
-
-function mettreEnLigne(){
 
     const nom =
     document
@@ -1157,12 +2770,10 @@ function mettreEnLigne(){
     .trim();
 
 
-    if(!nom || !telephone){
+    if(!positionChauffeur){
 
-        afficherMessage(
-            "messageChauffeur",
-            "error",
-            "❌ Entrez votre nom et votre téléphone."
+        alert(
+            "Votre GPS n'est pas encore disponible."
         );
 
         return;
@@ -1170,96 +2781,88 @@ function mettreEnLigne(){
     }
 
 
-    chauffeurId =
-    "chauffeur_" +
-    Date.now();
+    const data = {
 
+        chauffeurNom:nom,
 
-    chauffeurEnLigne =
-    true;
+        chauffeurTelephone:telephone,
+
+        chauffeurLatitude:
+        positionChauffeur.lat,
+
+        chauffeurLongitude:
+        positionChauffeur.lng,
+
+        statut:"acceptee",
+
+        dateAcceptation:
+        Date.now()
+
+    };
 
 
     db.ref(
-        "chauffeurs/" +
-        chauffeurId
+        "courses/" + id
     )
-    .set({
+    .transaction(function(course){
 
-        id:
-        chauffeurId,
+        if(
+            course === null ||
+            course.statut !==
+            "en_attente"
+        ){
 
-        nom:
-        nom,
+            return;
 
-        telephone:
-        telephone,
+        }
 
-        enLigne:
-        true,
 
-        date:
-        new Date().toISOString()
+        return {
+
+            ...course,
+
+            ...data
+
+        };
 
     })
+    .then(function(result){
 
-    .then(function(){
+        if(!result.committed){
 
-        document
-        .getElementById(
-            "statutChauffeur"
-        )
-        .className =
-        "status online";
+            alert(
+                "Cette course a déjà été acceptée."
+            );
 
+            return;
 
-        document
-        .getElementById(
-            "statutChauffeur"
-        )
-        .innerHTML =
-        "🟢 Chauffeur en ligne";
+        }
 
 
-        document
-        .getElementById(
-            "btnOnline"
-        )
-        .innerHTML =
-        "🔴 SE METTRE HORS LIGNE";
+        courseActuelle = {
+
+            id:id,
+
+            ...result.snapshot.val()
+
+        };
 
 
-        document
-        .getElementById(
-            "btnOnline"
-        )
-        .className =
-        "btn-danger";
-
-
-        document
-        .getElementById(
-            "btnOnline"
-        )
-        .onclick =
-        mettreHorsLigne;
-
-
-        afficherMessage(
-            "messageChauffeur",
-            "success",
-            "✅ Vous êtes maintenant en ligne."
+        afficherCourseChauffeur(
+            courseActuelle
         );
 
 
-        chargerCoursesDisponibles();
+        alert(
+            "✅ Course acceptée."
+        );
 
     })
-
     .catch(function(error){
 
-        afficherMessage(
-            "messageChauffeur",
-            "error",
+        console.error(error);
+
+        alert(
             "❌ " +
             error.message
         );
@@ -1269,205 +2872,272 @@ function mettreEnLigne(){
 }
 
 
-function mettreHorsLigne(){
+/* =====================================================
+   AFFICHER COURSE CHAUFFEUR
+===================================================== */
 
-    chauffeurEnLigne =
-    false;
+function afficherCourseChauffeur(course){
 
-
-    if(chauffeurId){
-
-        db.ref(
-            "chauffeurs/" +
-            chauffeurId
-        )
-        .update({
-
-            enLigne:false
-
-        });
-
-    }
-
-
+    const box =
     document
     .getElementById(
-        "statutChauffeur"
-    )
-    .className =
-    "status offline";
+        "chauffeurCourseInfo"
+    );
 
 
-    document
-    .getElementById(
-        "statutChauffeur"
-    )
-    .innerHTML =
-    "🔴 Chauffeur hors ligne";
+    box.style.display =
+    "block";
 
 
-    document
-    .getElementById(
-        "btnOnline"
-    )
-    .innerHTML =
-    "🟢 SE METTRE EN LIGNE";
+    box.innerHTML = `
+
+        <h3>🚕 Course acceptée</h3>
+
+        <p>
+        <b>Client :</b>
+        ${course.clientNom}
+        </p>
+
+        <p>
+        <b>Téléphone :</b>
+        ${course.clientTelephone}
+        </p>
+
+        <p>
+        <b>Départ :</b>
+        ${course.depart}
+        </p>
+
+        <p>
+        <b>Destination :</b>
+        ${course.destination}
+        </p>
+
+        <p>
+        <b>Prix :</b>
+        ${Number(course.prix).toLocaleString()}
+        FC
+        </p>
+
+        <button
+        class="main-button"
+        onclick="ouvrirPositionClientGoogle()"
+        >
+        🗺️ ALLER VERS LE CLIENT
+        </button>
+
+        <button
+        class="main-button red"
+        onclick="terminerCourse()"
+        >
+        🏁 TERMINER LA COURSE
+        </button>
+
+    `;
 
 
-    document
-    .getElementById(
-        "btnOnline"
-    )
-    .className =
-    "btn-green";
-
-
-    document
-    .getElementById(
-        "btnOnline"
-    )
-    .onclick =
-    mettreEnLigne;
-
-}
-
-
-/* ==================================================
-   COURSES CHAUFFEUR
-================================================== */
-
-function actualiserCourses(){
-
-    chargerCoursesDisponibles();
-
-}
-
-
-function chargerCoursesDisponibles(){
-
-    db.ref("courses")
-    .on(
-        "value",
-        function(snapshot){
-
-            const liste =
-            document
-            .getElementById(
-                "listeCourses"
-            );
-
-
-            if(!liste){
-                return;
-            }
-
-
-            liste.innerHTML = "";
-
-
-            let nombre = 0;
-
-
-            snapshot.forEach(
-                function(child){
-
-                    const course =
-                    child.val();
-
-
-                    if(
-                        course.statut ===
-                        "en_attente"
-                    ){
-
-                        nombre++;
-
-
-                        const div =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                        div.className =
-                        "course";
-
-
-                        div.innerHTML =
-
-                        "<b>👤 Client :</b> " +
-                        course.nomClient +
-
-                        "<br>" +
-
-                        "<b>📞 Téléphone :</b> " +
-                        course.telephoneClient +
-
-                        "<br>" +
-
-                        "<b>📍 Départ :</b> " +
-                        course.depart +
-
-                        "<br>" +
-
-                        "<b>🏁 Destination :</b> " +
-                        course.destination +
-
-                        "<div class='price'>" +
-
-                        Number(course.prix)
-                        .toLocaleString() +
-
-                        " FC</div>" +
-
-                        "<button " +
-
-                        "class='btn-green' " +
-
-                        "onclick=\"accepterCourse('" +
-                        child.key +
-                        "')\">" +
-
-                        "✅ ACCEPTER LA COURSE" +
-
-                        "</button>";
-
-
-                        liste.appendChild(
-                            div
-                        );
-
-                    }
-
-                }
-            );
-
-
-            if(nombre === 0){
-
-                liste.innerHTML =
-                "Aucune course en attente.";
-
-            }
-
-        }
+    afficherClientSurCarteChauffeur(
+        course
     );
 
 }
 
 
-/* ==================================================
-   ACCEPTER COURSE
-================================================== */
+/* =====================================================
+   CLIENT SUR CARTE CHAUFFEUR
+===================================================== */
 
-function accepterCourse(id){
+function afficherClientSurCarteChauffeur(course){
 
-    if(!chauffeurEnLigne){
+    if(
+        !course.clientLatitude ||
+        !course.clientLongitude
+    ){
 
-        afficherMessage(
-            "messageChauffeur",
-            "error",
-            "❌ Vous devez être en ligne pour accepter une course."
+        return;
+
+    }
+
+
+    initialiserMapChauffeur();
+
+
+    L.marker([
+        course.clientLatitude,
+        course.clientLongitude
+    ])
+    .addTo(mapChauffeur)
+    .bindPopup(
+        "👤 Position du client"
+    )
+    .openPopup();
+
+
+    mapChauffeur.setView(
+        [
+            course.clientLatitude,
+            course.clientLongitude
+        ],
+        15
+    );
+
+}
+
+
+/* =====================================================
+   CLIENT VOIT LE CHAUFFEUR
+===================================================== */
+
+function afficherChauffeurAuClient(course){
+
+    const box =
+    document
+    .getElementById(
+        "clientCourseInfo"
+    );
+
+
+    box.innerHTML = `
+
+        <h3>🚗 Chauffeur trouvé</h3>
+
+        <p>
+        <b>Chauffeur :</b>
+        ${course.chauffeurNom || "Chauffeur"}
+        </p>
+
+        <p>
+        <b>Téléphone :</b>
+        ${course.chauffeurTelephone || ""}
+        </p>
+
+        <span
+        class="status-course"
+        style="
+        background:#dcfce7;
+        color:#166534;
+        "
+        >
+        🟢 Course acceptée
+        </span>
+
+        <button
+        class="main-button"
+        onclick="appelerChauffeur()"
+        >
+        📞 APPELER LE CHAUFFEUR
+        </button>
+
+        <button
+        class="main-button"
+        onclick="ouvrirPositionChauffeurGoogle()"
+        >
+        🗺️ VOIR SUR GOOGLE MAPS
+        </button>
+
+    `;
+
+
+    afficherChauffeurSurCarteClient(
+        course
+    );
+
+}
+
+
+/* =====================================================
+   CHAUFFEUR SUR CARTE CLIENT
+===================================================== */
+
+function afficherChauffeurSurCarteClient(course){
+
+    if(
+        !course.chauffeurLatitude ||
+        !course.chauffeurLongitude
+    ){
+
+        return;
+
+    }
+
+
+    initialiserMapClient();
+
+
+    if(!window.markerChauffeurClient){
+
+        window.markerChauffeurClient =
+        L.marker([
+            course.chauffeurLatitude,
+            course.chauffeurLongitude
+        ])
+        .addTo(mapClient)
+        .bindPopup(
+            "🚗 Votre chauffeur"
+        );
+
+    }
+    else{
+
+        window.markerChauffeurClient
+        .setLatLng([
+            course.chauffeurLatitude,
+            course.chauffeurLongitude
+        ]);
+
+    }
+
+}
+
+
+/* =====================================================
+   TERMINER COURSE
+===================================================== */
+
+function terminerCourse(){
+
+    if(
+        !courseActuelle ||
+        !courseActuelle.id
+    ){
+
+        return;
+
+    }
+
+
+    db.ref(
+        "courses/" +
+        courseActuelle.id
+    )
+    .update({
+
+        statut:"terminee",
+
+        dateFin:Date.now()
+
+    })
+    .then(function(){
+
+        alert(
+            "🏁 Course terminée."
+        );
+
+    });
+
+}
+
+
+/* =====================================================
+   CENTRER CLIENT
+===================================================== */
+
+function centrerClient(){
+
+    if(!positionClient){
+
+        alert(
+            "Activez d'abord votre GPS."
         );
 
         return;
@@ -1475,165 +3145,251 @@ function accepterCourse(id){
     }
 
 
-    const nom =
-    document
-    .getElementById(
-        "nomChauffeur"
-    )
-    .value
-    .trim();
+    initialiserMapClient();
 
 
-    db.ref(
-        "courses/" + id
-    )
-    .transaction(
-        function(course){
-
-            if(course === null){
-
-                return course;
-
-            }
-
-
-            if(
-                course.statut !==
-                "en_attente"
-            ){
-
-                return;
-
-            }
-
-
-            course.statut =
-            "acceptee";
-
-            course.chauffeurId =
-            chauffeurId;
-
-            course.chauffeurNom =
-            nom;
-
-            course.dateAcceptation =
-            new Date().toISOString();
-
-
-            return course;
-
-        },
-
-        function(error,committed,snapshot){
-
-            if(error){
-
-                afficherMessage(
-                    "messageChauffeur",
-                    "error",
-                    "❌ Erreur : " +
-                    error.message
-                );
-
-                return;
-
-            }
-
-
-            if(!committed){
-
-                afficherMessage(
-                    "messageChauffeur",
-                    "error",
-                    "❌ Cette course a déjà été acceptée."
-                );
-
-                return;
-
-            }
-
-
-            afficherMessage(
-                "messageChauffeur",
-                "success",
-                "✅ Course acceptée !"
-            );
-
-
-            chargerCoursesDisponibles();
-
-        }
-
+    mapClient.setView(
+        [
+            positionClient.lat,
+            positionClient.lng
+        ],
+        16
     );
 
 }
 
 
-/* ==================================================
-   ADMIN
-================================================== */
+/* =====================================================
+   CENTRER CHAUFFEUR
+===================================================== */
 
-function ouvrirAdmin(){
+function centrerChauffeur(){
 
-    masquerTout();
+    if(!positionChauffeur){
 
-    document
-    .getElementById("loginAdmin")
-    .classList.remove("hidden");
+        alert(
+            "Activez votre GPS en vous mettant en ligne."
+        );
+
+        return;
+
+    }
+
+
+    initialiserMapChauffeur();
+
+
+    mapChauffeur.setView(
+        [
+            positionChauffeur.lat,
+            positionChauffeur.lng
+        ],
+        16
+    );
 
 }
 
+
+/* =====================================================
+   GOOGLE MAPS CLIENT
+===================================================== */
+
+function ouvrirGoogleClient(){
+
+    if(!positionClient){
+
+        alert(
+            "Position GPS indisponible."
+        );
+
+        return;
+
+    }
+
+
+    window.open(
+        "https://www.google.com/maps/search/?api=1&query=" +
+        positionClient.lat +
+        "," +
+        positionClient.lng,
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   GOOGLE MAPS CHAUFFEUR
+===================================================== */
+
+function ouvrirGoogleChauffeur(){
+
+    if(!positionChauffeur){
+
+        alert(
+            "Position GPS indisponible."
+        );
+
+        return;
+
+    }
+
+
+    window.open(
+        "https://www.google.com/maps/search/?api=1&query=" +
+        positionChauffeur.lat +
+        "," +
+        positionChauffeur.lng,
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   GOOGLE MAPS VERS CLIENT
+===================================================== */
+
+function ouvrirPositionClientGoogle(){
+
+    if(
+        !courseActuelle ||
+        !courseActuelle.clientLatitude
+    ){
+
+        alert(
+            "Position du client indisponible."
+        );
+
+        return;
+
+    }
+
+
+    window.open(
+        "https://www.google.com/maps/dir/?api=1&destination=" +
+        courseActuelle.clientLatitude +
+        "," +
+        courseActuelle.clientLongitude,
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   GOOGLE MAPS VERS CHAUFFEUR
+===================================================== */
+
+function ouvrirPositionChauffeurGoogle(){
+
+    if(
+        !courseActuelle ||
+        !courseActuelle.chauffeurLatitude
+    ){
+
+        alert(
+            "Position du chauffeur indisponible."
+        );
+
+        return;
+
+    }
+
+
+    window.open(
+        "https://www.google.com/maps/search/?api=1&query=" +
+        courseActuelle.chauffeurLatitude +
+        "," +
+        courseActuelle.chauffeurLongitude,
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   APPELER CHAUFFEUR
+===================================================== */
+
+function appelerChauffeur(){
+
+    if(
+        !courseActuelle ||
+        !courseActuelle.chauffeurTelephone
+    ){
+
+        alert(
+            "Numéro du chauffeur indisponible."
+        );
+
+        return;
+
+    }
+
+
+    window.location.href =
+    "tel:" +
+    courseActuelle.chauffeurTelephone;
+
+}
+
+
+/* =====================================================
+   ADMIN FIREBASE AUTH
+===================================================== */
 
 function connexionAdmin(){
 
     const email =
     document
-    .getElementById(
-        "emailAdmin"
-    )
+    .getElementById("emailAdmin")
     .value
     .trim();
 
 
     const password =
     document
-    .getElementById(
-        "passwordAdmin"
-    )
+    .getElementById("passwordAdmin")
     .value;
 
 
-    if(!email){
-
-        afficherMessage(
-            "messageAdmin",
-            "error",
-            "❌ Entrez votre adresse e-mail."
-        );
-
-        return;
-
-    }
+    const message =
+    document
+    .getElementById("adminMessage");
 
 
-    if(!password){
+    if(!email || !password){
 
-        afficherMessage(
-            "messageAdmin",
-            "error",
-            "❌ Entrez votre mot de passe."
-        );
+        message.className =
+        "admin-message error";
+
+        message.innerHTML =
+        "❌ Entrez l'e-mail et le mot de passe.";
 
         return;
 
     }
 
 
-    afficherMessage(
-        "messageAdmin",
-        "info",
-        "⏳ Connexion Firebase..."
-    );
+    if(!firebaseOK || !auth){
+
+        message.className =
+        "admin-message error";
+
+        message.innerHTML =
+        "❌ Firebase n'est pas correctement initialisé.";
+
+        return;
+
+    }
+
+
+    message.className =
+    "admin-message success";
+
+    message.innerHTML =
+    "⏳ Connexion en cours...";
 
 
     auth
@@ -1641,86 +3397,42 @@ function connexionAdmin(){
         email,
         password
     )
-
     .then(function(result){
 
-        afficherMessage(
-            "messageAdmin",
-            "success",
-            "✅ Connexion réussie !"
-        );
+        message.className =
+        "admin-message success";
+
+        message.innerHTML =
+        "✅ Connexion réussie.";
 
 
-        setTimeout(
-            function(){
-
-                afficherAdmin(
-                    result.user
-                );
-
-            },
-            500
+        afficherAdmin(
+            result.user
         );
 
     })
-
     .catch(function(error){
 
-        console.error(
-            "Firebase:",
-            error
-        );
+        console.error(error);
+
+        message.className =
+        "admin-message error";
 
 
         if(
             error.code ===
-            "auth/api-key-not-valid"
-        ){
-
-            afficherMessage(
-                "messageAdmin",
-                "error",
-                "❌ Firebase refuse la clé API.<br>" +
-                "Code : auth/api-key-not-valid"
-            );
-
-        }
-
-        else if(
-            error.code ===
-            "auth/invalid-api-key"
-        ){
-
-            afficherMessage(
-                "messageAdmin",
-                "error",
-                "❌ Clé API Firebase invalide.<br>" +
-                "Code : auth/invalid-api-key"
-            );
-
-        }
-
-        else if(
-            error.code ===
             "auth/invalid-credential"
         ){
 
-            afficherMessage(
-                "messageAdmin",
-                "error",
-                "❌ E-mail ou mot de passe incorrect."
-            );
+            message.innerHTML =
+            "❌ E-mail ou mot de passe incorrect.";
 
         }
-
         else{
 
-            afficherMessage(
-                "messageAdmin",
-                "error",
-                "❌ Erreur Firebase :<br>" +
-                error.message
-            );
+            message.innerHTML =
+            "❌ " +
+            error.message;
 
         }
 
@@ -1729,305 +3441,188 @@ function connexionAdmin(){
 }
 
 
-/* ==================================================
-   ADMIN PANEL
-================================================== */
+/* =====================================================
+   AFFICHER ADMIN
+===================================================== */
 
 function afficherAdmin(user){
 
-    masquerTout();
-
     document
-    .getElementById(
-        "adminPanel"
-    )
-    .classList.remove("hidden");
+    .getElementById("adminLogin")
+    .style.display =
+    "none";
 
 
     document
-    .getElementById(
-        "adminEmail"
-    )
+    .getElementById("adminDashboard")
+    .style.display =
+    "block";
+
+
+    document
+    .getElementById("adminConnecte")
     .innerHTML =
-    "🟢 Connecté : " +
-    user.email;
+    "🟢 Connecté : <b>" +
+    user.email +
+    "</b>";
 
 
     chargerStatistiques();
 
-    chargerCoursesAdmin();
-
-    chargerChauffeursAdmin();
-
 }
 
+
+/* =====================================================
+   STATISTIQUES ADMIN
+===================================================== */
 
 function chargerStatistiques(){
 
+    if(!db){
+
+        return;
+
+    }
+
+
     db.ref("courses")
-    .on(
-        "value",
-        function(snapshot){
+    .on("value",function(snapshot){
 
-            let total = 0;
+        let total = 0;
 
-            let attente = 0;
+        let attente = 0;
 
-            let acceptees = 0;
+        let acceptees = 0;
 
-            let terminees = 0;
+        let terminees = 0;
 
 
-            snapshot.forEach(
-                function(child){
+        snapshot.forEach(function(child){
 
-                    total++;
-
-
-                    const course =
-                    child.val();
+            const course =
+            child.val();
 
 
-                    if(
-                        course.statut ===
-                        "en_attente"
-                    ){
-
-                        attente++;
-
-                    }
+            total++;
 
 
-                    if(
-                        course.statut ===
-                        "acceptee"
-                    ){
+            if(
+                course.statut ===
+                "en_attente"
+            ){
 
-                        acceptees++;
+                attente++;
 
-                    }
-
-
-                    if(
-                        course.statut ===
-                        "terminee"
-                    ){
-
-                        terminees++;
-
-                    }
-
-                }
-            );
+            }
 
 
-            document
-            .getElementById(
-                "totalCourses"
-            )
-            .innerText =
-            total;
+            if(
+                course.statut ===
+                "acceptee"
+            ){
+
+                acceptees++;
+
+            }
 
 
-            document
-            .getElementById(
-                "coursesAttente"
-            )
-            .innerText =
-            attente;
+            if(
+                course.statut ===
+                "terminee"
+            ){
+
+                terminees++;
+
+            }
+
+        });
 
 
-            document
-            .getElementById(
-                "coursesAcceptees"
-            )
-            .innerText =
-            acceptees;
+        document
+        .getElementById("totalCourses")
+        .innerText =
+        total;
 
 
-            document
-            .getElementById(
-                "coursesTerminees"
-            )
-            .innerText =
-            terminees;
+        document
+        .getElementById("coursesAttente")
+        .innerText =
+        attente;
 
-        }
-    );
+
+        document
+        .getElementById("coursesAcceptees")
+        .innerText =
+        acceptees;
+
+
+        document
+        .getElementById("coursesTerminees")
+        .innerText =
+        terminees;
+
+    });
 
 }
 
 
-function chargerChauffeursAdmin(){
+/* =====================================================
+   DECONNEXION ADMIN
+===================================================== */
 
-    db.ref("chauffeurs")
-    .on(
-        "value",
-        function(snapshot){
+function deconnexionAdmin(){
 
-            let total = 0;
+    if(!auth){
 
+        return;
 
-            snapshot.forEach(
-                function(child){
-
-                    const chauffeur =
-                    child.val();
+    }
 
 
-                    if(
-                        chauffeur.enLigne ===
-                        true
-                    ){
+    auth
+    .signOut()
+    .then(function(){
 
-                        total++;
-
-                    }
-
-                }
-            );
+        document
+        .getElementById("adminDashboard")
+        .style.display =
+        "none";
 
 
-            document
-            .getElementById(
-                "totalChauffeurs"
-            )
-            .innerText =
-            total;
+        document
+        .getElementById("adminLogin")
+        .style.display =
+        "block";
 
-        }
-    );
+
+        document
+        .getElementById("emailAdmin")
+        .value =
+        "";
+
+
+        document
+        .getElementById("passwordAdmin")
+        .value =
+        "";
+
+    });
 
 }
 
 
-/* ==================================================
-   LISTE COURSES ADMIN
-================================================== */
+/* =====================================================
+   SESSION ADMIN
+===================================================== */
 
-function chargerCoursesAdmin(){
+if(auth){
 
-    db.ref("courses")
-    .on(
-        "value",
-        function(snapshot){
+    auth.onAuthStateChanged(
+        function(user){
 
-            const container =
-            document
-            .getElementById(
-                "adminCourses"
-            );
+            if(user){
 
-
-            container.innerHTML = "";
-
-
-            let nombre = 0;
-
-
-            snapshot.forEach(
-                function(child){
-
-                    nombre++;
-
-
-                    const course =
-                    child.val();
-
-
-                    const div =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                    div.className =
-                    "course";
-
-
-                    let statut =
-                    "⏳ En attente";
-
-
-                    if(
-                        course.statut ===
-                        "acceptee"
-                    ){
-
-                        statut =
-                        "🚗 Acceptée";
-
-                    }
-
-
-                    if(
-                        course.statut ===
-                        "terminee"
-                    ){
-
-                        statut =
-                        "✅ Terminée";
-
-                    }
-
-
-                    div.innerHTML =
-
-                    "<b>Client :</b> " +
-                    course.nomClient +
-
-                    "<br>" +
-
-                    "<b>Téléphone :</b> " +
-                    course.telephoneClient +
-
-                    "<br>" +
-
-                    "<b>Départ :</b> " +
-                    course.depart +
-
-                    "<br>" +
-
-                    "<b>Destination :</b> " +
-                    course.destination +
-
-                    "<br>" +
-
-                    "<b>Prix :</b> " +
-                    Number(course.prix)
-                    .toLocaleString() +
-                    " FC" +
-
-                    "<br>" +
-
-                    "<b>Statut :</b> " +
-                    statut;
-
-
-                    if(
-                        course.chauffeurNom
-                    ){
-
-                        div.innerHTML +=
-
-                        "<br><b>Chauffeur :</b> " +
-                        course.chauffeurNom;
-
-                    }
-
-
-                    container.appendChild(
-                        div
-                    );
-
-                }
-            );
-
-
-            if(nombre === 0){
-
-                container.innerHTML =
-                "Aucune course enregistrée.";
+                afficherAdmin(user);
 
             }
 
@@ -2037,45 +3632,61 @@ function chargerCoursesAdmin(){
 }
 
 
-/* ==================================================
-   DECONNEXION ADMIN
-================================================== */
+/* =====================================================
+   NETTOYAGE DES CLÉS FIREBASE
+===================================================== */
 
-function deconnexionAdmin(){
+function nettoyerCle(texte){
 
-    auth
-    .signOut()
-
-    .then(function(){
-
-        retourAccueil();
-
-    })
-
-    .catch(function(error){
-
-        console.error(error);
-
-    });
+    return texte
+    .replace(/[.#$[\]/]/g,"_");
 
 }
 
 
-/* ==================================================
-   SESSION FIREBASE
-================================================== */
+/* =====================================================
+   TEST FIREBASE
+===================================================== */
 
-auth.onAuthStateChanged(
-    function(user){
+window.addEventListener(
+    "load",
+    function(){
 
-        if(user){
+        const status =
+        document.createElement(
+            "div"
+        );
 
-            console.log(
-                "Administrateur connecté :",
-                user.email
-            );
+
+        status.id =
+        "firebaseStatus";
+
+
+        if(firebaseOK){
+
+            status.innerHTML =
+            "🟢 Firebase initialisé";
 
         }
+        else{
+
+            status.innerHTML =
+            "🔴 Firebase non disponible";
+
+        }
+
+
+        document
+        .body
+        .appendChild(status);
+
+
+        setTimeout(function(){
+
+            status.style.opacity =
+            "0.45";
+
+        },4000);
 
     }
 );
@@ -2083,6 +3694,4 @@ auth.onAuthStateChanged(
 </script>
 
 </body>
-
 </html>
-```
