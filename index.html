@@ -857,6 +857,11 @@ body{background:#f5f6f8;}
 .admin-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:10px 0;color:#555;}
 .legend-item{display:flex;align-items:center;gap:6px}.dot{width:12px;height:12px;border-radius:50%;display:inline-block}.dot.client{background:#2563eb}.dot.driver{background:#16a34a}.dot.pending{background:#f59e0b}
 .admin-empty{padding:25px;text-align:center;color:#666;background:#f7f7f7;border-radius:15px;}
+.traffic-box{margin-top:14px;padding:13px 15px;border-radius:13px;font-weight:bold;border:1px solid #ddd;}
+.traffic-green{background:#dcfce7;color:#166534;border-color:#86efac;}
+.traffic-red{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.price-live{font-size:18px;font-weight:900;margin-top:8px;}
+
 .admin-driver-card{background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:15px;color:#111;}
 .admin-driver-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
 .admin-driver-actions button{border:0;border-radius:10px;padding:9px 12px;font-weight:bold;cursor:pointer;}
@@ -1279,6 +1284,9 @@ readonly
 
 <div id="prixRouteInfo" style="margin-top:8px;font-size:13px;color:#666;">
 💰 Le prix sera calculé automatiquement selon le trajet.
+</div>
+<div style="margin-top:7px;font-size:12px;color:#777;">
+🚕 YAMBOKA : tarif volontairement plus bas — distance + durée, avec minimum réduit.
 </div>
 
 </div>
@@ -2020,6 +2028,14 @@ function demanderPositionClient(){
 
             afficherPositionClient();
 
+            if(db && courseActuelle && courseActuelle.id && courseActuelle.statut === "acceptee"){
+                db.ref("courses/" + courseActuelle.id).update({
+                    clientLatitude: positionClient.lat,
+                    clientLongitude: positionClient.lng,
+                    dernierePositionClient: Date.now()
+                });
+            }
+
             // Si la destination est déjà saisie, recalculer immédiatement le trajet et le prix.
             calculerPrixAutomatique();
 
@@ -2047,6 +2063,15 @@ function demanderPositionClient(){
                     };
 
                     afficherPositionClient();
+
+                    // Position client en temps réel pendant une course.
+                    if(db && courseActuelle && courseActuelle.id && courseActuelle.statut === "acceptee"){
+                        db.ref("courses/" + courseActuelle.id).update({
+                            clientLatitude: positionClient.lat,
+                            clientLongitude: positionClient.lng,
+                            dernierePositionClient: Date.now()
+                        });
+                    }
 
                     // Met à jour automatiquement le prix lorsque la position change.
                     if(document.getElementById("destinationClient")?.value.trim()) programmerCalculPrix();
@@ -2174,7 +2199,9 @@ function demarrerGPSChauffeur(){
 
                 lat:position.coords.latitude,
 
-                lng:position.coords.longitude
+                lng:position.coords.longitude,
+
+                speedKmh: Number.isFinite(position.coords.speed) && position.coords.speed >= 0 ? position.coords.speed * 3.6 : null
 
             };
 
@@ -2439,9 +2466,14 @@ function enregistrerPositionChauffeur(){
             positionChauffeur.lat,
 
             chauffeurLongitude:
-            positionChauffeur.lng
+            positionChauffeur.lng,
+
+            dernierePositionChauffeur:
+            Date.now()
 
         });
+
+        mettreAJourEmbouteillageCourse(positionChauffeur);
 
     }
 
@@ -2449,24 +2481,41 @@ function enregistrerPositionChauffeur(){
 
 
 /* =====================================================
-   TARIFICATION AUTOMATIQUE SELON LE TRAJET
+   TARIFICATION AUTOMATIQUE YAMBOKA
+   Objectif : rester moins cher que le tarif public Yango.
+   Le trajet utilise distance + durée réelle du réseau routier.
 ===================================================== */
-const TARIF_BASE_FC = 2000;
-const TARIF_KM_FC = 1000;
-const PAS_PRIX_FC = 500;
+const TARIF_BASE_FC = 1800;
+const TARIF_KM_FC = 350;
+const TARIF_MIN_FC = 50;
+const TARIF_MOTO_BASE_FC = 1200;
+const TARIF_MOTO_KM_FC = 250;
+const TARIF_MOTO_MIN_FC = 35;
+const PAS_PRIX_FC = 50;
+const MINUTES_BOUCHON_GRATUITES = 3;
+const TARIF_BOUCHON_FC_MIN = 40;
+const MAX_SUPPLEMENT_BOUCHON_FC = 1500;
 let destinationRoute = null;
 let calculPrixEnCours = false;
 
 function arrondirPrixYamboka(montant){
-    return Math.ceil(montant / PAS_PRIX_FC) * PAS_PRIX_FC;
+    return Math.ceil(Number(montant || 0) / PAS_PRIX_FC) * PAS_PRIX_FC;
+}
+
+function calculerTarifYamboka(distanceKm, dureeMin, typeVehicule="voiture"){
+    const moto = String(typeVehicule).toLowerCase() === "moto";
+    const base = moto ? TARIF_MOTO_BASE_FC : TARIF_BASE_FC;
+    const km = moto ? TARIF_MOTO_KM_FC : TARIF_KM_FC;
+    const min = moto ? TARIF_MOTO_MIN_FC : TARIF_MIN_FC;
+    return arrondirPrixYamboka(Math.max(base, (Number(distanceKm)||0)*km + (Number(dureeMin)||0)*min));
 }
 
 function mettreAJourPrixRoute(distanceKm, dureeMin){
-    const prix = arrondirPrixYamboka(TARIF_BASE_FC + (distanceKm * TARIF_KM_FC));
+    const prix = calculerTarifYamboka(distanceKm,dureeMin,"voiture");
     const champ = document.getElementById("prixClient");
     const info = document.getElementById("prixRouteInfo");
     if(champ) champ.value = prix.toLocaleString("fr-FR") + " FC";
-    if(info) info.innerHTML = "🛣️ Distance : <b>" + distanceKm.toFixed(1) + " km</b>" + (Number.isFinite(dureeMin) ? " • ⏱️ " + Math.round(dureeMin) + " min" : "") + "<br>💰 Prix automatique : <b>" + prix.toLocaleString("fr-FR") + " FC</b>";
+    if(info) info.innerHTML = "🛣️ Distance : <b>" + distanceKm.toFixed(1) + " km</b> • ⏱️ <b>" + Math.round(dureeMin) + " min</b><br>💰 Prix YAMBOKA : <b>" + prix.toLocaleString("fr-FR") + " FC</b>";
     return prix;
 }
 
@@ -2496,7 +2545,7 @@ async function calculerPrixAutomatique(){
     if(info) info.innerHTML = "⏳ Calcul du trajet et du prix...";
     try{
         const dest = await geocoderDestinationYamboka(destination);
-        const routeUrl = "https://router.project-osrm.org/route/v1/driving/" + positionClient.lng + "," + positionClient.lat + ";" + dest.lng + "," + dest.lat + "?overview=false";
+        const routeUrl = "https://router.project-osrm.org/route/v1/driving/" + positionClient.lng + "," + positionClient.lat + ";" + dest.lng + "," + dest.lat + "?overview=full&geometries=geojson";
         const response = await fetch(routeUrl);
         if(!response.ok) throw new Error("Calcul du trajet indisponible");
         const data = await response.json();
@@ -2505,7 +2554,15 @@ async function calculerPrixAutomatique(){
         const distanceKm = route.distance / 1000;
         const dureeMin = route.duration / 60;
         const prix = mettreAJourPrixRoute(distanceKm,dureeMin);
-        destinationRoute = {lat:dest.lat,lng:dest.lng,label:dest.label,distanceKm:distanceKm,dureeMin:dureeMin,prix:prix};
+        destinationRoute = {
+            lat:dest.lat,
+            lng:dest.lng,
+            label:dest.label,
+            distanceKm:distanceKm,
+            dureeMin:dureeMin,
+            prix:prix,
+            geometry:route.geometry || null
+        };
         return destinationRoute;
     }catch(e){
         console.error(e);
@@ -2531,6 +2588,113 @@ document.addEventListener("DOMContentLoaded",function(){
         dest.addEventListener("input",programmerCalculPrix);
     }
 });
+
+/* =====================================================
+   TRAFIC / EMBOUTEILLAGE YAMBOKA
+   Le trafic est détecté à partir du GPS du chauffeur :
+   vitesse très faible + déplacement inférieur à ~40 m.
+===================================================== */
+function obtenirEtatTrafic(course, position){
+    if(!course || !position) return {etat:"vert",stationnaire:false};
+    const now = Date.now();
+    const prevLat = Number(course.derniereLatitudeChauffeur);
+    const prevLng = Number(course.derniereLongitudeChauffeur);
+    const prevTime = Number(course.dernierePositionChauffeur);
+    let distance = 0;
+    if(Number.isFinite(prevLat) && Number.isFinite(prevLng) && prevTime){
+        distance = distanceKm(prevLat,prevLng,position.lat,position.lng);
+    }
+    const elapsedMin = prevTime ? Math.max((now-prevTime)/60000,0.05) : 0;
+    const vitesseCalculee = elapsedMin ? (distance/elapsedMin)*60 : 0;
+    const vitesseGps = Number(position.speedKmh);
+    const vitesse = Number.isFinite(vitesseGps) && vitesseGps >= 0 ? vitesseGps : vitesseCalculee;
+    const stationnaire = prevTime && distance <= 0.04 && vitesse <= 7;
+    return {etat:stationnaire ? "rouge" : "vert",stationnaire:!!stationnaire,vitesse:vitesse,distance:distance,now:now};
+}
+
+function mettreAJourEmbouteillageCourse(position){
+    if(!db || !courseActuelle || courseActuelle.statut !== "acceptee" || !position) return;
+    const course = courseActuelle;
+    const info = obtenirEtatTrafic(course,position);
+    let immobileDepuis = Number(course.immobileDepuis) || 0;
+    if(info.stationnaire){
+        if(!immobileDepuis) immobileDepuis = info.now;
+    }else{
+        immobileDepuis = 0;
+    }
+
+    let supplement = Number(course.supplementEmbouteillage) || 0;
+    if(immobileDepuis){
+        const minutesImmobilise = Math.max(0,(info.now-immobileDepuis)/60000);
+        if(minutesImmobilise > MINUTES_BOUCHON_GRATUITES){
+            supplement = Math.min(MAX_SUPPLEMENT_BOUCHON_FC,
+                arrondirPrixYamboka((minutesImmobilise-MINUTES_BOUCHON_GRATUITES)*TARIF_BOUCHON_FC_MIN));
+        }
+    }
+
+    const prixBase = Number(course.prixBase || course.prix || 0);
+    const prixActuel = arrondirPrixYamboka(prixBase + supplement);
+    const updates = {
+        trafficStatus: info.etat === "rouge" ? "bouchon" : "fluide",
+        trafficColor: info.etat === "rouge" ? "red" : "green",
+        vitesseChauffeurKmh: Number(info.vitesse || 0).toFixed(1),
+        supplementEmbouteillage: supplement,
+        prixActuel: prixActuel,
+        derniereLatitudeChauffeur: position.lat,
+        derniereLongitudeChauffeur: position.lng,
+        dernierePositionChauffeur: info.now,
+        immobileDepuis: immobileDepuis || null,
+        embouteillageDepuis: immobileDepuis || null
+    };
+
+    courseActuelle = {...course,...updates,prixActuel:prixActuel};
+    db.ref("courses/" + course.id).update(updates);
+    afficherEtatTraficCourse(courseActuelle);
+    afficherTrajetCourseSurCartes(courseActuelle);
+}
+
+function afficherEtatTraficCourse(course){
+    const red = course && course.trafficStatus === "bouchon";
+    const text = red ? "🔴 Embouteillage détecté" : "🟢 Circulation fluide";
+    const extra = Number(course?.supplementEmbouteillage||0);
+    const mins = course?.immobileDepuis ? Math.floor((Date.now()-Number(course.immobileDepuis))/60000) : 0;
+    document.querySelectorAll(".traffic-live-box").forEach(function(el){
+        el.className = "traffic-box traffic-live-box " + (red ? "traffic-red" : "traffic-green");
+        el.innerHTML = text + (red && mins > MINUTES_BOUCHON_GRATUITES ? " • +" + extra.toLocaleString("fr-FR") + " FC embouteillage" : "") +
+            "<br><span style='font-weight:normal;font-size:12px;'>" +
+            (red ? "Le prix augmente après " + MINUTES_BOUCHON_GRATUITES + " min au même endroit." : "Aucun supplément embouteillage pour le moment.") + "</span>";
+    });
+    document.querySelectorAll(".price-live-value").forEach(function(el){
+        el.textContent = Number(course?.prixActuel || course?.prix || 0).toLocaleString("fr-FR") + " FC";
+    });
+}
+
+function afficherTrajetCourseSurCartes(course){
+    const geometry = course && course.routeGeometry;
+    if(!geometry || !geometry.coordinates) return;
+    const latlngs = geometry.coordinates.map(function(p){return [p[1],p[0]];});
+    const red = course.trafficStatus === "bouchon";
+    const color = red ? "#dc2626" : "#16a34a";
+    ["Client","Chauffeur"].forEach(function(type){
+        const map = type === "Client" ? mapClient : mapChauffeur;
+        if(!map) return;
+        const prop = type === "Client" ? "routeCourseClient" : "routeCourseChauffeur";
+        if(window[prop]){try{map.removeLayer(window[prop]);}catch(e){}}
+        window[prop] = L.polyline(latlngs,{color:color,weight:7,opacity:.78}).addTo(map);
+    });
+}
+
+function ecouterCourseTraficChauffeur(id){
+    if(!db || !id) return;
+    db.ref("courses/" + id).on("value",function(snap){
+        const c = snap.val();
+        if(!c) return;
+        courseActuelle = {id:id,...c};
+        afficherCourseChauffeur(courseActuelle);
+        afficherEtatTraficCourse(courseActuelle);
+        afficherTrajetCourseSurCartes(courseActuelle);
+    });
+}
 
 /* =====================================================
    DEMANDER COURSE
@@ -2627,11 +2791,17 @@ async function demanderCourse(){
         destination:destination,
 
         prix:prix,
+        prixBase:prix,
+        prixActuel:prix,
 
         distanceKm:trajet.distanceKm,
         dureeEstimeeMin:trajet.dureeMin,
         destinationLatitude:trajet.lat,
         destinationLongitude:trajet.lng,
+        routeGeometry:trajet.geometry || null,
+        trafficStatus:"fluide",
+        trafficColor:"green",
+        supplementEmbouteillage:0,
 
         clientLatitude:
         positionClient.lat,
@@ -2700,44 +2870,24 @@ async function demanderCourse(){
 ===================================================== */
 
 function afficherCourseClient(course){
-
-    const box =
-    document
-    .getElementById("clientCourseInfo");
-
-
-    box.style.display =
-    "block";
-
-
+    const box = document.getElementById("clientCourseInfo");
+    box.style.display = "block";
+    const prix = Number(course.prixActuel || course.prix || 0);
+    const red = course.trafficStatus === "bouchon";
     box.innerHTML = `
-
         <h3>🚕 Votre course</h3>
-
-        <p>
-        <b>Départ :</b>
-        ${course.depart}
-        </p>
-
-        <p>
-        <b>Destination :</b>
-        ${course.destination}
-        </p>
-
-        <p>
-        <b>Prix :</b>
-        ${course.prix.toLocaleString()}
-        FC
-        </p>
-
-        <span class="status-course">
-        ⏳ Recherche d'un chauffeur...
-        </span>
-
+        <p><b>Départ :</b> ${course.depart}</p>
+        <p><b>Destination :</b> ${course.destination}</p>
+        <p><b>Distance :</b> ${Number(course.distanceKm||0).toFixed(1)} km • <b>Durée estimée :</b> ${Math.round(Number(course.dureeEstimeeMin||0))} min</p>
+        <div class="price-live">💰 Prix : <span class="price-live-value">${prix.toLocaleString("fr-FR")} FC</span></div>
+        <div class="traffic-box traffic-live-box ${red ? "traffic-red" : "traffic-green"}">
+            ${red ? "🔴 Embouteillage détecté" : "🟢 Circulation fluide"}
+        </div>
+        <span class="status-course">${course.statut === "acceptee" ? "🚗 Chauffeur en route" : "⏳ Recherche d'un chauffeur..."}</span>
     `;
-
+    afficherEtatTraficCourse(course);
+    afficherTrajetCourseSurCartes(course);
 }
-
 
 /* =====================================================
    ÉCOUTER COURSE CLIENT
@@ -2783,6 +2933,8 @@ function ecouterCourseClient(id){
             afficherChauffeurAuClient(
                 course
             );
+            afficherEtatTraficCourse(course);
+            afficherTrajetCourseSurCartes(course);
 
         }
 
@@ -3093,6 +3245,8 @@ function accepterCourse(id){
         afficherCourseChauffeur(
             courseActuelle
         );
+        ecouterCourseTraficChauffeur(id);
+        afficherTrajetCourseSurCartes(courseActuelle);
 
 
         alert(
@@ -3156,10 +3310,13 @@ function afficherCourseChauffeur(course){
         </p>
 
         <p>
-        <b>Prix :</b>
-        ${Number(course.prix).toLocaleString()}
-        FC
+        <b>Prix actuel :</b>
+        <span class="price-live-value">${Number(course.prixActuel || course.prix || 0).toLocaleString("fr-FR")} FC</span>
         </p>
+
+        <div class="traffic-box traffic-live-box ${course.trafficStatus === "bouchon" ? "traffic-red" : "traffic-green"}">
+        ${course.trafficStatus === "bouchon" ? "🔴 Embouteillage détecté" : "🟢 Circulation fluide"}
+        </div>
 
         <button
         class="main-button"
@@ -3190,41 +3347,17 @@ function afficherCourseChauffeur(course){
 ===================================================== */
 
 function afficherClientSurCarteChauffeur(course){
-
-    if(
-        !course.clientLatitude ||
-        !course.clientLongitude
-    ){
-
-        return;
-
-    }
-
-
+    if(!course || !Number.isFinite(Number(course.clientLatitude)) || !Number.isFinite(Number(course.clientLongitude))) return;
     initialiserMapChauffeur();
-
-
-    L.marker([
-        course.clientLatitude,
-        course.clientLongitude
-    ])
-    .addTo(mapChauffeur)
-    .bindPopup(
-        "👤 Position du client"
-    )
-    .openPopup();
-
-
-    mapChauffeur.setView(
-        [
-            course.clientLatitude,
-            course.clientLongitude
-        ],
-        15
-    );
-
+    const latlng=[Number(course.clientLatitude),Number(course.clientLongitude)];
+    if(!window.markerClientChauffeur){
+        window.markerClientChauffeur=L.circleMarker(latlng,{radius:10,color:"#2563eb",fillColor:"#3b82f6",fillOpacity:.95,weight:3}).addTo(mapChauffeur).bindPopup("👤 Position du client");
+    }else{
+        window.markerClientChauffeur.setLatLng(latlng);
+    }
+    afficherTrajetCourseSurCartes(course);
+    mapChauffeur.setView(latlng,15);
 }
-
 
 /* =====================================================
    CLIENT VOIT LE CHAUFFEUR
@@ -3252,6 +3385,12 @@ function afficherChauffeurAuClient(course){
         <b>Téléphone :</b>
         ${course.chauffeurTelephone || ""}
         </p>
+
+        <div class="price-live">💰 Prix actuel : <span class="price-live-value">${Number(course.prixActuel || course.prix || 0).toLocaleString("fr-FR")} FC</span></div>
+
+        <div class="traffic-box traffic-live-box ${course.trafficStatus === "bouchon" ? "traffic-red" : "traffic-green"}">
+        ${course.trafficStatus === "bouchon" ? "🔴 Embouteillage détecté" : "🟢 Circulation fluide"}
+        </div>
 
         <span
         class="status-course"
@@ -3329,6 +3468,9 @@ function afficherChauffeurSurCarteClient(course){
 
     }
 
+    afficherTrajetCourseSurCartes(course);
+    afficherEtatTraficCourse(course);
+
 }
 
 
@@ -3356,6 +3498,9 @@ function terminerCourse(){
 
         statut:"terminee",
 
+        prix: Number(courseActuelle.prixActuel || courseActuelle.prix || 0),
+        prixFinal: Number(courseActuelle.prixActuel || courseActuelle.prix || 0),
+        supplementEmbouteillage: Number(courseActuelle.supplementEmbouteillage || 0),
         dateFin:Date.now()
 
     })
@@ -3696,7 +3841,7 @@ function trouverChauffeurPlusProche(course){const a=Number(course.clientLatitude
 function appelerChauffeurPlusProche(id){const c=adminCoursesCache[id],p=trouverChauffeurPlusProche(c||{});if(!p){alert("Aucun chauffeur en ligne avec une position GPS disponible près du client.");return;}if(!p.data.telephone){alert("Le chauffeur le plus proche n'a pas de numéro enregistré.");return;}if(confirm("Chauffeur le plus proche : "+(p.data.nom||p.key)+"\nDistance : "+p.distance.toFixed(2)+" km\n\nAppeler maintenant ?"))window.location.href="tel:"+p.data.telephone;}
 function centrerCourseAdmin(id){const c=adminCoursesCache[id];if(!c||!mapAdmin)return;const pts=[];if(Number.isFinite(Number(c.clientLatitude))&&Number.isFinite(Number(c.clientLongitude)))pts.push([Number(c.clientLatitude),Number(c.clientLongitude)]);if(Number.isFinite(Number(c.chauffeurLatitude))&&Number.isFinite(Number(c.chauffeurLongitude)))pts.push([Number(c.chauffeurLatitude),Number(c.chauffeurLongitude)]);if(pts.length===1)mapAdmin.setView(pts[0],15);if(pts.length>1)mapAdmin.fitBounds(pts,{padding:[40,40]});}
 function ouvrirItineraireAdmin(id){const c=adminCoursesCache[id];if(!c||!Number.isFinite(Number(c.clientLatitude))||!Number.isFinite(Number(c.clientLongitude))){alert("Position GPS du client indisponible.");return;}window.open("https://www.google.com/maps/dir/?api=1&destination="+Number(c.clientLatitude)+","+Number(c.clientLongitude),"_blank");}
-function dessinerCarteAdmin(){if(!mapAdmin)return;Object.keys(adminMarkers).forEach(k=>{try{mapAdmin.removeLayer(adminMarkers[k]);}catch(e){}});adminMarkers={};if(window.adminRouteLayers){window.adminRouteLayers.forEach(l=>{try{mapAdmin.removeLayer(l);}catch(e){}});}window.adminRouteLayers=[];const bounds=[];Object.keys(adminChauffeursCache).forEach(k=>{const c=adminChauffeursCache[k],a=Number(c.latitude),b=Number(c.longitude);if(c.compteActif===false||c.enLigne!==true||!Number.isFinite(a)||!Number.isFinite(b))return;const m=L.circleMarker([a,b],{radius:10,color:"#15803d",fillColor:"#22c55e",fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>🚗 Chauffeur</b><br>"+(c.nom||k)+"<br>📞 "+(c.telephone||"Non renseigné")+"<br>🟢 En ligne");adminMarkers["d_"+k]=m;bounds.push([a,b]);});Object.keys(adminCoursesCache).forEach(k=>{const c=adminCoursesCache[k],a=Number(c.clientLatitude),b=Number(c.clientLongitude);if(!Number.isFinite(a)||!Number.isFinite(b))return;const col=c.statut==="en_attente"?"#f59e0b":"#2563eb";const m=L.circleMarker([a,b],{radius:9,color:col,fillColor:col,fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>👤 Client</b><br>"+(c.clientNom||"Client")+"<br>📞 "+(c.clientTelephone||"Non renseigné")+"<br>📍 "+(c.depart||"Départ")+" → "+(c.destination||"Destination")+"<br>💰 "+Number(c.prix||0).toLocaleString()+" FC<br>"+libelleStatut(c.statut));adminMarkers["c_"+k]=m;bounds.push([a,b]);if(Number.isFinite(Number(c.destinationLatitude))&&Number.isFinite(Number(c.destinationLongitude))){const da=Number(c.destinationLatitude),dbb=Number(c.destinationLongitude);const dm=L.circleMarker([da,dbb],{radius:8,color:"#7c3aed",fillColor:"#a78bfa",fillOpacity:.95,weight:3}).addTo(mapAdmin);dm.bindPopup("<b>🏁 Destination</b><br>"+(c.destination||"Destination"));adminMarkers["x_"+k]=dm;bounds.push([da,dbb]);const line=L.polyline([[a,b],[da,dbb]],{color:c.statut==="terminee"?"#64748b":"#2563eb",weight:5,opacity:.65,dashArray:c.statut==="terminee"?"6 8":null}).addTo(mapAdmin);window.adminRouteLayers.push(line);}if(c.statut==="acceptee"&&Number.isFinite(Number(c.chauffeurLatitude))&&Number.isFinite(Number(c.chauffeurLongitude))){const ca=Number(c.chauffeurLatitude),cb=Number(c.chauffeurLongitude);const move=L.polyline([[ca,cb],[a,b]],{color:"#16a34a",weight:6,opacity:.8}).addTo(mapAdmin);window.adminRouteLayers.push(move);bounds.push([ca,cb]);}});if(bounds.length&&!mapAdmin._adminInitialFit){mapAdmin.fitBounds(bounds,{padding:[35,35]});mapAdmin._adminInitialFit=true;}}
+function dessinerCarteAdmin(){if(!mapAdmin)return;Object.keys(adminMarkers).forEach(k=>{try{mapAdmin.removeLayer(adminMarkers[k]);}catch(e){}});adminMarkers={};if(window.adminRouteLayers){window.adminRouteLayers.forEach(l=>{try{mapAdmin.removeLayer(l);}catch(e){}});}window.adminRouteLayers=[];const bounds=[];Object.keys(adminChauffeursCache).forEach(k=>{const c=adminChauffeursCache[k],a=Number(c.latitude),b=Number(c.longitude);if(c.compteActif===false||c.enLigne!==true||!Number.isFinite(a)||!Number.isFinite(b))return;const m=L.circleMarker([a,b],{radius:10,color:"#15803d",fillColor:"#22c55e",fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>🚗 Chauffeur</b><br>"+(c.nom||k)+"<br>📞 "+(c.telephone||"Non renseigné")+"<br>🟢 En ligne");adminMarkers["d_"+k]=m;bounds.push([a,b]);});Object.keys(adminCoursesCache).forEach(k=>{const c=adminCoursesCache[k],a=Number(c.clientLatitude),b=Number(c.clientLongitude);if(!Number.isFinite(a)||!Number.isFinite(b))return;const col=c.statut==="en_attente"?"#f59e0b":"#2563eb";const m=L.circleMarker([a,b],{radius:9,color:col,fillColor:col,fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>👤 Client</b><br>"+(c.clientNom||"Client")+"<br>📞 "+(c.clientTelephone||"Non renseigné")+"<br>📍 "+(c.depart||"Départ")+" → "+(c.destination||"Destination")+"<br>💰 "+Number(c.prix||0).toLocaleString()+" FC<br>"+libelleStatut(c.statut));adminMarkers["c_"+k]=m;bounds.push([a,b]);if(Number.isFinite(Number(c.destinationLatitude))&&Number.isFinite(Number(c.destinationLongitude))){const da=Number(c.destinationLatitude),dbb=Number(c.destinationLongitude);const dm=L.circleMarker([da,dbb],{radius:8,color:"#7c3aed",fillColor:"#a78bfa",fillOpacity:.95,weight:3}).addTo(mapAdmin);dm.bindPopup("<b>🏁 Destination</b><br>"+(c.destination||"Destination"));adminMarkers["x_"+k]=dm;bounds.push([da,dbb]);const line=L.polyline([[a,b],[da,dbb]],{color:c.trafficStatus==="bouchon"?"#dc2626":(c.statut==="terminee"?"#64748b":"#16a34a"),weight:6,opacity:.78,dashArray:c.statut==="terminee"?"6 8":null}).addTo(mapAdmin);window.adminRouteLayers.push(line);}if(c.statut==="acceptee"&&Number.isFinite(Number(c.chauffeurLatitude))&&Number.isFinite(Number(c.chauffeurLongitude))){const ca=Number(c.chauffeurLatitude),cb=Number(c.chauffeurLongitude);const move=L.polyline([[ca,cb],[a,b]],{color:c.trafficStatus==="bouchon"?"#dc2626":"#16a34a",weight:7,opacity:.85}).addTo(mapAdmin);window.adminRouteLayers.push(move);bounds.push([ca,cb]);}});if(bounds.length&&!mapAdmin._adminInitialFit){mapAdmin.fitBounds(bounds,{padding:[35,35]});mapAdmin._adminInitialFit=true;}}
 function afficherListeCoursesAdmin(){
     const box=document.getElementById("adminCourseList");
     if(!box)return;
@@ -3712,7 +3857,7 @@ function afficherListeCoursesAdmin(){
           '<div>📞 '+(c.clientTelephone||"Non renseigné")+'</div>'+ 
           '<div style="margin-top:6px;">📍 <b>'+(c.depart||"Départ")+'</b> → '+(c.destination||"Destination")+'</div>'+ 
           '<div style="margin-top:6px;">🛣️ Trajet : <b>'+route+'</b> • ⏱️ '+duree+'</div>'+ 
-          '<div style="margin-top:6px;">💰 Prix automatique : <b>'+Number(c.prix||0).toLocaleString()+' FC</b></div>'+ 
+          '<div style="margin-top:6px;">💰 Prix actuel : <b>'+Number(c.prixActuel||c.prix||0).toLocaleString()+' FC</b></div>'+ '<div style="margin-top:6px;">'+(c.trafficStatus==="bouchon"?"🔴 Embouteillage":"🟢 Fluide")+(Number(c.supplementEmbouteillage||0)?" • +"+Number(c.supplementEmbouteillage).toLocaleString()+" FC":"")+'</div>'+ 
           '<div style="margin-top:6px;color:#666;">🚗 Plus proche : '+d+(p?' • '+(p.data.nom||p.key):'')+'</div>'+ 
           '<div class="admin-actions">'+
           '<button class="btn-focus" onclick="centrerCourseAdmin(\''+c.id+'\')">📍 Voir sur carte</button>'+ 
@@ -3736,7 +3881,7 @@ function afficherMouvementsTransportAdmin(){
           '<div>👤 Client : <b>'+(c.clientNom||"Client")+'</b></div>'+ 
           '<div style="margin-top:6px;">📍 '+(c.depart||"Départ")+' → '+(c.destination||"Destination")+'</div>'+ 
           '<div style="margin-top:6px;">📏 Chauffeur → client : <b>'+dist+'</b></div>'+ 
-          '<div style="margin-top:6px;">💰 Course : <b>'+Number(c.prix||0).toLocaleString()+' FC</b></div>'+ 
+          '<div style="margin-top:6px;">💰 Course : <b>'+Number(c.prixActuel||c.prix||0).toLocaleString()+' FC</b></div>'+ '<div style="margin-top:6px;">'+(c.trafficStatus==="bouchon"?"🔴 Embouteillage":"🟢 Fluide")+'</div>'+ 
           '<div class="admin-actions"><button class="btn-focus" onclick="centrerCourseAdmin(\''+c.id+'\')">📍 Suivre sur carte</button><button class="btn-route" onclick="ouvrirItineraireAdmin(\''+c.id+'\')">🗺️ Itinéraire</button></div>'+ 
           '</div>';
     }).join("");
