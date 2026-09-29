@@ -837,7 +837,12 @@ body{background:#f5f6f8;}
 .admin-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:20px 0;}
 .admin-stat{background:#fff;color:#111;padding:18px;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,.12);}
 .admin-stat small{display:block;color:#666;font-weight:bold;margin-bottom:8px;}
-.admin-stat strong{font-size:30px;}
+.admin-stat strong{display:block;font-size:34px;line-height:1.1;margin-top:5px;color:#080b12 !important;}
+.admin-stat-note{display:block;font-size:11px;color:#777;margin-top:7px;}
+.online-stat{border:2px solid #16a34a;}
+.online-stat strong{color:#16a34a !important;}
+@media(max-width:900px){.admin-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.admin-stats{grid-template-columns:1fr 1fr}.admin-stat strong{font-size:27px;}}
 .admin-map-wrap{background:#fff;color:#111;border-radius:22px;padding:14px;margin-top:20px;}
 .admin-map-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:5px 5px 14px;}
 #mapAdmin{height:520px;border-radius:16px;overflow:hidden;}
@@ -1597,11 +1602,12 @@ style="display:none;"
 </div>
 
 <div class="admin-stats">
-  <div class="admin-stat"><small>🚕 Toutes les courses</small><strong id="totalCourses">0</strong></div>
-  <div class="admin-stat"><small>⏳ Demandes</small><strong id="coursesAttente">0</strong></div>
-  <div class="admin-stat"><small>🚗 Acceptées</small><strong id="coursesAcceptees">0</strong></div>
-  <div class="admin-stat"><small>🏁 Terminées</small><strong id="coursesTerminees">0</strong></div>
-  <div class="admin-stat"><small>👤 Chauffeurs en ligne</small><strong id="chauffeursEnLigne">0</strong></div>
+  <div class="admin-stat"><small>🚕 Courses enregistrées</small><strong id="totalCourses">0</strong><span class="admin-stat-note">Toutes les courses</span></div>
+  <div class="admin-stat"><small>⏳ Courses demandées</small><strong id="coursesAttente">0</strong><span class="admin-stat-note">En attente d'un chauffeur</span></div>
+  <div class="admin-stat"><small>🚗 Courses acceptées</small><strong id="coursesAcceptees">0</strong><span class="admin-stat-note">Prises en charge</span></div>
+  <div class="admin-stat"><small>🏁 Courses terminées</small><strong id="coursesTerminees">0</strong><span class="admin-stat-note">Courses terminées</span></div>
+  <div class="admin-stat"><small>👨‍✈️ Chauffeurs enregistrés</small><strong id="chauffeursEnregistres">0</strong><span class="admin-stat-note">Comptes créés par l'admin</span></div>
+  <div class="admin-stat online-stat"><small>🟢 Chauffeurs en ligne</small><strong id="chauffeursEnLigne">0</strong><span class="admin-stat-note">GPS actif</span></div>
 </div>
 
 <div class="admin-map-wrap">
@@ -2828,7 +2834,7 @@ function connexionChauffeur(){
     if(!identifiant||!password){message.className="admin-message error";message.innerHTML="❌ Entrez votre identifiant et votre mot de passe.";return;}
     if(!db){message.className="admin-message error";message.innerHTML="❌ Firebase n'est pas disponible.";return;}
     message.className="admin-message";message.innerHTML="⏳ Vérification...";
-    db.ref("chauffeurs").once("value").then(function(snapshot){
+    db.ref("chauffeurs").on("value", function(snapshot){
         let trouve=null;
         snapshot.forEach(function(child){const c=child.val()||{};if(String(c.identifiant||"").toLowerCase()===identifiant.toLowerCase()&&String(c.motDePasse||"")===password&&c.compteActif!==false){trouve={key:child.key,...c};}});
         if(!trouve){message.className="admin-message error";message.innerHTML="❌ Identifiant ou mot de passe incorrect, ou compte désactivé.";return;}
@@ -3626,7 +3632,10 @@ function afficherAdmin(){
 
     chargerStatistiques();
     chargerChauffeursAdmin();
-    setTimeout(function(){ if(mapAdmin) mapAdmin.invalidateSize(); },300);
+    setTimeout(function(){
+        if(mapAdmin) mapAdmin.invalidateSize();
+        actualiserCarteAdmin();
+    },300);
 
 }
 
@@ -3733,8 +3742,119 @@ function afficherMouvementsTransportAdmin(){
     }).join("");
 }
 
-function chargerStatistiques(){initialiserMapAdmin();if(!db)return;if(adminListenersActifs){actualiserCarteAdmin();return;}adminListenersActifs=true;db.ref("courses").on("value",snap=>{adminCoursesCache={};let total=0,att=0,acc=0,done=0;snap.forEach(ch=>{const c=ch.val()||{};adminCoursesCache[ch.key]=c;total++;if(c.statut==="en_attente")att++;if(c.statut==="acceptee")acc++;if(c.statut==="terminee")done++;});document.getElementById("totalCourses").textContent=total;document.getElementById("coursesAttente").textContent=att;document.getElementById("coursesAcceptees").textContent=acc;document.getElementById("coursesTerminees").textContent=done;afficherListeCoursesAdmin();dessinerCarteAdmin();});db.ref("chauffeurs").on("value",snap=>{adminChauffeursCache={};let online=0;snap.forEach(ch=>{const c=ch.val()||{};adminChauffeursCache[ch.key]=c;if(c.compteActif!==false&&c.enLigne===true)online++;});const e=document.getElementById("chauffeursEnLigne");if(e)e.textContent=online;afficherListeCoursesAdmin();dessinerCarteAdmin();});}
-function afficherMessageAdminChauffeur(t,type){const b=document.getElementById("adminChauffeurMessage");if(b){b.className="admin-message "+(type||"");b.innerHTML=t;}}
+function chargerStatistiques(){
+
+    initialiserMapAdmin();
+
+    if(!db){
+        console.error("Firebase non disponible pour les statistiques admin.");
+        return;
+    }
+
+    if(adminListenersActifs){
+        actualiserCarteAdmin();
+        return;
+    }
+
+    adminListenersActifs = true;
+
+    // COURSES : mise à jour en temps réel.
+    db.ref("courses").on("value", function(snap){
+
+        adminCoursesCache = {};
+
+        let total = 0;
+        let attente = 0;
+        let acceptees = 0;
+        let terminees = 0;
+
+        snap.forEach(function(child){
+
+            const c = child.val() || {};
+
+            adminCoursesCache[child.key] = c;
+            total++;
+
+            if(c.statut === "en_attente") attente++;
+            if(c.statut === "acceptee") acceptees++;
+            if(c.statut === "terminee") terminees++;
+
+        });
+
+        const totalEl = document.getElementById("totalCourses");
+        const attenteEl = document.getElementById("coursesAttente");
+        const accepteesEl = document.getElementById("coursesAcceptees");
+        const termineesEl = document.getElementById("coursesTerminees");
+
+        if(totalEl) totalEl.textContent = total;
+        if(attenteEl) attenteEl.textContent = attente;
+        if(accepteesEl) accepteesEl.textContent = acceptees;
+        if(termineesEl) termineesEl.textContent = terminees;
+
+        afficherListeCoursesAdmin();
+        dessinerCarteAdmin();
+
+    }, function(error){
+
+        console.error("Erreur lecture courses :", error);
+
+        const ids = ["totalCourses","coursesAttente","coursesAcceptees","coursesTerminees"];
+
+        ids.forEach(function(id){
+            const el = document.getElementById(id);
+            if(el) el.textContent = "!";
+        });
+
+    });
+
+    // CHAUFFEURS : comptes enregistrés + chauffeurs en ligne, en temps réel.
+    db.ref("chauffeurs").on("value", function(snap){
+
+        adminChauffeursCache = {};
+
+        let enregistres = 0;
+        let enLigne = 0;
+
+        snap.forEach(function(child){
+
+            const c = child.val() || {};
+
+            adminChauffeursCache[child.key] = c;
+
+            // Tous les comptes créés par l'admin.
+            enregistres++;
+
+            // Seulement les comptes actifs actuellement en ligne.
+            if(c.compteActif !== false && c.enLigne === true){
+                enLigne++;
+            }
+
+        });
+
+        const enregistrresEl = document.getElementById("chauffeursEnregistres");
+        const enLigneEl = document.getElementById("chauffeursEnLigne");
+
+        if(enregistrresEl) enregistrresEl.textContent = enregistres;
+        if(enLigneEl) enLigneEl.textContent = enLigne;
+
+        chargerChauffeursAdmin();
+        afficherListeCoursesAdmin();
+        dessinerCarteAdmin();
+
+    }, function(error){
+
+        console.error("Erreur lecture chauffeurs :", error);
+
+        const e1 = document.getElementById("chauffeursEnregistres");
+        const e2 = document.getElementById("chauffeursEnLigne");
+
+        if(e1) e1.textContent = "!";
+        if(e2) e2.textContent = "!";
+
+    });
+
+}
+
 function enregistrerChauffeurAdmin(){
     if(!db){afficherMessageAdminChauffeur("❌ Firebase n'est pas disponible.","error");return;}
     const nom=document.getElementById("adminChauffeurNom").value.trim(),telephone=document.getElementById("adminChauffeurTelephone").value.trim(),identifiant=document.getElementById("adminChauffeurIdentifiant").value.trim(),motDePasse=document.getElementById("adminChauffeurPassword").value,typeVehicule=document.getElementById("adminChauffeurType").value,vehicule=document.getElementById("adminChauffeurVehicule").value.trim(),plaque=document.getElementById("adminChauffeurPlaque").value.trim(),couleur=document.getElementById("adminChauffeurCouleur").value.trim(),adresse=document.getElementById("adminChauffeurAdresse").value.trim();
