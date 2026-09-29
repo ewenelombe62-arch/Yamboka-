@@ -852,6 +852,11 @@ body{background:#f5f6f8;}
 .admin-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:10px 0;color:#555;}
 .legend-item{display:flex;align-items:center;gap:6px}.dot{width:12px;height:12px;border-radius:50%;display:inline-block}.dot.client{background:#2563eb}.dot.driver{background:#16a34a}.dot.pending{background:#f59e0b}
 .admin-empty{padding:25px;text-align:center;color:#666;background:#f7f7f7;border-radius:15px;}
+.admin-driver-card{background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:15px;color:#111;}
+.admin-driver-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.admin-driver-actions button{border:0;border-radius:10px;padding:9px 12px;font-weight:bold;cursor:pointer;}
+.driver-enabled{background:#dcfce7;color:#166534;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:bold;}
+.driver-disabled{background:#fee2e2;color:#991b1b;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:bold;}
 @media(max-width:900px){.admin-stats{grid-template-columns:repeat(2,1fr)}#mapAdmin{height:420px}}
 @media(max-width:600px){.admin-stats{grid-template-columns:1fr 1fr}.admin-stat strong{font-size:24px}}
 
@@ -1256,18 +1261,6 @@ placeholder="Ex : Limete"
 </div>
 
 
-<div class="field">
-
-<label>Type de transport</label>
-
-<select id="typeTransportClient">
-<option value="voiture">🚗 Voiture</option>
-<option value="moto">🏍️ Moto</option>
-</select>
-
-</div>
-
-
 <div class="field full">
 
 <label>Prix de la course</label>
@@ -1361,20 +1354,27 @@ class="panel-box admin-login"
 <h2>🚗 Espace Chauffeur YAMBOKA</h2>
 
 <p style="color:#666;margin-bottom:20px;">
-Entrez votre mot de passe chauffeur pour ouvrir votre espace.
+L'accès chauffeur est créé par l'administrateur YAMBOKA.
 </p>
 
 <div class="field">
+<label>Identifiant chauffeur</label>
+<input
+id="identifiantChauffeur"
+type="text"
+placeholder="Ex : CHAUF001"
+autocomplete="username"
+>
+</div>
 
-<label>Mot de passe chauffeur</label>
-
+<div class="field" style="margin-top:15px;">
+<label>Mot de passe</label>
 <input
 id="passwordChauffeur"
 type="password"
-placeholder="Entrez le mot de passe"
+placeholder="Mot de passe donné par l'administrateur"
 autocomplete="current-password"
 >
-
 </div>
 
 <button
@@ -1420,6 +1420,7 @@ style="display:none;"
 id="nomChauffeur"
 type="text"
 placeholder="Votre nom"
+readonly
 >
 
 </div>
@@ -1433,6 +1434,7 @@ placeholder="Votre nom"
 id="telephoneChauffeur"
 type="tel"
 placeholder="+243..."
+readonly
 >
 
 </div>
@@ -1607,6 +1609,26 @@ style="display:none;"
   <button class="main-button yellow" style="width:auto;margin:0;padding:12px 18px;" onclick="actualiserCarteAdmin()">🔄 Actualiser</button></div>
   <div class="admin-legend"><span class="legend-item"><span class="dot client"></span> Client</span><span class="legend-item"><span class="dot driver"></span> Chauffeur en ligne</span><span class="legend-item"><span class="dot pending"></span> Demande en attente</span></div>
   <div id="mapAdmin"></div>
+</div>
+
+<div class="admin-map-wrap">
+  <div class="admin-map-head">
+    <div><h3>👨‍✈️ Enregistrer un chauffeur</h3><p style="color:#666;margin-top:5px;">Seul l'administrateur crée les accès des chauffeurs YAMBOKA.</p></div>
+  </div>
+  <div class="form-grid" style="padding:5px;">
+    <div class="field"><label>Nom complet *</label><input id="adminChauffeurNom" type="text" placeholder="Nom du chauffeur"></div>
+    <div class="field"><label>Téléphone *</label><input id="adminChauffeurTelephone" type="tel" placeholder="+243..."></div>
+    <div class="field"><label>Identifiant chauffeur *</label><input id="adminChauffeurIdentifiant" type="text" placeholder="Ex : CHAUF001"></div>
+    <div class="field"><label>Mot de passe *</label><input id="adminChauffeurPassword" type="text" placeholder="Mot de passe chauffeur"></div>
+    <div class="field"><label>Type de véhicule *</label><select id="adminChauffeurType"><option value="voiture">🚗 Voiture</option><option value="moto">🏍️ Moto</option></select></div>
+    <div class="field"><label>Marque / modèle</label><input id="adminChauffeurVehicule" type="text" placeholder="Ex : Toyota Corolla"></div>
+    <div class="field"><label>Plaque</label><input id="adminChauffeurPlaque" type="text" placeholder="Ex : CGO 1234 AB"></div>
+    <div class="field"><label>Couleur</label><input id="adminChauffeurCouleur" type="text" placeholder="Ex : Noir"></div>
+    <div class="field full"><label>Adresse / commune</label><input id="adminChauffeurAdresse" type="text" placeholder="Ex : Gombe, Kinshasa"></div>
+  </div>
+  <button class="main-button yellow" onclick="enregistrerChauffeurAdmin()">➕ ENREGISTRER LE CHAUFFEUR</button>
+  <div id="adminChauffeurMessage" class="admin-message"></div>
+  <div style="margin-top:20px;"><h3>📋 Chauffeurs enregistrés</h3><div id="adminDriversList" class="admin-course-list"><div class="admin-empty">Aucun chauffeur enregistré.</div></div></div>
 </div>
 
 <div class="admin-map-wrap">
@@ -1991,7 +2013,6 @@ function demanderPositionClient(){
 
 
             afficherPositionClient();
-            enregistrerPositionClient();
 
             // Si la destination est déjà saisie, recalculer immédiatement le trajet et le prix.
             calculerPrixAutomatique();
@@ -2020,7 +2041,6 @@ function demanderPositionClient(){
                     };
 
                     afficherPositionClient();
-                    enregistrerPositionClient();
 
                     // Met à jour automatiquement le prix lorsque la position change.
                     if(document.getElementById("destinationClient")?.value.trim()) programmerCalculPrix();
@@ -2112,25 +2132,6 @@ function afficherPositionClient(){
         15
     );
 
-}
-
-
-/* =====================================================
-   CLIENT EN DIRECT DANS FIREBASE
-===================================================== */
-function enregistrerPositionClient(){
-    if(!db || !positionClient) return;
-    const nom = document.getElementById("nomClient")?.value.trim() || "Client";
-    const telephone = document.getElementById("telephoneClient")?.value.trim() || "";
-    const cle = nettoyerCle(telephone || nom);
-    db.ref("clients/" + cle).update({
-        nom: nom,
-        telephone: telephone,
-        latitude: positionClient.lat,
-        longitude: positionClient.lng,
-        enLigne: true,
-        dernierePosition: Date.now()
-    });
 }
 
 
@@ -2360,25 +2361,10 @@ function mettreHorsLigne(){
     "none";
 
 
-    const nom =
-    document
-    .getElementById("nomChauffeur")
-    .value
-    .trim();
+    const key = window.chauffeurFirebaseKey;
 
-
-    if(db && nom){
-
-        db.ref(
-            "chauffeurs/" +
-            nettoyerCle(nom)
-        )
-        .update({
-
-            enLigne:false
-
-        });
-
+    if(db && key){
+        db.ref("chauffeurs/" + key).update({enLigne:false,dernierePosition:Date.now()});
     }
 
 }
@@ -2389,66 +2375,12 @@ function mettreHorsLigne(){
 ===================================================== */
 
 function enregistrerChauffeur(){
-
-    if(!db){
-
-        return;
-
-    }
-
-
-    const nom =
-    document
-    .getElementById("nomChauffeur")
-    .value
-    .trim();
-
-
-    const telephone =
-    document
-    .getElementById("telephoneChauffeur")
-    .value
-    .trim();
-
-
-    if(!nom){
-
-        return;
-
-    }
-
-
-    const data = {
-
-        nom:nom,
-
-        telephone:telephone,
-
-        enLigne:true,
-
-        derniereConnexion:
-        Date.now()
-
-    };
-
-
-    if(positionChauffeur){
-
-        data.latitude =
-        positionChauffeur.lat;
-
-        data.longitude =
-        positionChauffeur.lng;
-
-    }
-
-
-    db.ref(
-        "chauffeurs/" +
-        nettoyerCle(nom)
-    )
-    .set(data);
-
+    if(!db||!window.chauffeurConnecteData)return;
+    const key=window.chauffeurFirebaseKey;
+    const d=window.chauffeurConnecteData;
+    const data={nom:d.nom||"",telephone:d.telephone||"",identifiant:d.identifiant||"",typeVehicule:d.typeVehicule||"voiture",vehicule:d.vehicule||"",plaque:d.plaque||"",couleur:d.couleur||"",adresse:d.adresse||"",compteActif:true,enLigne:true,derniereConnexion:Date.now()};
+    if(positionChauffeur){data.latitude=positionChauffeur.lat;data.longitude=positionChauffeur.lng;}
+    db.ref("chauffeurs/"+key).update(data);
 }
 
 
@@ -2469,25 +2401,11 @@ function enregistrerPositionChauffeur(){
     }
 
 
-    const nom =
-    document
-    .getElementById("nomChauffeur")
-    .value
-    .trim();
+    const key = window.chauffeurFirebaseKey;
 
+    if(!key){return;}
 
-    if(!nom){
-
-        return;
-
-    }
-
-
-    db.ref(
-        "chauffeurs/" +
-        nettoyerCle(nom)
-    )
-    .update({
+    db.ref("chauffeurs/"+key).update({
 
         latitude:
         positionChauffeur.lat,
@@ -2527,35 +2445,22 @@ function enregistrerPositionChauffeur(){
 /* =====================================================
    TARIFICATION AUTOMATIQUE SELON LE TRAJET
 ===================================================== */
-const TARIF_KM_FC = 500;
-const TARIF_MINUTE_FC = 100;
-const PRIX_MIN_VOITURE_FC = 2000;
-const PRIX_MIN_MOTO_FC = 1500;
+const TARIF_BASE_FC = 2000;
+const TARIF_KM_FC = 1000;
+const PAS_PRIX_FC = 500;
 let destinationRoute = null;
 let calculPrixEnCours = false;
 
-function obtenirTypeTransport(){
-    return document.getElementById("typeTransportClient")?.value === "moto" ? "moto" : "voiture";
-}
-
-function obtenirPrixMinimum(typeTransport){
-    return typeTransport === "moto" ? PRIX_MIN_MOTO_FC : PRIX_MIN_VOITURE_FC;
-}
-
-function calculerTarifYamboka(distanceKm, dureeMin, typeTransport){
-    const minimum = obtenirPrixMinimum(typeTransport);
-    const calcul = (distanceKm * TARIF_KM_FC) + (dureeMin * TARIF_MINUTE_FC);
-    return Math.max(minimum, Math.round(calcul));
+function arrondirPrixYamboka(montant){
+    return Math.ceil(montant / PAS_PRIX_FC) * PAS_PRIX_FC;
 }
 
 function mettreAJourPrixRoute(distanceKm, dureeMin){
-    const typeTransport = obtenirTypeTransport();
-    const prixMinimum = obtenirPrixMinimum(typeTransport);
-    const prix = calculerTarifYamboka(distanceKm, dureeMin, typeTransport);
+    const prix = arrondirPrixYamboka(TARIF_BASE_FC + (distanceKm * TARIF_KM_FC));
     const champ = document.getElementById("prixClient");
     const info = document.getElementById("prixRouteInfo");
     if(champ) champ.value = prix.toLocaleString("fr-FR") + " FC";
-    if(info) info.innerHTML = "🚕 " + (typeTransport === "moto" ? "Moto" : "Voiture") + " • 🛣️ Distance : <b>" + distanceKm.toFixed(1) + " km</b> • ⏱️ " + Math.round(dureeMin) + " min<br>💰 Tarif : 500 FC/km + 100 FC/min • Minimum : " + prixMinimum.toLocaleString("fr-FR") + " FC<br>💵 Prix automatique : <b>" + prix.toLocaleString("fr-FR") + " FC</b>";
+    if(info) info.innerHTML = "🛣️ Distance : <b>" + distanceKm.toFixed(1) + " km</b>" + (Number.isFinite(dureeMin) ? " • ⏱️ " + Math.round(dureeMin) + " min" : "") + "<br>💰 Prix automatique : <b>" + prix.toLocaleString("fr-FR") + " FC</b>";
     return prix;
 }
 
@@ -2619,8 +2524,6 @@ document.addEventListener("DOMContentLoaded",function(){
         dest.addEventListener("change",calculerPrixAutomatique);
         dest.addEventListener("input",programmerCalculPrix);
     }
-    const typeTransport = document.getElementById("typeTransportClient");
-    if(typeTransport) typeTransport.addEventListener("change",calculerPrixAutomatique);
 });
 
 /* =====================================================
@@ -2705,7 +2608,6 @@ async function demanderCourse(){
     }
 
     const prix = trajet.prix;
-    const typeTransport = obtenirTypeTransport();
 
 
     const course = {
@@ -2719,7 +2621,6 @@ async function demanderCourse(){
         destination:destination,
 
         prix:prix,
-        typeTransport:typeTransport,
 
         distanceKm:trajet.distanceKm,
         dureeEstimeeMin:trajet.dureeMin,
@@ -2815,16 +2716,6 @@ function afficherCourseClient(course){
         <p>
         <b>Destination :</b>
         ${course.destination}
-        </p>
-
-        <p>
-        <b>Type :</b>
-        ${course.typeTransport === "moto" ? "🏍️ Moto" : "🚗 Voiture"}
-        </p>
-
-        <p>
-        <b>Trajet :</b>
-        ${Number(course.distanceKm || 0).toFixed(1)} km • ${Math.round(Number(course.dureeEstimeeMin || 0))} min
         </p>
 
         <p>
@@ -2931,68 +2822,31 @@ function ecouterCourseClient(id){
 window.chauffeurConnecte = false;
 
 function connexionChauffeur(){
-
-    const password =
-    document
-    .getElementById("passwordChauffeur")
-    .value;
-
-    const message =
-    document
-    .getElementById("chauffeurLoginMessage");
-
-    const MOT_DE_PASSE_CHAUFFEUR = "Yamboka26";
-
-    if(!password){
-
-        message.className =
-        "admin-message error";
-
-        message.innerHTML =
-        "❌ Entrez le mot de passe.";
-
-        return;
-
-    }
-
-    if(password !== MOT_DE_PASSE_CHAUFFEUR){
-
-        message.className =
-        "admin-message error";
-
-        message.innerHTML =
-        "❌ Mot de passe incorrect.";
-
-        return;
-
-    }
-
-    window.chauffeurConnecte = true;
-
-    message.className =
-    "admin-message success";
-
-    message.innerHTML =
-    "✅ Accès chauffeur autorisé.";
-
-    document
-    .getElementById("chauffeurLogin")
-    .style.display = "none";
-
-    document
-    .getElementById("chauffeurSection")
-    .style.display = "block";
-
-    setTimeout(
-        initialiserMapChauffeur,
-        100
-    );
-
+    const identifiant=document.getElementById("identifiantChauffeur").value.trim();
+    const password=document.getElementById("passwordChauffeur").value;
+    const message=document.getElementById("chauffeurLoginMessage");
+    if(!identifiant||!password){message.className="admin-message error";message.innerHTML="❌ Entrez votre identifiant et votre mot de passe.";return;}
+    if(!db){message.className="admin-message error";message.innerHTML="❌ Firebase n'est pas disponible.";return;}
+    message.className="admin-message";message.innerHTML="⏳ Vérification...";
+    db.ref("chauffeurs").once("value").then(function(snapshot){
+        let trouve=null;
+        snapshot.forEach(function(child){const c=child.val()||{};if(String(c.identifiant||"").toLowerCase()===identifiant.toLowerCase()&&String(c.motDePasse||"")===password&&c.compteActif!==false){trouve={key:child.key,...c};}});
+        if(!trouve){message.className="admin-message error";message.innerHTML="❌ Identifiant ou mot de passe incorrect, ou compte désactivé.";return;}
+        window.chauffeurConnecte=true;window.chauffeurConnecteData=trouve;window.chauffeurFirebaseKey=trouve.key;
+        document.getElementById("nomChauffeur").value=trouve.nom||"";
+        document.getElementById("telephoneChauffeur").value=trouve.telephone||"";
+        message.className="admin-message success";message.innerHTML="✅ Bienvenue "+(trouve.nom||"chauffeur")+". Accès autorisé.";
+        document.getElementById("chauffeurLogin").style.display="none";document.getElementById("chauffeurSection").style.display="block";
+        setTimeout(initialiserMapChauffeur,100);
+    }).catch(function(error){console.error(error);message.className="admin-message error";message.innerHTML="❌ Erreur : "+error.message;});
 }
 
 function deconnexionChauffeur(){
 
+    mettreHorsLigne();
     window.chauffeurConnecte = false;
+    window.chauffeurConnecteData = null;
+    window.chauffeurFirebaseKey = null;
 
     document
     .getElementById("chauffeurSection")
@@ -3293,16 +3147,6 @@ function afficherCourseChauffeur(course){
         <p>
         <b>Destination :</b>
         ${course.destination}
-        </p>
-
-        <p>
-        <b>Type :</b>
-        ${course.typeTransport === "moto" ? "🏍️ Moto" : "🚗 Voiture"}
-        </p>
-
-        <p>
-        <b>Trajet :</b>
-        ${Number(course.distanceKm || 0).toFixed(1)} km • ${Math.round(Number(course.dureeEstimeeMin || 0))} min
         </p>
 
         <p>
@@ -3781,6 +3625,7 @@ function afficherAdmin(){
     .innerHTML = "🟢 Administrateur connecté";
 
     chargerStatistiques();
+    chargerChauffeursAdmin();
     setTimeout(function(){ if(mapAdmin) mapAdmin.invalidateSize(); },300);
 
 }
@@ -3833,7 +3678,7 @@ function nettoyerCle(texte){
 /* =====================================================
    ADMIN — CARTE GPS ET CENTRE DE CONTRÔLE
 ===================================================== */
-let mapAdmin=null, adminMarkers={}, adminCoursesCache={}, adminChauffeursCache={}, adminClientsCache={}, adminListenersActifs=false;
+let mapAdmin=null, adminMarkers={}, adminCoursesCache={}, adminChauffeursCache={}, adminListenersActifs=false;
 function initialiserMapAdmin(){if(mapAdmin){mapAdmin.invalidateSize();return;}mapAdmin=L.map("mapAdmin").setView([-4.325,15.322],12);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(mapAdmin);}
 function couleurStatut(s){if(s==="acceptee")return"ok";if(s==="terminee")return"done";if(s==="annulee")return"cancel";return"wait";}
 function libelleStatut(s){if(s==="acceptee")return"🚗 Chauffeur en route";if(s==="terminee")return"🏁 Terminée";if(s==="annulee")return"❌ Annulée";return"⏳ En attente";}
@@ -3842,53 +3687,7 @@ function trouverChauffeurPlusProche(course){const a=Number(course.clientLatitude
 function appelerChauffeurPlusProche(id){const c=adminCoursesCache[id],p=trouverChauffeurPlusProche(c||{});if(!p){alert("Aucun chauffeur en ligne avec une position GPS disponible près du client.");return;}if(!p.data.telephone){alert("Le chauffeur le plus proche n'a pas de numéro enregistré.");return;}if(confirm("Chauffeur le plus proche : "+(p.data.nom||p.key)+"\nDistance : "+p.distance.toFixed(2)+" km\n\nAppeler maintenant ?"))window.location.href="tel:"+p.data.telephone;}
 function centrerCourseAdmin(id){const c=adminCoursesCache[id];if(!c||!mapAdmin)return;const pts=[];if(Number.isFinite(Number(c.clientLatitude))&&Number.isFinite(Number(c.clientLongitude)))pts.push([Number(c.clientLatitude),Number(c.clientLongitude)]);if(Number.isFinite(Number(c.chauffeurLatitude))&&Number.isFinite(Number(c.chauffeurLongitude)))pts.push([Number(c.chauffeurLatitude),Number(c.chauffeurLongitude)]);if(pts.length===1)mapAdmin.setView(pts[0],15);if(pts.length>1)mapAdmin.fitBounds(pts,{padding:[40,40]});}
 function ouvrirItineraireAdmin(id){const c=adminCoursesCache[id];if(!c||!Number.isFinite(Number(c.clientLatitude))||!Number.isFinite(Number(c.clientLongitude))){alert("Position GPS du client indisponible.");return;}window.open("https://www.google.com/maps/dir/?api=1&destination="+Number(c.clientLatitude)+","+Number(c.clientLongitude),"_blank");}
-function dessinerCarteAdmin(){
-    if(!mapAdmin)return;
-    Object.keys(adminMarkers).forEach(k=>{try{mapAdmin.removeLayer(adminMarkers[k]);}catch(e){}});
-    adminMarkers={};
-    if(window.adminRouteLayers){window.adminRouteLayers.forEach(l=>{try{mapAdmin.removeLayer(l);}catch(e){}});}
-    window.adminRouteLayers=[];
-    const bounds=[];
-
-    Object.keys(adminChauffeursCache).forEach(k=>{
-        const c=adminChauffeursCache[k],a=Number(c.latitude),b=Number(c.longitude);
-        if(c.enLigne!==true||!Number.isFinite(a)||!Number.isFinite(b))return;
-        const m=L.circleMarker([a,b],{radius:10,color:"#15803d",fillColor:"#22c55e",fillOpacity:.95,weight:3}).addTo(mapAdmin);
-        m.bindPopup("<b>🚗 Chauffeur en mouvement</b><br>"+(c.nom||k)+"<br>📞 "+(c.telephone||"Non renseigné")+"<br>🟢 En ligne");
-        adminMarkers["d_"+k]=m; bounds.push([a,b]);
-    });
-
-    Object.keys(adminClientsCache).forEach(k=>{
-        const c=adminClientsCache[k],a=Number(c.latitude),b=Number(c.longitude);
-        if(c.enLigne!==true||!Number.isFinite(a)||!Number.isFinite(b))return;
-        const m=L.circleMarker([a,b],{radius:9,color:"#2563eb",fillColor:"#60a5fa",fillOpacity:.95,weight:3}).addTo(mapAdmin);
-        m.bindPopup("<b>👤 Client en direct</b><br>"+(c.nom||k)+"<br>📞 "+(c.telephone||"Non renseigné")+"<br>📍 Position GPS partagée");
-        adminMarkers["live_"+k]=m; bounds.push([a,b]);
-    });
-
-    Object.keys(adminCoursesCache).forEach(k=>{
-        const c=adminCoursesCache[k],a=Number(c.clientLatitude),b=Number(c.clientLongitude);
-        if(!Number.isFinite(a)||!Number.isFinite(b))return;
-        const col=c.statut==="en_attente"?"#f59e0b":"#2563eb";
-        const m=L.circleMarker([a,b],{radius:9,color:col,fillColor:col,fillOpacity:.95,weight:3}).addTo(mapAdmin);
-        m.bindPopup("<b>👤 Client - course</b><br>"+(c.clientNom||"Client")+"<br>📞 "+(c.clientTelephone||"Non renseigné")+"<br>📍 "+(c.depart||"Départ")+" → "+(c.destination||"Destination")+"<br>🚕 "+(c.typeTransport==="moto"?"Moto":"Voiture")+"<br>💰 "+Number(c.prix||0).toLocaleString()+" FC<br>"+libelleStatut(c.statut));
-        adminMarkers["c_"+k]=m; bounds.push([a,b]);
-        if(Number.isFinite(Number(c.destinationLatitude))&&Number.isFinite(Number(c.destinationLongitude))){
-            const da=Number(c.destinationLatitude),dbb=Number(c.destinationLongitude);
-            const dm=L.circleMarker([da,dbb],{radius:8,color:"#7c3aed",fillColor:"#a78bfa",fillOpacity:.95,weight:3}).addTo(mapAdmin);
-            dm.bindPopup("<b>🏁 Destination</b><br>"+(c.destination||"Destination"));
-            adminMarkers["x_"+k]=dm; bounds.push([da,dbb]);
-            const line=L.polyline([[a,b],[da,dbb]],{color:c.statut==="terminee"?"#64748b":"#2563eb",weight:5,opacity:.65,dashArray:c.statut==="terminee"?"6 8":null}).addTo(mapAdmin);
-            window.adminRouteLayers.push(line);
-        }
-        if(c.statut==="acceptee"&&Number.isFinite(Number(c.chauffeurLatitude))&&Number.isFinite(Number(c.chauffeurLongitude))){
-            const ca=Number(c.chauffeurLatitude),cb=Number(c.chauffeurLongitude);
-            const move=L.polyline([[ca,cb],[a,b]],{color:"#16a34a",weight:6,opacity:.8}).addTo(mapAdmin);
-            window.adminRouteLayers.push(move); bounds.push([ca,cb]);
-        }
-    });
-    if(bounds.length&&!mapAdmin._adminInitialFit){mapAdmin.fitBounds(bounds,{padding:[35,35]});mapAdmin._adminInitialFit=true;}
-}
+function dessinerCarteAdmin(){if(!mapAdmin)return;Object.keys(adminMarkers).forEach(k=>{try{mapAdmin.removeLayer(adminMarkers[k]);}catch(e){}});adminMarkers={};if(window.adminRouteLayers){window.adminRouteLayers.forEach(l=>{try{mapAdmin.removeLayer(l);}catch(e){}});}window.adminRouteLayers=[];const bounds=[];Object.keys(adminChauffeursCache).forEach(k=>{const c=adminChauffeursCache[k],a=Number(c.latitude),b=Number(c.longitude);if(c.compteActif===false||c.enLigne!==true||!Number.isFinite(a)||!Number.isFinite(b))return;const m=L.circleMarker([a,b],{radius:10,color:"#15803d",fillColor:"#22c55e",fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>🚗 Chauffeur</b><br>"+(c.nom||k)+"<br>📞 "+(c.telephone||"Non renseigné")+"<br>🟢 En ligne");adminMarkers["d_"+k]=m;bounds.push([a,b]);});Object.keys(adminCoursesCache).forEach(k=>{const c=adminCoursesCache[k],a=Number(c.clientLatitude),b=Number(c.clientLongitude);if(!Number.isFinite(a)||!Number.isFinite(b))return;const col=c.statut==="en_attente"?"#f59e0b":"#2563eb";const m=L.circleMarker([a,b],{radius:9,color:col,fillColor:col,fillOpacity:.95,weight:3}).addTo(mapAdmin);m.bindPopup("<b>👤 Client</b><br>"+(c.clientNom||"Client")+"<br>📞 "+(c.clientTelephone||"Non renseigné")+"<br>📍 "+(c.depart||"Départ")+" → "+(c.destination||"Destination")+"<br>💰 "+Number(c.prix||0).toLocaleString()+" FC<br>"+libelleStatut(c.statut));adminMarkers["c_"+k]=m;bounds.push([a,b]);if(Number.isFinite(Number(c.destinationLatitude))&&Number.isFinite(Number(c.destinationLongitude))){const da=Number(c.destinationLatitude),dbb=Number(c.destinationLongitude);const dm=L.circleMarker([da,dbb],{radius:8,color:"#7c3aed",fillColor:"#a78bfa",fillOpacity:.95,weight:3}).addTo(mapAdmin);dm.bindPopup("<b>🏁 Destination</b><br>"+(c.destination||"Destination"));adminMarkers["x_"+k]=dm;bounds.push([da,dbb]);const line=L.polyline([[a,b],[da,dbb]],{color:c.statut==="terminee"?"#64748b":"#2563eb",weight:5,opacity:.65,dashArray:c.statut==="terminee"?"6 8":null}).addTo(mapAdmin);window.adminRouteLayers.push(line);}if(c.statut==="acceptee"&&Number.isFinite(Number(c.chauffeurLatitude))&&Number.isFinite(Number(c.chauffeurLongitude))){const ca=Number(c.chauffeurLatitude),cb=Number(c.chauffeurLongitude);const move=L.polyline([[ca,cb],[a,b]],{color:"#16a34a",weight:6,opacity:.8}).addTo(mapAdmin);window.adminRouteLayers.push(move);bounds.push([ca,cb]);}});if(bounds.length&&!mapAdmin._adminInitialFit){mapAdmin.fitBounds(bounds,{padding:[35,35]});mapAdmin._adminInitialFit=true;}}
 function afficherListeCoursesAdmin(){
     const box=document.getElementById("adminCourseList");
     if(!box)return;
@@ -3918,34 +3717,50 @@ function afficherListeCoursesAdmin(){
 function afficherMouvementsTransportAdmin(){
     const box=document.getElementById("adminMovementList");
     if(!box)return;
-    const lignes=[];
-    Object.keys(adminChauffeursCache).forEach(function(id){
-        const c=adminChauffeursCache[id];
-        if(c.enLigne===true && Number.isFinite(Number(c.latitude)) && Number.isFinite(Number(c.longitude))){
-            lignes.push('<div class="admin-course"><div class="course-head"><strong>🚗 '+(c.nom||"Chauffeur")+'</strong><span class="badge ok">🟢 CHAUFFEUR EN LIGNE</span></div><div>📞 '+(c.telephone||"Non renseigné")+'</div><div style="margin-top:6px;">📍 GPS : '+Number(c.latitude).toFixed(5)+', '+Number(c.longitude).toFixed(5)+'</div><div class="admin-actions"><button class="btn-focus" onclick="centrerPointAdmin('+Number(c.latitude)+','+Number(c.longitude)+')">📍 Suivre</button></div></div>');
-        }
-    });
-    Object.keys(adminClientsCache).forEach(function(id){
-        const c=adminClientsCache[id];
-        if(c.enLigne===true && Number.isFinite(Number(c.latitude)) && Number.isFinite(Number(c.longitude))){
-            lignes.push('<div class="admin-course"><div class="course-head"><strong>👤 '+(c.nom||"Client")+'</strong><span class="badge wait">🔵 CLIENT EN DIRECT</span></div><div>📞 '+(c.telephone||"Non renseigné")+'</div><div style="margin-top:6px;">📍 GPS : '+Number(c.latitude).toFixed(5)+', '+Number(c.longitude).toFixed(5)+'</div><div class="admin-actions"><button class="btn-focus" onclick="centrerPointAdmin('+Number(c.latitude)+','+Number(c.longitude)+')">📍 Suivre</button></div></div>');
-        }
-    });
-    Object.keys(adminCoursesCache).map(function(id){return {id:id,...adminCoursesCache[id]};}).filter(function(c){return c.statut==="acceptee";}).forEach(function(c){
+    const arr=Object.keys(adminCoursesCache).map(function(id){return {id:id,...adminCoursesCache[id]};}).filter(function(c){return c.statut==="acceptee";}).sort(function(a,b){return (b.dateAcceptation||0)-(a.dateAcceptation||0);});
+    if(!arr.length){box.innerHTML='<div class="admin-empty">🟢 Aucun chauffeur en mouvement sur une course acceptée.</div>';return;}
+    box.innerHTML=arr.map(function(c){
         const ca=Number(c.chauffeurLatitude),cb=Number(c.chauffeurLongitude),la=Number(c.clientLatitude),lb=Number(c.clientLongitude);
         const dist=Number.isFinite(ca)&&Number.isFinite(cb)&&Number.isFinite(la)&&Number.isFinite(lb)?distanceKm(ca,cb,la,lb).toFixed(2)+" km":"Position indisponible";
-        lignes.push('<div class="admin-course"><div class="course-head"><strong>🚕 Course en mouvement</strong><span class="badge ok">🟢 EN MOUVEMENT</span></div><div>🚗 Chauffeur : <b>'+(c.chauffeurNom||"Chauffeur")+'</b></div><div>👤 Client : <b>'+(c.clientNom||"Client")+'</b></div><div style="margin-top:6px;">📏 Chauffeur → client : <b>'+dist+'</b></div><div style="margin-top:6px;">💰 '+Number(c.prix||0).toLocaleString()+' FC • '+(c.typeTransport==="moto"?"🏍️ Moto":"🚗 Voiture")+'</div><div class="admin-actions"><button class="btn-focus" onclick="centrerCourseAdmin(\''+c.id+'\')">📍 Suivre la course</button><button class="btn-route" onclick="ouvrirItineraireAdmin(\''+c.id+'\')">🗺️ Itinéraire</button></div></div>');
+        return '<div class="admin-course">'+
+          '<div class="course-head"><strong>🚗 '+(c.chauffeurNom||"Chauffeur")+'</strong><span class="badge ok">🟢 EN MOUVEMENT</span></div>'+ 
+          '<div>👤 Client : <b>'+(c.clientNom||"Client")+'</b></div>'+ 
+          '<div style="margin-top:6px;">📍 '+(c.depart||"Départ")+' → '+(c.destination||"Destination")+'</div>'+ 
+          '<div style="margin-top:6px;">📏 Chauffeur → client : <b>'+dist+'</b></div>'+ 
+          '<div style="margin-top:6px;">💰 Course : <b>'+Number(c.prix||0).toLocaleString()+' FC</b></div>'+ 
+          '<div class="admin-actions"><button class="btn-focus" onclick="centrerCourseAdmin(\''+c.id+'\')">📍 Suivre sur carte</button><button class="btn-route" onclick="ouvrirItineraireAdmin(\''+c.id+'\')">🗺️ Itinéraire</button></div>'+ 
+          '</div>';
+    }).join("");
+}
+
+function chargerStatistiques(){initialiserMapAdmin();if(!db)return;if(adminListenersActifs){actualiserCarteAdmin();return;}adminListenersActifs=true;db.ref("courses").on("value",snap=>{adminCoursesCache={};let total=0,att=0,acc=0,done=0;snap.forEach(ch=>{const c=ch.val()||{};adminCoursesCache[ch.key]=c;total++;if(c.statut==="en_attente")att++;if(c.statut==="acceptee")acc++;if(c.statut==="terminee")done++;});document.getElementById("totalCourses").textContent=total;document.getElementById("coursesAttente").textContent=att;document.getElementById("coursesAcceptees").textContent=acc;document.getElementById("coursesTerminees").textContent=done;afficherListeCoursesAdmin();dessinerCarteAdmin();});db.ref("chauffeurs").on("value",snap=>{adminChauffeursCache={};let online=0;snap.forEach(ch=>{const c=ch.val()||{};adminChauffeursCache[ch.key]=c;if(c.compteActif!==false&&c.enLigne===true)online++;});const e=document.getElementById("chauffeursEnLigne");if(e)e.textContent=online;afficherListeCoursesAdmin();dessinerCarteAdmin();});}
+function afficherMessageAdminChauffeur(t,type){const b=document.getElementById("adminChauffeurMessage");if(b){b.className="admin-message "+(type||"");b.innerHTML=t;}}
+function enregistrerChauffeurAdmin(){
+    if(!db){afficherMessageAdminChauffeur("❌ Firebase n'est pas disponible.","error");return;}
+    const nom=document.getElementById("adminChauffeurNom").value.trim(),telephone=document.getElementById("adminChauffeurTelephone").value.trim(),identifiant=document.getElementById("adminChauffeurIdentifiant").value.trim(),motDePasse=document.getElementById("adminChauffeurPassword").value,typeVehicule=document.getElementById("adminChauffeurType").value,vehicule=document.getElementById("adminChauffeurVehicule").value.trim(),plaque=document.getElementById("adminChauffeurPlaque").value.trim(),couleur=document.getElementById("adminChauffeurCouleur").value.trim(),adresse=document.getElementById("adminChauffeurAdresse").value.trim();
+    if(!nom||!telephone||!identifiant||!motDePasse){afficherMessageAdminChauffeur("❌ Remplissez le nom, téléphone, identifiant et mot de passe.","error");return;}
+    const key=nettoyerCle(identifiant.toLowerCase().replace(/\s+/g,"_"));
+    db.ref("chauffeurs").once("value").then(function(snap){let existe=false;snap.forEach(function(ch){const c=ch.val()||{};if(String(c.identifiant||"").toLowerCase()===identifiant.toLowerCase())existe=true;});if(existe){afficherMessageAdminChauffeur("❌ Cet identifiant chauffeur existe déjà.","error");return null;}return db.ref("chauffeurs/"+key).set({nom,telephone,identifiant,motDePasse,typeVehicule,vehicule,plaque,couleur,adresse,compteActif:true,enLigne:false,dateEnregistrement:Date.now(),derniereConnexion:null});}).then(function(result){if(result===null)return;afficherMessageAdminChauffeur("✅ Chauffeur enregistré. Il peut maintenant se connecter avec son identifiant et son mot de passe.","success");["adminChauffeurNom","adminChauffeurTelephone","adminChauffeurIdentifiant","adminChauffeurPassword","adminChauffeurVehicule","adminChauffeurPlaque","adminChauffeurCouleur","adminChauffeurAdresse"].forEach(function(id){const el=document.getElementById(id);if(el)el.value="";});chargerChauffeursAdmin();}).catch(function(e){console.error(e);afficherMessageAdminChauffeur("❌ Erreur Firebase : "+e.message,"error");});
+}
+function chargerChauffeursAdmin(){
+    if(!db)return;
+    db.ref("chauffeurs").once("value").then(function(snap){
+        const box=document.getElementById("adminDriversList");
+        if(!box)return;
+        const arr=[];
+        snap.forEach(function(ch){arr.push({key:ch.key,...(ch.val()||{})});});
+        if(!arr.length){box.innerHTML='<div class="admin-empty">Aucun chauffeur enregistré.</div>';return;}
+        box.innerHTML=arr.map(function(c){
+            const statut=c.compteActif===false ? '<span class="driver-disabled">🔴 Compte désactivé</span>' : (c.enLigne===true ? '<span class="driver-enabled">🟢 EN LIGNE</span>' : '<span class="driver-enabled" style="background:#e5e7eb;color:#374151;">⚪ Hors ligne</span>');
+            const action=c.compteActif===false ? `<button class="btn-call" onclick="changerEtatChauffeurAdmin("${c.key}",true)">🟢 Activer</button>` : `<button class="btn-route" onclick="changerEtatChauffeurAdmin("${c.key}",false)">🔴 Désactiver</button>`;
+            return `<div class="admin-driver-card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;"><strong>🚗 ${c.nom||"Chauffeur"}</strong>${statut}</div><div style="margin-top:8px;">🆔 <b>${c.identifiant||"—"}</b> • 📞 ${c.telephone||"—"}</div><div style="margin-top:6px;">${c.typeVehicule==="moto"?"🏍️ Moto":"🚗 Voiture"}${c.vehicule?" • "+c.vehicule:""}${c.plaque?" • Plaque "+c.plaque:""}</div><div style="margin-top:6px;color:#666;">📍 ${c.adresse||"Adresse non renseignée"}</div><div class="admin-driver-actions">${action}<button class="btn-focus" onclick="voirChauffeurAdmin("${c.key}")">📍 Voir position</button></div></div>`;
+        }).join("");
     });
-    box.innerHTML=lignes.length?lignes.join(""): '<div class="admin-empty">🟢 Aucun client ou chauffeur avec position GPS en direct.</div>';
 }
 
-function centrerPointAdmin(lat,lng){
-    if(!mapAdmin)return;
-    mapAdmin.setView([Number(lat),Number(lng)],16);
-}
+function changerEtatChauffeurAdmin(key,actif){if(!db)return;db.ref("chauffeurs/"+key).update({compteActif:!!actif,enLigne:false}).then(function(){chargerChauffeursAdmin();actualiserCarteAdmin();}).catch(function(e){alert("❌ "+e.message);});}
+function voirChauffeurAdmin(key){const c=adminChauffeursCache[key];if(!c){alert("Position du chauffeur indisponible.");return;}const lat=Number(c.latitude),lng=Number(c.longitude);if(!Number.isFinite(lat)||!Number.isFinite(lng)){alert("Ce chauffeur n'a pas encore envoyé sa position GPS.");return;}if(!mapAdmin)initialiserMapAdmin();mapAdmin.setView([lat,lng],16);if(adminMarkers["d_"+key])adminMarkers["d_"+key].openPopup();}
 
-function chargerStatistiques(){initialiserMapAdmin();if(!db)return;if(adminListenersActifs){actualiserCarteAdmin();return;}adminListenersActifs=true;db.ref("courses").on("value",snap=>{adminCoursesCache={};let total=0,att=0,acc=0,done=0;snap.forEach(ch=>{const c=ch.val()||{};adminCoursesCache[ch.key]=c;total++;if(c.statut==="en_attente")att++;if(c.statut==="acceptee")acc++;if(c.statut==="terminee")done++;});document.getElementById("totalCourses").textContent=total;document.getElementById("coursesAttente").textContent=att;document.getElementById("coursesAcceptees").textContent=acc;document.getElementById("coursesTerminees").textContent=done;afficherListeCoursesAdmin();dessinerCarteAdmin();});db.ref("chauffeurs").on("value",snap=>{adminChauffeursCache={};let online=0;snap.forEach(ch=>{const c=ch.val()||{};adminChauffeursCache[ch.key]=c;if(c.enLigne===true)online++;});const e=document.getElementById("chauffeursEnLigne");if(e)e.textContent=online;afficherListeCoursesAdmin();dessinerCarteAdmin();});
-db.ref("clients").on("value",snap=>{adminClientsCache={};snap.forEach(ch=>{adminClientsCache[ch.key]=ch.val()||{};});afficherMouvementsTransportAdmin();dessinerCarteAdmin();});}
 function actualiserCarteAdmin(){if(!mapAdmin)initialiserMapAdmin();dessinerCarteAdmin();afficherListeCoursesAdmin();}
 
 /* =====================================================
